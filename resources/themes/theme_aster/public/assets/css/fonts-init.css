@@ -1,0 +1,111 @@
+@font-face {
+    font-family: mulish;
+    font-style: normal;
+    font-weight: 400;
+    src: local('Mulish'), url('./fonts/Mulish-Regular.woff') format('woff')
+}
+
+@font-face {
+    font-family: mulish;
+    font-style: italic;
+    font-weight: 400;
+    src: local('Mulish'), url(https://fonts.cdnfonts.com/s/46609/Mulish-Italic.woff) format('woff')
+}
+
+@font-face {
+    font-family: mulish;
+    font-style: normal;
+    font-weight: 200;
+    src: local('Mulish'), url(https://fonts.cdnfonts.com/s/46609/Mulish[wght].woff) format('woff')
+}
+
+@font-face {
+    font-family: mulish;
+    font-style: italic;
+    font-weight: 200;
+    src: local('Mulish'), url(https://fonts.cdnfonts.com/s/46609/Mulish-Italic[wght].woff) format('woff')
+}
+
+@font-face {
+    font-family: mulish;
+    font-style: normal;
+    font-weight: 275;
+    src: local('Mulish'), url(https://fonts.cdnfonts.com/s/46609/Mulish-ExtraLight.woff) format('woff')
+}
+
+@font-face {
+    font-family: mulish;
+    font-style: italic;
+    font-weight: 275;
+    src: local('Mulish'), url(https://fonts.cdnfonts.com/s/46609/Mulish-ExtraLightItalic.woff) format('woff')
+}
+
+@font-face {
+    font-family: mulish;
+    font-style: normal;
+    font-weight: 300;
+    src: local('Mulish'), url(https://fonts.cdnfonts.com/s/46609/Mulish-Light.woff) format('woff')
+}
+
+@font-face {
+    font-family: mulish;
+    font-style: italic;
+    font-weight: 300;
+    src: local('Mulish'), url(https://fonts.cdnfonts.com/s/46609/Mulish-LightItalic.woff) format('woff')
+}
+
+@font-face {
+    font-family: mulish;
+    font-style: normal;
+    font-weight: 600;
+    src: local('Mulish'), url(https://fonts.cdnfonts.com/s/46609/Mulish-SemiBold.woff) format('woff')
+}
+
+@font-face {
+    font-family: mulish;
+    font-style: italic;
+    font-weight: 600;
+    src: local('Mulish'), url(https://fonts.cdnfonts.com/s/46609/Mulish-SemiBoldItalic.woff) format('woff')
+}
+
+@font-face {
+    font-family: mulish;
+    font-style: normal;
+    font-weight: 700;
+    src: local('Mulish'), url(https://fonts.cdnfonts.com/s/46609/Mulish-Bold.woff) format('woff')
+}
+
+@font-face {
+    font-family: mulish;
+    font-style: italic;
+    font-weight: 700;
+    src: local('Mulish'), url(https://fonts.cdnfonts.com/s/46609/Mulish-BoldItalic.woff) format('woff')
+}
+
+@font-face {
+    font-family: mulish;
+    font-style: normal;
+    font-weight: 800;
+    src: local('Mulish'), url(https://fonts.cdnfonts.com/s/46609/Mulish-ExtraBold.woff) format('woff')
+}
+
+@font-face {
+    font-family: mulish;
+    font-style: italic;
+    font-weight: 800;
+    src: local('Mulish'), url(https://fonts.cdnfonts.com/s/46609/Mulish-ExtraBoldItalic.woff) format('woff')
+}
+
+@font-face {
+    font-family: mulish;
+    font-style: normal;
+    font-weight: 900;
+    src: local('Mulish'), url(https://fonts.cdnfonts.com/s/46609/Mulish-Black.woff) format('woff')
+}
+
+@font-face {
+    font-family: mulish;
+    font-style: italic;
+    font-weight: 900;
+    src: local('Mulish'), url(https://fonts.cdnfonts.com/s/46609/Mulish-BlackItalic.woff) format('woff')
+}

@@ -1,0 +1,156 @@
+.center-div {
+    margin: auto;
+    width: 100%;
+    height: 100%;
+    /*border: 3px solid green;*/
+    /*padding: 10px;*/
+}
+
+.element-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 375px) {
+    .cz-countdown .cz-countdown-seconds {
+        margin-top: 0px !important;
+    }
+}
+
+.btn-gap-right {
+    margin-right: 2px;
+}
+
+.btn-gap-left {
+    margin-left: 2px;
+}
+
+.shop-name-left {
+    padding-left: 10px;
+}
+
+.shop-name-right {
+    padding-right: 10px;
+}
+
+.feature_header span {
+    color: black;
+}
+a {
+    color: black;
+    text-decoration: none;
+    background-color: transparent;
+}
+
+.page-footer {
+    background: #373a41;
+    color: white;
+}
+
+.social-btn {
+    border-radius: 50%;
+    height: 2rem;
+    width: 2rem;
+}
+
+.social-btn i {
+    line-height: 1.9rem;
+}
+
+.for-margin {
+    margin-top: 10px;
+}
+
+.font-weight-bold {
+    font-weight: 600 !important;
+}
+
+.footer-header {
+    color: #ffffff;
+}
+
+.widget-list-link {
+    color: #d9dce2;
+}
+
+.page-footer hr {
+    border: 0.001px solid #2d3542;
+}
+
+.btn-secondary {
+    color: white !important;
+}
+
+.btn-outline-primary:hover {
+    color: white !important;
+}
+
+@media (max-width: 452px) {
+    .top-margin {
+        margin-top: 5px;
+    }
+}
+
+.string-limit {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+@media (max-width: 575px) {
+    .mobile-fs-20 {
+        font-size: 16px !important;
+        font-weight: 700 !important;
+    }
+}
+
+body {
+    overflow-x: hidden !important;
+}
+
+.offline_payment_button {
+    border-radius: 10px;
+    border: 1px solid #E4F4FF;
+}
+
+.bg-primary-light {
+    background-color: #F3FAFD !important;
+}
+
+.__text-60px {
+    font-size: 60px !important;
+}
+
+@media (max-width: 575px) {
+    .chat_with_seller-buttons {
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+    .chat_with_seller-buttons .btn {
+        padding: 5px;
+        width: 35px;
+        min-width: 35px;
+        height: 35px;
+        display: grid;
+        place-items: center;
+    }
+    .fs-18-mobile {
+        font-size: 18px !important;
+    }
+    .support_ticket_head-media img {
+        width: 40px;
+    }
+    .support_ticket_head-media h6 {
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .support_ticket_head-media .meta-info {
+        font-size: 12px;
+        column-gap: .5rem;
+    }
+    .time_date {
+        color: #D9D9D9;
+    }
+}

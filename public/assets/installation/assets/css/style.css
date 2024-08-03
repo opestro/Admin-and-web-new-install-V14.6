@@ -1,0 +1,167 @@
+/*
+	*******************
+	Template name:  Installation Process
+	Version:        1.0
+	Author:         6amtech
+	Author url:     https://6amtech.com/
+
+	NOTE:
+	-----
+	Please DO NOT EDIT THIS CSS, you may need to use "custom.css" file for writing your custom css.
+	We may release future updates so it will overwrite this file. it's better and safer to use "custom.css".
+*/
+
+body {
+  font-family: "Inter", sans-serif;
+  font-size: 0.8125rem;
+}
+
+.custom-container {
+  max-inline-size: 930px;
+  inline-size: 100%;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+.btn {
+  --bs-btn-font-size: 0.875rem;
+  --bs-btn-padding-x: 1.5rem;
+  --bs-btn-padding-y: 0.5rem;
+}
+
+.progress {
+  --bs-progress-height: 0.1875rem;
+  --bs-progress-bg: rgba(183, 183, 183, 0.2);
+  --bs-progress-border-radius: 50rem;
+  --bs-progress-bar-bg: #e8eaed;
+}
+
+.form-control {
+  block-size: 45px;
+  font-size: 0.812rem;
+}
+
+.form-control:focus {
+  box-shadow: none;
+}
+
+.footer {
+  border-block-start: 0.031rem solid rgba(233, 237, 245, 0.3);
+  color: #868fa0;
+}
+
+.bg-img {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.top-end {
+  inset-inline-end: 1rem;
+  inset-block-start: 1rem;
+}
+
+.logo {
+  position: absolute;
+  inset-inline-end: 1.5rem;
+  inset-block-start: 1.5rem;
+}
+
+@media (max-width: 757px) {
+  .logo {
+    position: static;
+    display: flex;
+    justify-content: center;
+    margin-block-end: 1rem;
+  }
+}
+
+.fs {
+  --fs: 16px;
+  font-size: var(--fs) !important;
+}
+
+.letter-spacing {
+  letter-spacing: 0.02em;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.top-info-text {
+  font-size: 18px;
+}
+
+@media (max-width: 575px) {
+  .top-info-text {
+    font-size: 16px;
+  }
+}
+
+.input-inner-end-ele input {
+  padding-inline-end: 40px;
+}
+
+.input-inner-end-ele svg {
+  position: absolute;
+  inset-inline-end: 1rem;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  line-height: 1;
+  font-size: 1rem;
+}
+
+.input-inner-end-ele .eye {
+  display: none;
+}
+
+.card {
+  min-block-size: 400px;
+}
+
+.number-input-wrap {
+  position: relative;
+}
+
+.number-input-wrap .form-select {
+  position: absolute;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  inset-inline-start: 1px;
+  inline-size: 4.5rem;
+  border-block: none;
+  border-inline-start: none;
+  border-radius: 0;
+  padding-block: 0;
+  font-size: 0.812rem;
+  background-size: 14px 10px;
+  padding-inline-end: 1.5rem;
+  background-color: transparent;
+}
+
+.number-input-wrap .form-select:focus {
+  box-shadow: none;
+}
+
+/* .number-input-wrap .form-control {
+  padding-inline-start: 5.4rem;
+} */
+
+.togglePassword {
+  user-select: none;
+}
+
+.custom-progress-tooltip {
+  border: 1px solid #fff;
+  border-radius: 50rem;
+}
+
+.custom-progress-tooltip .tooltip-inner {
+  border-radius: 50rem;
+}
+
+.custom-progress-tooltip .tooltip-arrow::before {
+  border-top-color: #fff !important;
+}

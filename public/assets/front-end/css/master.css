@@ -1,0 +1,35 @@
+body {
+    font-family: sans-serif;
+}
+
+.tsb {
+    font-weight: 600;
+}
+
+.tb {
+    font-weight: 700;
+}
+
+.twr {
+    font-weight: 400;
+}
+
+.rr {
+    font-family:  sans-serif;
+    font-weight: 400;
+}
+
+.rb {
+    font-family:  sans-serif;
+    font-weight: 700;
+}
+
+.navbar-brand img {
+
+}
+
+.aspect-1 {
+    aspect-ratio: 1;
+}
+
+

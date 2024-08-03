@@ -1,0 +1,133 @@
+{
+    "name": "laravel/laravel",
+    "type": "project",
+    "description": "The skeleton application for the Laravel framework.",
+    "keywords": [
+        "laravel",
+        "framework"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "^8.1",
+        "ext-curl": "*",
+        "ext-intl": "*",
+        "ext-json": "*",
+        "ext-mysqli": "*",
+        "ext-openssl": "*",
+        "ext-zip": "*",
+        "aws/aws-sdk-php": "^3.209",
+        "barryvdh/laravel-dompdf": "^2.0",
+        "brian2694/laravel-toastr": "^5.56",
+        "doctrine/dbal": "^3.2",
+        "gregwar/captcha": "^1.1",
+        "guzzlehttp/guzzle": "^7.2",
+        "intervention/image": "^2.7",
+        "laravel/framework": "^10.10",
+        "laravel/passport": "^11.0",
+        "laravel/sanctum": "^3.3",
+        "laravel/socialite": "^5.2",
+        "laravel/tinker": "^2.8",
+        "laravelpkg/laravelchk": "dev-master",
+        "lcobucci/jwt": "^4.1",
+        "league/flysystem-aws-s3-v3": "*",
+        "maatwebsite/excel": "*",
+        "madnest/madzipper": "*",
+        "mercadopago/dx-php": "^2.4",
+        "milon/barcode": "^10.0",
+        "mpdf/mpdf": "^8.2",
+        "nwidart/laravel-modules": "^10.0",
+        "paypal/rest-api-sdk-php": "^1.6",
+        "phpoffice/phpspreadsheet": "^1.29",
+        "rap2hpoutre/fast-excel": "^5.3",
+        "razorpay/razorpay": "^2.9",
+        "rennokki/laravel-eloquent-query-cache": "^3.4",
+        "seshac/laravel-shiprocket-api": "^2.0",
+        "spatie/image-optimizer": "^1.7",
+        "spatie/laravel-sitemap": "^7.1",
+        "stripe/stripe-php": "^13.9",
+        "symfony/translation": "^6.4",
+        "twilio/sdk": "^7.14",
+        "unicodeveloper/laravel-paystack": "^1.1",
+        "xendit/xendit-php": "^4.1"
+    },
+    "require-dev": {
+        "amirami/localizator": "^0.12@alpha",
+        "barryvdh/laravel-debugbar": "^3.9",
+        "fakerphp/faker": "^1.9.1",
+        "laravel/pint": "^1.0",
+        "laravel/sail": "^1.18",
+        "mockery/mockery": "^1.4.4",
+        "nunomaduro/collision": "^7.0",
+        "phpunit/phpunit": "^10.1",
+        "spatie/laravel-ignition": "^2.0"
+    },
+    "autoload": {
+        "files": [
+            "app/Utils/helpers.php",
+            "app/Utils/theme-helpers.php",
+            "app/Utils/image-manager.php",
+            "app/Utils/category-manager.php",
+            "app/Utils/brand-manager.php",
+            "app/Utils/product-manager.php",
+            "app/Utils/cart-manager.php",
+            "app/Utils/order-manager.php",
+            "app/Utils/customer-manager.php",
+            "app/Utils/back-end-helper.php",
+            "app/Utils/convert.php",
+            "app/Utils/sms_module.php",
+            "app/Utils/filemanager.php",
+            "app/Library/Constant.php",
+            "app/Utils/module-helper.php",
+            "app/Library/Responses.php",
+            "app/Utils/language.php",
+            "app/Utils/settings.php",
+            "app/Utils/constant.php",
+            "app/Utils/currency.php",
+            "app/Utils/file_path.php",
+            "app/Utils/order.php",
+            "app/Utils/product.php"
+        ],
+        "psr-4": {
+            "App\\": "app/",
+            "Modules\\": "Modules/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
+        "post-update-cmd": [
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

@@ -1,0 +1,43 @@
+.cz-sidebar-body h3:hover + .divider-role {
+    border-bottom: 3px solid var(--web-primary) !important;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    background-color: var(--web-primary);
+}
+
+.iconHad {
+    color: var(--web-primary);
+}
+
+.modal-backdrop {
+    z-index: 0 !important;
+    display: none;
+}
+
+.donate-now input[type="radio"]:checked + label,
+.Checked + label {
+    background: var(--web-primary);
+}
+
+.filter-option {
+    display: block;
+    width: 100%;
+    height: calc(1.5em + 1.25rem + 2px);
+    padding: 0.625rem 1rem;
+    font-size: .9375rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #4b566b;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #dae1e7;
+    border-radius: 0.3125rem;
+    box-shadow: 0 0 0 0 transparent;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.btn-light + .dropdown-menu {
+    transform: none !important;
+    top: 41px !important;
+}

@@ -1,0 +1,35 @@
+.width-0 {
+    width: 0
+}
+
+.width-20 {
+    width: 20%
+}
+
+.width-40 {
+    width: 40%
+}
+
+.width-60 {
+    width: 60%
+}
+
+.width-80 {
+    width: 80%
+}
+
+.width-90 {
+    width: 90%
+}
+
+.--fs-14px {
+    --fs: 14px
+}
+
+.margin-top-20px {
+    margin-top: 20px
+}
+
+.d--none {
+    display: none;
+}

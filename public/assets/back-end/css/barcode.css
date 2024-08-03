@@ -1,0 +1,111 @@
+p.serif {
+    font-family: "IDAHC39M Code 39 Barcode", Times, serif;
+}
+
+p.sansserif {
+    font-family: Arial, Helvetica, sans-serif;
+}
+.style-one {
+    width: 200px;
+    border-style: dotted;
+    border-width: thin;
+    margin: 10px;
+    padding: 10px;
+}
+
+* {
+    -webkit-print-color-adjust: exact !important; /* Chrome, Safari, Edge */
+    color-adjust: exact !important; /*Firefox*/
+}
+
+.barcode-a4 {
+    width: 8.25in;
+    /* height: 13in; */
+    /* display: block; */
+    border: 1px solid #ccc;
+    margin: 10px auto;
+    padding: 0.1in 0 0 0.1in;
+    page-break-after: always;
+    display: flex;
+    flex-wrap: wrap;
+    height: unset !important;
+    row-gap: 6px;
+}
+
+.barcode-a4 .style24 {
+    width: 2.48in;
+    height: 1.535in;
+    margin-left: 0.079in;
+    padding-top: 0.05in;
+}
+
+.barcode_image > div {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.barcode-a4 .item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 14px;
+    overflow: hidden;
+    text-align: center;
+    border: 1px dotted #ccc;
+    font-size: 12px;
+    line-height: 14px;
+    text-transform: uppercase;
+    float: left;
+    margin-right: 5px;
+    margin-bottom: 8px;
+}
+
+.barcode_site {
+    font-size: 14px;
+    display: block;
+    font-weight: bold;
+}
+
+.barcode_name {
+    display: block;
+}
+
+.barcode_price {
+    display: block;
+}
+
+.barcode_code {
+    display: block;
+    font-weight: bold;
+}
+
+@page {
+    size: A4 !important;
+    margin: 0 !important;
+}
+
+@media screen and (max-width: 800px) {
+    .show-div {
+        visibility: hidden;
+        display: none;
+    }
+
+    .show-div2 {
+        visibility: visible;
+        display: block;
+    }
+}
+
+@media screen and (min-width: 800px) {
+    .show-div {
+        display: block;
+    }
+
+    .show-div2 {
+        display: none;
+    }
+}
+.style-one-br {
+    font-size: 35px;
+    color: darkred;
+}
