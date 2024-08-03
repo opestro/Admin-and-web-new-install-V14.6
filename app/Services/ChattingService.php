@@ -17,7 +17,19 @@ class ChattingService
         $attachment = [];
         if ($request->file('image')) {
             foreach ($request['image'] as $key=>$value) {
-                $attachment[] = $this->upload('chatting/', 'webp', $value);
+                $attachment[] = [
+                    'file_name' => $this->upload('chatting/', 'webp', $value),
+                    'storage' => getWebConfig(name: 'storage_connection_type') ?? 'public',
+                ];
+            }
+        }
+        if($request->file('file')) {
+            foreach ($request['file'] as $key=>$value) {
+                $attachment[] = [
+                    'file_name' => $this->fileUpload(dir: 'chatting/', format: $value->getClientOriginalExtension(), file: $value),
+                    'storage' => getWebConfig(name: 'storage_connection_type') ?? 'public',
+                ];
+
             }
         }
         return $attachment;
@@ -86,6 +98,26 @@ class ChattingService
             'seen_by_customer' => 0,
             'seen_by_delivery_man' => $type == 'delivery-man' ? 0 : null,
             'notification_receiver' => $type == 'delivery-man' ? 'deliveryman' : 'customer',
+            'created_at' => now(),
+        ];
+    }
+
+    public function addChattingDataForWeb(object $request ,string|int $userId,string $type ,string|int $shopId=null, string|int $vendorId=null,int $adminId=null, int $deliveryManId=null):array
+    {
+        return [
+            'user_id' => $userId,
+            'seller_id' => $vendorId,
+            'shop_id' => $shopId ,
+            'admin_id' => $adminId ,
+            'delivery_man_id' => $deliveryManId ,
+            'message' => $request->message,
+            'attachment' =>json_encode($this->getAttachment($request)),
+            'sent_by_customer' => 1,
+            'seen_by_customer' => 1,
+            'seen_by_seller' => 0,
+            'seen_by_admin' => $type == 'admin' ? 0 : null,
+            'seen_by_delivery_man' => $type == 'deliveryman' ? 0 : null,
+            'notification_receiver' => $type,
             'created_at' => now(),
         ];
     }

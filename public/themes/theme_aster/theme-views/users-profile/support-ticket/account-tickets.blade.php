@@ -21,7 +21,7 @@
                                         <div class="media gap-2 gap-sm-3">
                                             <div class="avatar">
                                                 <img loading="lazy" class="img-fit dark-support" alt=""
-                                                    src="{{ getValidImage(path: 'storage/app/public/profile/'.(customer_info()->image), type:'avatar' ) }}">
+                                                    src="{{ getStorageImages(path: customer_info()->image_full_url, type:'avatar' ) }}">
                                             </div>
                                             <div class="media-body">
                                                 <div class="d-flex flex-column gap-1">

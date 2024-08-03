@@ -12,7 +12,7 @@
                     @php($shop=$item->seller->shop)
                     <a href="{{route('admin.vendors.view',$item['seller_id'])}}" class="grid-item basic-box-shadow">
                         <div class="d-flex align-items-center gap-10">
-                            <img src="{{getValidImage(path: 'storage/app/public/shop/'.$shop->image ?? '',type:'backend-basic')}}" class="avatar rounded-circle avatar-sm" alt="">
+                            <img src="{{getStorageImages(path: $shop->image_full_url,type:'backend-basic')}}" class="avatar rounded-circle avatar-sm" alt="">
 
                             <h5 class="shop-name">{{$shop['name']??'Not exist'}}</h5>
                         </div>

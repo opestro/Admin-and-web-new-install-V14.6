@@ -7,7 +7,7 @@
         <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
             <h2 class="h1 mb-0 text-capitalize d-flex align-items-center gap-2">
                 <img src="{{dynamicAsset(path: 'public/assets/back-end/img/business-setup.png')}}" alt="">
-                {{translate('business_setup')}}
+                {{ translate('business_setup')}}
             </h2>
             <div class="btn-group">
                 <div class="ripple-animation" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -20,7 +20,7 @@
                 <div class="dropdown-menu dropdown-menu-right bg-aliceblue border border-color-primary-light p-4 dropdown-w-lg">
                     <div class="d-flex align-items-center gap-2 mb-3">
                         <img width="20" src="{{dynamicAsset(path: 'public/assets/back-end/img/note.png')}}" alt="">
-                        <h5 class="text-primary mb-0">{{translate('note')}}</h5>
+                        <h5 class="text-primary mb-0">{{ translate('note')}}</h5>
                     </div>
                     <p class="title-color font-weight-medium mb-0">{{ translate('please_click_the_Save_button_below_to_save_all_the_changes') }}</p>
                 </div>
@@ -28,13 +28,13 @@
         </div>
         @include('admin-views.business-settings.business-setup-inline-menu')
 
-        <form action="{{route('admin.business-settings.vendor-settings.update-vendor-settings')}}" method="post">
+        <form action="{{ route('admin.business-settings.vendor-settings.update-vendor-settings') }}" method="post">
             @csrf
             <div class="card">
                 <div class="border-bottom px-4 py-3">
                     <h5 class="mb-0 text-capitalize d-flex align-items-center gap-2">
                         <img width="22" src="{{dynamicAsset(path: 'public/assets/back-end/img/product_setup.png')}}" alt="">
-                        {{translate('vendor_setup')}}
+                        {{ translate('vendor_setup')}}
                     </h5>
                 </div>
                 <div class="card-body">
@@ -42,10 +42,10 @@
                         <div class="col-xl-4 col-md-6">
                             <div class="form-group">
                                 <label class="title-color d-flex align-items-center gap-2">
-                                    {{translate('default_commission')}}
+                                    {{ translate('default_commission')}}
                                     <span class="input-label-secondary cursor-pointer" data-toggle="tooltip"
                                           data-placement="right"
-                                          title="{{translate('set_the_default_commission_amount_that_will_be_received_from_vendors_on_each_order')}}">
+                                          title="{{ translate('set_the_default_commission_amount_that_will_be_received_from_vendors_on_each_order')}}">
                                         <img width="16" src="{{dynamicAsset(path: 'public/assets/back-end/img/info-circle.svg')}}"
                                              alt="">
                                     </span>
@@ -53,16 +53,16 @@
                                 @php($commission=getWebConfig('sales_commission'))
                                 <input type="number" class="form-control" name="commission"
                                        value="{{$commission ?? 0}}"
-                                       placeholder="{{translate('ex').':'.'70'}}" min="0" max="100">
+                                       placeholder="{{ translate('ex').':'.'70'}}" min="0" max="100">
                             </div>
                         </div>
                         <div class="col-xl-4 col-md-6">
                             <div class="d-flex justify-content-between align-items-center gap-10 form-control form-group">
                                 <span class="title-color">
-                                    {{translate('enable_POS_in_Vendor_Panel')}}
+                                    {{ translate('enable_POS_in_Vendor_Panel')}}
                                     <span class="input-label-secondary cursor-pointer" data-toggle="tooltip"
                                           data-placement="right"
-                                          title="{{translate('if_enabled_POS_will_be_available_on_the_Vendor_Panel')}}">
+                                          title="{{ translate('if_enabled_POS_will_be_available_on_the_Vendor_Panel')}}">
                                         <img width="16" src="{{dynamicAsset(path: 'public/assets/back-end/img/info-circle.svg')}}"
                                              alt="">
                                     </span>
@@ -77,10 +77,10 @@
                                            data-toggle-id = "vendor-pos"
                                            data-on-image = "pos-seller-on.png"
                                            data-off-image = "pos-seller-off.png"
-                                           data-on-title = "{{translate('want_to_Turn_ON_POS_for_Vendor')}}"
-                                           data-off-title = "{{translate('want_to_Turn_OFF_POS_for_Vendor')}}"
-                                           data-on-message = "<p>{{translate('if_enabled_POS_option_will_be_available_in_the_Vendor_Panel')}}</p>"
-                                           data-off-message = "<p>{{translate('if_disabled_POS_option_will_be_hidden_from_the_Vendor_Panel')}}</p>">
+                                           data-on-title = "{{ translate('want_to_Turn_ON_POS_for_Vendor')}}"
+                                           data-off-title = "{{ translate('want_to_Turn_OFF_POS_for_Vendor')}}"
+                                           data-on-message = "<p>{{ translate('if_enabled_POS_option_will_be_available_in_the_Vendor_Panel')}}</p>"
+                                           data-off-message = "<p>{{ translate('if_disabled_POS_option_will_be_hidden_from_the_Vendor_Panel')}}</p>">
                                     <span class="switcher_control"></span>
                                 </label>
                             </div>
@@ -88,10 +88,10 @@
                         <div class="col-xl-4 col-md-6">
                             <div class="d-flex justify-content-between align-items-center gap-10 form-control form-group">
                                 <span class="title-color">
-                                    {{translate('vendor_registration')}}
+                                    {{ translate('vendor_registration')}}
                                     <span class="input-label-secondary cursor-pointer" data-toggle="tooltip"
                                           data-placement="right"
-                                          title="{{translate('if_enabled_vendors_can_send_registration_requests_to_admin')}}">
+                                          title="{{ translate('if_enabled_vendors_can_send_registration_requests_to_admin')}}">
                                         <img width="16" src="{{dynamicAsset(path: 'public/assets/back-end/img/info-circle.svg')}}"
                                              alt="">
                                     </span>
@@ -106,10 +106,10 @@
                                            data-toggle-id = "vendor-registration"
                                            data-on-image = "self-registrations-on.png"
                                            data-off-image = "self-registrations-off.png"
-                                           data-on-title = "{{translate('want_to_Turn_ON_Self_Registration').'?'}}"
-                                           data-off-title = "{{translate('want_to_Turn_OFF_Self_Registration').'?'}}"
-                                           data-on-message = "<p>{{translate('if_enabled_Vendors_can_register_by_themselves_from_website_or_app').'.'.translate('admin_can_review_the_registration_request_and_approve_or_deny_the_request')}}</p>"
-                                           data-off-message = "<p>{{translate('if_disabled_Vendors_can_not_register_themselves_from_website_or_App').'.'.translate('only_Admin_can_create_an_account_for_any_Vendor')}}</p>">
+                                           data-on-title = "{{ translate('want_to_Turn_ON_Self_Registration').'?'}}"
+                                           data-off-title = "{{ translate('want_to_Turn_OFF_Self_Registration').'?'}}"
+                                           data-on-message = "<p>{{ translate('if_enabled_Vendors_can_register_by_themselves_from_website_or_app').'.'.translate('admin_can_review_the_registration_request_and_approve_or_deny_the_request')}}</p>"
+                                           data-off-message = "<p>{{ translate('if_disabled_Vendors_can_not_register_themselves_from_website_or_App').'.'.translate('only_Admin_can_create_an_account_for_any_Vendor')}}</p>">
                                     <span class="switcher_control"></span>
                                 </label>
                             </div>
@@ -117,10 +117,10 @@
                         <div class="col-xl-4 col-md-6">
                             <div class="d-flex justify-content-between align-items-center gap-10 form-control form-group">
                                 <span class="title-color">
-                                    {{translate('set_minimum_order_amount')}}
+                                    {{ translate('set_minimum_order_amount')}}
                                     <span class="input-label-secondary cursor-pointer" data-toggle="tooltip"
                                           data-placement="right"
-                                          title="{{translate('if_enabled_Vendors_can_set_minimum_order_amount_for_their_stores_by_themselves')}}">
+                                          title="{{ translate('if_enabled_Vendors_can_set_minimum_order_amount_for_their_stores_by_themselves')}}">
                                         <img width="16" src="{{dynamicAsset(path: 'public/assets/back-end/img/info-circle.svg')}}"
                                              alt="">
                                     </span>
@@ -136,10 +136,41 @@
                                            data-toggle-id="minimum-order-amount-by-vendor"
                                            data-on-image="minimum-order-amount-feature-on.png"
                                            data-off-image="minimum-order-amount-feature-off.png"
-                                           data-on-title="{{translate('want_to_Turn_ON_the_Set_Minimum_Order_Amount_option').'?'}}"
-                                           data-off-title="{{translate('want_to_Turn_OFF_the_Set_Minimum_Order_Amount_option').'?'}}"
-                                           data-on-message="<p>{{translate('if_enabled_Vendors_can_set_minimum_order_amount_for_their_stores_by_themselves').'.'}}</p>"
-                                           data-off-message="<p>{{translate('if_disabled_Vendors_cannot_set_the_minimum_order_amount_for_their_store_and_the_admin_will_set_it').'.'}}</p>">
+                                           data-on-title="{{ translate('want_to_Turn_ON_the_Set_Minimum_Order_Amount_option').'?'}}"
+                                           data-off-title="{{ translate('want_to_Turn_OFF_the_Set_Minimum_Order_Amount_option').'?'}}"
+                                           data-on-message="<p>{{ translate('if_enabled_Vendors_can_set_minimum_order_amount_for_their_stores_by_themselves').'.'}}</p>"
+                                           data-off-message="<p>{{ translate('if_disabled_Vendors_cannot_set_the_minimum_order_amount_for_their_store_and_the_admin_will_set_it').'.'}}</p>">
+                                    <span class="switcher_control"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-4 col-md-6">
+                            <div class="d-flex justify-content-between align-items-center gap-10 form-control form-group">
+                                <span class="title-color">
+                                    {{ translate('Vendor_Can_Reply_on_Review') }}
+                                    <span class="input-label-secondary cursor-pointer" data-toggle="tooltip"
+                                          data-placement="right"
+                                          title="{{ translate('if_enabled_Vendors_can_reply_on_customer_review') }}">
+                                        <img width="16" src="{{ dynamicAsset(path: 'public/assets/back-end/img/info-circle.svg') }}"
+                                             alt="">
+                                    </span>
+                                </span>
+
+                                @php($vendorReviewReplyStatus = getWebConfig('vendor_review_reply_status') ?? 0)
+
+                                <label class="switcher" for="vendor-review-reply-status">
+                                    <input type="checkbox" value="1" class="switcher_input toggle-switch-message"
+                                           name="vendor_review_reply_status" id="vendor-review-reply-status"
+                                           {{ $vendorReviewReplyStatus == 1 ? 'checked' : '' }}
+                                           data-modal-id="toggle-modal"
+                                           data-toggle-id="vendor-review-reply-status"
+                                           data-on-image="vendor-review-reply-on.png"
+                                           data-off-image="vendor-review-reply-off.png"
+                                           data-on-title="{{ translate('By_Turning_On_Vendor_Review_Reply_Option').'?' }}"
+                                           data-off-title="{{ translate('By_Turning_Off_Vendor_Review_Reply_Option').'?' }}"
+                                           data-on-message="<p>{{ translate('If_you_turn_on_this_seller_will_be_able_to_reply_of_review').'.' }}</p>"
+                                           data-off-message="<p>{{ translate('If_you_turn_off_this_seller_will_not_be_able_to_reply_of_review').'.' }}</p>">
                                     <span class="switcher_control"></span>
                                 </label>
                             </div>
@@ -152,9 +183,9 @@
                 <div class="border-bottom px-4 py-3">
                     <h5 class="mb-0 text-capitalize d-flex align-items-center gap-2">
                         <img width="20" src="{{dynamicAsset(path: 'public/assets/back-end/img/box.png')}}" alt="">
-                        {{translate('need_product_approval')}}
+                        {{ translate('need_product_approval')}}
                         <span class="input-label-secondary cursor-pointer" data-toggle="tooltip" data-placement="right"
-                              title="{{translate('set_whether_Vendors_need_admin_approval_before_adding_new_products_to_their_shops')}}">
+                              title="{{ translate('set_whether_Vendors_need_admin_approval_before_adding_new_products_to_their_shops')}}">
                             <img width="16" src="{{dynamicAsset(path: 'public/assets/back-end/img/info-circle.svg')}}" alt="">
                         </span>
                     </h5>
@@ -167,7 +198,7 @@
                             <input name="new_product_approval" type="checkbox" value="1"
                                    id="new_product_approval" {{$newProductApproval==1?'checked':''}}>
                             <label class="title-color mb-0" for="new_product_approval">
-                                {{translate('new_product')}}
+                                {{ translate('new_product')}}
                             </label>
                         </div>
                         <div class="d-flex align-items-center gap-2">
@@ -175,8 +206,8 @@
                                    id="product_wise_shipping_cost_approval" {{$productWiseShippingCostApproval==1?'checked':''}}>
                             <label class="title-color mb-0 {{ Session::get('direction') === 'rtl' ? 'text-right' : 'text-left' }}"
                                    for="product_wise_shipping_cost_approval">
-                                {{translate('product_wise_shipping_cost')}}
-                                <span class="text-info">( {{translate('this_feature_will_activate_whenever_a_Vendor_add_a_product_or_modifies_the_shipping_cost_of_any_product')}} )</span>
+                                {{ translate('product_wise_shipping_cost')}}
+                                <span class="text-info">( {{ translate('this_feature_will_activate_whenever_a_Vendor_add_a_product_or_modifies_the_shipping_cost_of_any_product')}} )</span>
                             </label>
                         </div>
                     </div>
@@ -184,7 +215,7 @@
             </div>
 
             <div class="d-flex justify-content-end mt-3">
-                <button type="submit" class="btn btn--primary px-4">{{translate('save')}}</button>
+                <button type="submit" class="btn btn--primary px-4">{{ translate('save')}}</button>
             </div>
         </form>
     </div>

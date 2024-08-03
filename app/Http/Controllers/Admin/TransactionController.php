@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Utils\Helpers;
 use App\Http\Controllers\Controller;
 use App\Models\OrderTransaction;
-use App\User;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Rap2hpoutre\FastExcel\FastExcel;
 

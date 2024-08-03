@@ -128,7 +128,7 @@
                         {{translate('total_Vendor')}}
                         <span class="badge badge-soft-dark radius-50 fz-12">{{ count($table_earning['seller_earn_table']) }}</span>
                     </h4>
-                    <div>
+                    <div class="dropdown">
                         <button type="button" class="btn btn-outline--primary text-nowrap btn-block"
                                 data-toggle="dropdown">
                             <i class="tio-download-to"></i>

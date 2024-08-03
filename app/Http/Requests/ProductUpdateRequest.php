@@ -13,19 +13,21 @@ use Illuminate\Validation\Validator;
 class ProductUpdateRequest extends FormRequest
 {
     use CalculatorTrait, ResponseHandler;
+
     protected $stopOnFirstFailure = true;
 
     public function __construct(
         private readonly ProductRepositoryInterface $productRepo
     )
-    {}
+    {
+    }
 
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -44,7 +46,7 @@ class ProductUpdateRequest extends FormRequest
             'category_id' => 'required',
             'product_type' => 'required',
             'digital_product_type' => 'required_if:product_type,==,digital',
-            'digital_file_ready' => 'mimes:jpg,jpeg,png,gif,zip,pdf',
+            // 'digital_file_ready' => 'mimes:jpg,jpeg,png,gif,zip,pdf',
             'unit' => 'required_if:product_type,==,physical',
             'tax' => 'required|min:0',
             'tax_model' => 'required',
@@ -72,7 +74,7 @@ class ProductUpdateRequest extends FormRequest
             'code.min' => translate('code_with_a_minimum_length_requirement_of_6_characters'),
             'minimum_order_qty.required' => 'Minimum order quantity is required!',
             'minimum_order_qty.min' => 'Minimum order quantity must be positive!',
-            'digital_file_ready.mimes' => 'Ready product upload must be a file of type: pdf, zip, jpg, jpeg, png, gif.',
+            // 'digital_file_ready.mimes' => 'Ready product upload must be a file of type: pdf, zip, jpg, jpeg, png, gif.',
             'digital_product_type.required_if' => 'Digital product type is required!',
             'shipping_cost.required_if' => 'Shipping Cost is required!',
         ];
@@ -82,7 +84,7 @@ class ProductUpdateRequest extends FormRequest
     {
         return [
             function (Validator $validator) {
-                $product = $this->productRepo->getFirstWhere(['id' => $this->route('id')]);
+                $product = $this->productRepo->getFirstWhere(params: ['id' => $this->route('id')], relations: ['digitalVariation']);
                 $productImages = json_decode($product['images']);
 
                 if (!$this->has('colors_active') && !$this->file('images') && empty($productImages)) {
@@ -113,7 +115,7 @@ class ProductUpdateRequest extends FormRequest
                     $databaseColorImages = $product['color_image'] ? json_decode($product['color_image'], true) : [];
                     if (!$databaseColorImages) {
                         foreach ($productImages as $image) {
-                            $databaseColorImages[] = ['color' => null,'image_name' => $image];
+                            $databaseColorImages[] = ['color' => null, 'image_name' => $image];
                         }
                     }
                     $databaseColorImagesFinal = [];
@@ -157,6 +159,84 @@ class ProductUpdateRequest extends FormRequest
                     }
                 }
 
+                if ($this['product_type'] == 'physical' && ($this->has('colors') || ($this->has('choice_attributes') && count($this['choice_attributes']) > 0))) {
+                    foreach ($this->all() as $requestKey => $requestValue) {
+                        if (str_contains($requestKey, 'sku_')) {
+                            if (empty($this[$requestKey])) {
+                                $validator->errors()->add(
+                                    'sku_error', translate('Variation_SKU_are_required') . '!'
+                                );
+                            }
+                        }
+                    }
+                }
+
+                if ($this['product_type'] == 'digital') {
+                    $allDigitalVariation = $product->digitalVariation->pluck('variant_key')->toArray();
+
+                    $digitalProductVariationCount = 0;
+                    $fileTypeOptions = [];
+                    $digitalVariationCombinations = [];
+                    if ($this['extensions_type'] && count($this['extensions_type']) > 0) {
+                        foreach ($this['extensions_type'] as $type) {
+                            $name = 'extensions_options_' . $type;
+                            $my_str = implode('|', $this[$name]);
+                            $fileTypeOptions[$type] = explode(',', $my_str);
+                        }
+
+                        foreach ($fileTypeOptions as $arrayKey => $array) {
+                            foreach ($array as $key => $value) {
+                                if ($value) {
+                                    $digitalVariationCombinations[] = trim($arrayKey.'-'.preg_replace('/\s+/', '-', $value));
+                                    $digitalProductVariationCount++;
+                                }
+                            }
+                        }
+                        $differenceFromDB = array_diff($allDigitalVariation, $digitalVariationCombinations);
+                        $differenceFromRequest = array_diff($digitalVariationCombinations, $allDigitalVariation);
+                        $newCombinations = array_merge($differenceFromDB, $differenceFromRequest);
+
+                        if ($this['digital_product_type'] == 'ready_product') {
+                            foreach ($newCombinations as $newCombination) {
+                                if (in_array($newCombination, $digitalVariationCombinations) && empty($this['digital_files'][str_replace('-', '_', $newCombination)])) {
+                                    $validator->errors()->add(
+                                        'files', translate('Digital_files_are_required_for') . ' ' . str_replace(' ', '-', ucwords(str_replace('-', ' ', $newCombination)))
+                                    );
+                                }
+                            }
+                        }
+
+                        if ($digitalProductVariationCount == 0) {
+                            $validator->errors()->add(
+                                'variation_error', translate('Digital_Product_variations_are_required') . '!'
+                            );
+                        }
+
+                        if ($this->has('digital_product_sku') && empty($this['digital_product_sku'])) {
+                            $validator->errors()->add(
+                                'sku_error', translate('Digital_SKU_are_required') . '!'
+                            );
+                        } elseif ($this->has('digital_product_sku') && !empty($this['digital_product_sku'])) {
+                            foreach ($this['digital_product_sku'] as $digitalSKU) {
+                                if (empty($digitalSKU)) {
+                                    $validator->errors()->add(
+                                        'sku_error', translate('Digital_SKU_are_required') . '!'
+                                    );
+                                }
+                            }
+                        }
+                    }
+
+                    if ($this['digital_product_type'] == 'ready_product') {
+                        foreach ($product->digitalVariation as $variationItem) {
+                            if ((empty($variationItem['file'])) && in_array($variationItem['variant_key'], $digitalVariationCombinations) && empty($this['digital_files'][str_replace('-', '_', $variationItem['variant_key'])])) {
+                                $validator->errors()->add(
+                                    'files', translate('Digital_files_are_required_for') . ' ' . str_replace(' ', '-', ucwords(str_replace('-', ' ', $variationItem['variant_key'])))
+                                );
+                            }
+                        }
+                    }
+                }
             }
         ];
     }

@@ -9,7 +9,7 @@
                 <div class="col-12 d-sm-none">
                     <a href="{{ $footer_banner[0]['url'] }}" class="ad-hover">
                         <img loading="lazy" class="dark-support rounded w-100" alt=""
-                            src="{{ getValidImage(path: 'storage/app/public/banner/'.($footer_banner[0]['photo']), type:'banner') }}">
+                            src="{{ getStorageImages(path: $footer_banner[0]['photo_full_url'], type:'banner') }}">
                     </a>
                 </div>
             @endif
@@ -42,7 +42,7 @@
                                             @foreach($order['details']->take(3) as $key=>$detail)
                                                 <div>
                                                     <img width="42" alt="" class="dark-support rounded" loading="lazy"
-                                                         src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.($detail['product']['thumbnail'] ?? ''), type: 'product') }}">
+                                                         src="{{ getStorageImages(path: $detail?->productAllStatus?->thumbnail_full_url ?? null, type: 'product') }}">
                                                 </div>
                                             @endforeach
 
@@ -78,7 +78,7 @@
                     @if($sidebar_banner)
                         <a href="{{ $sidebar_banner['url'] }}">
                             <img alt="" class="dark-support rounded w-100"
-                                src="{{ getValidImage(path: 'storage/app/public/banner/'.($sidebar_banner ? $sidebar_banner['photo'] : ''),type:'banner') }}">
+                                src="{{ getStorageImages(path: $sidebar_banner['photo_full_url'],type:'banner') }}">
                         </a>
                     @else
                         <img src="{{ theme_asset('assets/img/top-side-banner-placeholder.png') }}"
@@ -99,6 +99,66 @@
                         </div>
                     </div>
                     <div class="swiper-container">
+                        <div class="position-relative d-md-none">
+                            <div class="swiper" data-swiper-loop="true" data-swiper-margin="16"
+                                 data-swiper-speed="2000" data-swiper-pagination-el="null"
+                                 data-swiper-navigation-next=".find-what-you-need-nav-next"
+                                 data-swiper-navigation-prev=".find-what-you-need-nav-prev">
+                                <div class="swiper-wrapper">
+                                    @foreach($final_category as $key=>$category)
+                                        <div class="swiper-slide align-items-start bg-white">
+                                            <div class="flexible-grid md-down-1 gap-3 w-100 width-1fr">
+                                                    <div class="bg-light rounded p-4">
+                                                        <div
+                                                            class="d-flex flex-wrap justify-content-between gap-3 mb-3 align-items-start">
+                                                            <div class="">
+                                                                <h5 class="mb-1 text-truncate width--16ch">
+                                                                    {{$category['name']}}</h5>
+                                                                <div
+                                                                    class="text-muted">{{$category['product_count']}} {{translate('products')}}</div>
+                                                            </div>
+
+                                                            <a href="{{route('products',['id'=> $category['id'],'data_from'=>'category','page'=>1])}}"
+                                                               class="btn-link">{{translate('view_all')}}<i
+                                                                    class="bi bi-chevron-right text-primary"></i></a>
+                                                        </div>
+                                                        <div class="find-what-you-need-items">
+                                                            @foreach($category['childes'] as $sub_category)
+                                                                <a href="{{route('products',['id'=> $sub_category['id'],'data_from'=>'category','page'=>1])}}"
+                                                                   class="d-flex flex-column gap-2 mb-3 align-items-center">
+                                                                    <div
+                                                                        class="img-wrap bg-white w-100 rounded justify-content-center d-flex">
+                                                                        <div class="floting-text">
+                                                                        <span class="truncate text-center">
+                                                                            <span>
+                                                                                {{
+                                                                                    count($category['childes'])<4 && in_array($key, [0,1,2]) && !array_key_exists(++$key, $category['childes']) ?
+                                                                                            ($sub_category['subCategoryProduct_count'] > 1 ? ($sub_category['subCategoryProduct_count']-1).'+' : $sub_category['subCategoryProduct_count'])
+                                                                                    : $sub_category['subCategoryProduct_count']
+                                                                                }}
+                                                                            </span>
+                                                                            {{ translate('products') }}
+                                                                        </span>
+                                                                        </div>
+                                                                        <div
+                                                                            class="ov-hidden rounded w-100 height--5rem">
+                                                                            <img alt="" loading="lazy" class="dark-support img-fit"
+                                                                                src="{{ getStorageImages(path: $sub_category['icon_full_url'], type:'category') }}">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="truncate text-center">
+                                                                        {{ $sub_category['name'] }}
+                                                                    </div>
+                                                                </a>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
                         <div class="position-relative d-none d-md-block">
                             <div class="swiper" data-swiper-loop="true" data-swiper-margin="16"
                                  data-swiper-speed="2000" data-swiper-pagination-el="null"
@@ -145,7 +205,7 @@
                                                                         <div
                                                                             class="ov-hidden rounded w-100 height--5rem">
                                                                             <img alt="" loading="lazy" class="dark-support img-fit"
-                                                                                src="{{ getValidImage(path: 'storage/app/public/category/'.$sub_category['icon'], type:'category') }}">
+                                                                                src="{{ getStorageImages(path: $sub_category['icon_full_url'], type:'category') }}">
                                                                         </div>
                                                                     </div>
                                                                     <div class="truncate text-center">
@@ -156,49 +216,6 @@
                                                         </div>
                                                     </div>
                                                 @endforeach
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                        <div class="position-relative d-md-none">
-                            <div class="swiper" data-swiper-loop="true"
-                                 data-swiper-speed="2000" data-swiper-margin="10" data-swiper-pagination-el="null"
-                                 data-swiper-navigation-next=".find-what-you-need-nav-next"
-                                 data-swiper-navigation-prev=".find-what-you-need-nav-prev">
-                                <div class="swiper-wrapper">
-                                    @foreach($final_category as $key=>$category)
-                                        <div
-                                            class="swiper-slide align-items-start d-block bg-light rounded p-3 p-sm-4 align-items-stretch">
-                                            <div>
-                                                <div
-                                                    class="d-flex flex-wrap justify-content-between gap-3 mb-3 align-items-start">
-                                                    <div class="">
-                                                        <h5 class="mb-1 text-truncate width--16ch">
-                                                            {{$category['name']}}</h5>
-                                                        <div
-                                                            class="text-muted">{{$category['product_count']}} {{translate('products')}}</div>
-                                                    </div>
-
-                                                    <a href="{{route('products',['id'=> $category['id'],'data_from'=>'category','page'=>1])}}"
-                                                       class="btn-link">{{translate('view_all')}}<i
-                                                            class="bi bi-chevron-right text-primary"></i></a>
-                                                </div>
-
-                                                <div class="auto-col gap-3 minWidth-3-75rem max-width-5rem">
-                                                    @foreach($category['childes'] as $sub_category)
-                                                        <a href="{{route('products',['id'=> $sub_category['id'],'data_from'=>'category','page'=>1])}}"
-                                                           class="d-flex flex-column gap-2 mb-3 align-items-start">
-                                                            <div
-                                                                class="avatar avatar-xxl ov-hidden hover-zoom-in rounded">
-                                                                <img alt="" loading="lazy" class="dark-support img-fit"
-                                                                    src="{{ getValidImage(path: 'storage/app/public/category/'.$sub_category['icon'], type:'category') }}">
-                                                            </div>
-                                                            <div class="text-truncate">{{ $sub_category['name'] }}</div>
-                                                        </a>
-                                                    @endforeach
-                                                </div>
                                             </div>
                                         </div>
                                     @endforeach
@@ -258,7 +275,7 @@
                     @if($top_side_banner)
                         <a href="{{ $top_side_banner['url'] }}">
                             <img alt="" class="dark-support rounded w-100"
-                                src="{{ getValidImage(path: 'storage/app/public/banner/'.($top_side_banner ? $top_side_banner['photo'] : ''), type:'banner', source: theme_asset('assets/img/top-side-banner-placeholder.png')) }}">
+                                src="{{ getStorageImages(path: ($top_side_banner ? $top_side_banner->photo_full_url : null), type:'banner', source: theme_asset('assets/img/top-side-banner-placeholder.png')) }}">
                         </a>
                     @else
                         <img src="{{ theme_asset('assets/img/top-side-banner-placeholder.png') }}"

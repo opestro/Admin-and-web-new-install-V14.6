@@ -17,7 +17,7 @@ use App\Models\Order;
 use App\Models\Seller;
 use App\Models\Setting;
 use App\Traits\CommonTrait;
-use App\User;
+use App\Models\User;
 use App\Utils\CartManager;
 use App\Utils\OrderManager;
 use Carbon\Carbon;
@@ -217,6 +217,62 @@ class Helpers
                 'code' => $key,
             );
         }
+        $color_final = [];
+        foreach($color_process as $color){
+            $image_name = null;
+            if($data['color_images_full_url']){
+                foreach($data['color_images_full_url'] as $image){
+                    if($image['color'] && '#'.$image['color']==$color['code']){
+                        $image_name = $image['image_name']['key'];
+                    }
+                }
+            }
+            $color_final[] = [
+                'name' => $color['name'],
+                'code' => $color['code'],
+                'image' => $image_name,
+            ];
+        }
+
+        $variation = [];
+        $data['category_ids'] = is_array($data['category_ids']) ? $data['category_ids'] : json_decode($data['category_ids']);
+//        $data['images'] = is_array($data['images']) ? $data['images'] : json_decode($data['images']);
+        $data['colors'] = $colors;
+//        $data['color_image'] = $color_image;
+        $data['colors_formatted'] = $color_final;
+        $attributes = [];
+        if ((is_array($data['attributes']) ? $data['attributes'] : json_decode($data['attributes'])) != null) {
+            $attributes_arr = is_array($data['attributes']) ? $data['attributes'] : json_decode($data['attributes']);
+            foreach ($attributes_arr as $attribute) {
+                $attributes[] = (integer)$attribute;
+            }
+        }
+        $data['attributes'] = $attributes;
+        $data['choice_options'] = is_array($data['choice_options']) ? $data['choice_options'] : json_decode($data['choice_options']);
+        $variation_arr = is_array($data['variation']) ? $data['variation'] : json_decode($data['variation'], true);
+        foreach ($variation_arr as $var) {
+            $variation[] = [
+                'type' => $var['type'],
+                'price' => (double)$var['price'],
+                'sku' => $var['sku'],
+                'qty' => (integer)$var['qty'],
+            ];
+        }
+        $data['variation'] = $variation;
+
+        return $data;
+    }
+    public static function set_data_format_for_json_data($data)
+    {
+        $colors = is_array($data['colors']) ? $data['colors'] : json_decode($data['colors']);
+        $query_data = Color::whereIn('code', $colors)->pluck('name', 'code')->toArray();
+        $color_process = [];
+        foreach ($query_data as $key => $color) {
+            $color_process[] = array(
+                'name' => $color,
+                'code' => $key,
+            );
+        }
 
         $color_image = isset($data['color_image']) ? (is_array($data['color_image']) ? $data['color_image'] : json_decode($data['color_image'])) : null;
         $color_final = [];
@@ -261,7 +317,6 @@ class Helpers
             ];
         }
         $data['variation'] = $variation;
-
         return $data;
     }
 
@@ -279,6 +334,25 @@ class Helpers
                 $data = $storage;
             } else {
                 $data = Helpers::set_data_format($data);;
+            }
+
+            return $data;
+        }
+        return null;
+    }
+    public static function product_data_formatting_for_json_data($data, $multi_data = false)
+    {
+        if ($data) {
+            $storage = [];
+            if ($multi_data == true) {
+                foreach ($data as $item) {
+                    if($item){
+                        $storage[] = Helpers::set_data_format_for_json_data($item);
+                    }
+                }
+                $data = $storage;
+            } else {
+                $data = Helpers::set_data_format_for_json_data($data);;
             }
 
             return $data;
@@ -406,8 +480,7 @@ class Helpers
 
     public static function tax_calculation($product, $price, $tax, $tax_type)
     {
-        $amount = ($price / 100) * $tax;
-        return $amount;
+        return ($price / 100) * $tax;
 
 //        $discount = self::get_product_discount(product: $product, price: $price);
 //        return (($price-$discount) / 100) * $tax; //after discount decrease
@@ -1306,10 +1379,10 @@ if (!function_exists('payment_gateways')) {
     function payment_gateways()
     {
         $payment_published_status = config('get_payment_publish_status');
-        $payment_gateway_published_status = isset($payment_published_status[0]['is_published']) ? $payment_published_status[0]['is_published'] : 0;
+        $paymentGatewayPublishedStatus = isset($payment_published_status[0]['is_published']) ? $payment_published_status[0]['is_published'] : 0;
 
         $payment_gateways_query = Setting::whereIn('settings_type', ['payment_config'])->where('is_active', 1);
-        if ($payment_gateway_published_status == 1) {
+        if ($paymentGatewayPublishedStatus == 1) {
             $payment_gateways_list = $payment_gateways_query->get();
         } else {
             $payment_gateways_list = $payment_gateways_query->whereIn('key_name', Helpers::default_payment_gateways())->get();

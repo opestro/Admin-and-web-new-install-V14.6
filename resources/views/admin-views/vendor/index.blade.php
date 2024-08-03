@@ -78,7 +78,7 @@
                                     <td>
                                         <div class="d-flex align-items-center gap-10 w-max-content">
                                             <img width="50"
-                                            class="avatar rounded-circle" src="{{ getValidImage(path: 'storage/app/public/shop/'.($seller->shop?$seller->shop->image:''), type: 'backend-basic') }}"
+                                            class="avatar rounded-circle" src="{{ getStorageImages(path: $seller?->shop?->image_full_url, type: 'backend-basic') }}"
                                                 alt="">
                                             <div>
                                                 <a class="title-color" href="{{ route('admin.vendors.view', ['id' => $seller->id]) }}">{{ $seller->shop ? Str::limit($seller->shop->name, 20) : translate('shop_not_found')}}</a>

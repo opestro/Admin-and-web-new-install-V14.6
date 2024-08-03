@@ -28,8 +28,10 @@
     </div>
     @endif
     <div class="alert alert--message-2 alert-dismissible fade show product-limited-stock-alert">
-        <img width="28" class="align-self-start image" src="" alt="">
-        <div class="w-0">
+        <div class="d-flex">
+            <img width="28" class="align-self-start image" src="" alt="">
+        </div>
+        <div class="w-0 text-start">
             <h6 class="title text-truncate"></h6>
             <span class="message">
             </span>

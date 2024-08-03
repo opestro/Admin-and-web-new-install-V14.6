@@ -103,7 +103,7 @@
                     <button type="button" class="btn-close border-0" data-dismiss="modal" aria-label="Close"><i class="tio-clear"></i></button>
                 </div>
                 <div class="modal-body px-4 px-sm-5 pt-0">
-                    <div class="swiper mySwiper pb-3">
+                    <div class="swiper instruction-carousel pb-3">
                         <div class="swiper-wrapper">
                             <div class="swiper-slide">
                                 <div class="d-flex flex-column align-items-center gap-2">

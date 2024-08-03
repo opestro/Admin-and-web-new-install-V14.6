@@ -3,6 +3,7 @@
 use App\Http\Controllers\RestAPI\v1\BrandController;
 use App\Http\Controllers\RestAPI\v1\CartController;
 use App\Http\Controllers\RestAPI\v1\CategoryController;
+use App\Http\Controllers\RestAPI\v1\CustomerController;
 use App\Http\Controllers\RestAPI\v1\DealController;
 use App\Http\Controllers\RestAPI\v1\FlashDealController;
 use App\Http\Controllers\RestAPI\v1\OrderController;
@@ -61,13 +62,12 @@ Route::group(['namespace' => 'RestAPI\v1', 'prefix' => 'v1', 'middleware' => ['a
     Route::group(['prefix' => 'cart', 'middleware' => 'apiGuestCheck'], function () {
         Route::controller(CartController::class)->group(function () {
             Route::get('/', 'cart');
-            Route::post('add', 'add_to_cart');
+            Route::post('add', 'addToCart');
             Route::put('update', 'update_cart');
             Route::delete('remove', 'remove_from_cart');
             Route::delete('remove-all', 'remove_all_from_cart');
             Route::post('select-cart-items', 'updateCheckedCartItems');
         });
-
     });
 
     Route::group(['prefix' => 'customer/order', 'middleware' => 'apiGuestCheck'], function () {
@@ -126,7 +126,7 @@ Route::group(['namespace' => 'RestAPI\v1', 'prefix' => 'v1', 'middleware' => ['a
                 Route::any('search', 'get_searched_products');
                 Route::post('filter', 'product_filter');
                 Route::any('suggestion-product', 'get_suggestion_product');
-                Route::get('details/{slug}', 'get_product');
+                Route::get('details/{slug}', 'getProductDetails');
                 Route::get('related-products/{product_id}', 'get_related_products');
                 Route::get('best-sellings', 'getBestSellingProducts');
                 Route::get('home-categories', 'get_home_categories');
@@ -178,7 +178,10 @@ Route::group(['namespace' => 'RestAPI\v1', 'prefix' => 'v1', 'middleware' => ['a
                     Route::get('offline-payment-method-list', 'offline_payment_method_list');
                     Route::post('place-by-offline-payment', 'placeOrderByOfflinePayment');
                 });
-                Route::get('details', 'CustomerController@get_order_details');
+                Route::controller(CustomerController::class)->group(function () {
+                    Route::get('details', 'get_order_details');
+                    Route::get('generate-invoice', 'getOrderInvoice');
+                });
             });
         });
     });
@@ -215,12 +218,15 @@ Route::group(['namespace' => 'RestAPI\v1', 'prefix' => 'v1', 'middleware' => ['a
         });
 
         Route::group(['prefix' => 'order'], function () {
-            Route::get('place-by-wallet', 'OrderController@place_order_by_wallet');
-            Route::get('refund', 'OrderController@refund_request');
-            Route::post('refund-store', 'OrderController@store_refund');
-            Route::get('refund-details', 'OrderController@refund_details');
+            Route::controller(OrderController::class)->group(function () {
+                Route::get('place-by-wallet', 'place_order_by_wallet');
+                Route::get('refund', 'refund_request');
+                Route::post('refund-store', 'store_refund');
+                Route::get('refund-details', 'refund_details');
+                Route::post('again', 'order_again');
+            });
+
             Route::get('list', 'CustomerController@get_order_list');
-            Route::post('again', 'OrderController@order_again');
 
             Route::controller(ProductController::class)->group(function () {
                 Route::post('deliveryman-reviews/submit', 'submit_deliveryman_review')->middleware('auth:api');
@@ -250,9 +256,11 @@ Route::group(['namespace' => 'RestAPI\v1', 'prefix' => 'v1', 'middleware' => ['a
 
     Route::group(['prefix' => 'customer', 'middleware' => 'apiGuestCheck'], function () {
         Route::group(['prefix' => 'order'], function () {
-            Route::get('digital-product-download/{id}', 'OrderController@digital_product_download');
-            Route::get('digital-product-download-otp-verify', 'OrderController@digital_product_download_otp_verify');
-            Route::post('digital-product-download-otp-resend', 'OrderController@digital_product_download_otp_resend');
+            Route::controller(OrderController::class)->group(function () {
+                Route::get('digital-product-download/{id}', 'digital_product_download');
+                Route::get('digital-product-download-otp-verify', 'digital_product_download_otp_verify');
+                Route::post('digital-product-download-otp-resend', 'digital_product_download_otp_resend');
+            });
         });
     });
 
@@ -265,9 +273,11 @@ Route::group(['namespace' => 'RestAPI\v1', 'prefix' => 'v1', 'middleware' => ['a
     });
 
     Route::group(['prefix' => 'order'], function () {
-        Route::get('track', 'OrderController@track_by_order_id');
-        Route::get('cancel-order', 'OrderController@order_cancel');
-        Route::post('track-order', 'OrderController@track_order');
+        Route::controller(OrderController::class)->group(function () {
+            Route::get('track', 'track_by_order_id');
+            Route::get('cancel-order', 'order_cancel');
+            Route::post('track-order', 'track_order');
+        });
     });
 
     Route::group(['prefix' => 'banners'], function () {

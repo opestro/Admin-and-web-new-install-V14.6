@@ -11,13 +11,14 @@ use App\Models\DeliveryZipCode;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Traits\CommonTrait;
-use App\User;
+use App\Models\User;
 use App\Utils\BackEndHelper;
 use App\Utils\Convert;
 use App\Utils\CustomerManager;
 use App\Utils\Helpers;
 use App\Utils\ImageManager;
 use App\Utils\OrderManager;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -75,16 +76,21 @@ class OrderController extends Controller
         ], 200);
     }
 
-    public function details(Request $request, $id)
+    public function details(Request $request, $id): JsonResponse
     {
         $seller = $request->seller;
-
-        $details = OrderDetail::with('order.customer','order.deliveryMan','verificationImages')->where(['seller_id' => $seller['id'], 'order_id' => $id])->get();
-        foreach ($details as $det) {
-            $det['product_details'] = Helpers::product_data_formatting(json_decode($det['product_details'], true));
+        $detailsList = OrderDetail::with('order.customer','order.deliveryMan','verificationImages')->where(['seller_id' => $seller['id'], 'order_id' => $id])->get();
+        foreach ($detailsList as $detail) {
+            $product = json_decode($detail['product_details'], true);
+            $product['thumbnail_full_url'] = $detail?->productAllStatus?->thumbnail_full_url;
+            if ($product['product_type'] == 'digital' && $product['digital_product_type'] == 'ready_product' && $product['digital_file_ready']) {
+                $checkFilePath = storageLink('product/digital-product', $product['digital_file_ready'], ($product['storage_path'] ?? 'public'));
+                $product['digital_file_ready_full_url'] = $checkFilePath;
+            }
+            $detail['product_details'] = Helpers::product_data_formatting_for_json_data($product);
         }
 
-        return response()->json($details, 200);
+        return response()->json($detailsList, 200);
     }
 
     public function assign_delivery_man(Request $request)

@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Arr;
 
 class SellerController extends Controller
 {
@@ -91,7 +92,10 @@ class SellerController extends Controller
 
     public function getSellerList(Request $request, $type)
     {
-        $sellers = $this->seller->approved()->with(['shop', 'orders', 'product.reviews' => function ($query) {
+        $sellers = $this->seller->when($type == 'top', function($query){
+                return $query->whereHas('orders');
+            })
+            ->approved()->with(['shop', 'orders', 'product.reviews' => function ($query) {
                 $query->active();
             }])
             ->withCount(['orders', 'product' => function ($query) {
@@ -173,10 +177,19 @@ class SellerController extends Controller
 
     public function more_sellers()
     {
-        $more_seller = $this->seller->approved()->with(['shop'])
-            ->inRandomOrder()
-            ->take(10)->get();
-        return response()->json($more_seller, 200);
+        $topVendorsList = Shop::active()
+            ->whereHas('seller', function($query){
+                return $query->whereHas('orders');
+            })
+            ->with(['seller' => function ($query) {
+                $query->withCount(['orders']);
+            }])
+            ->get()
+            ->sortByDesc(function ($shop) {
+                return $shop->seller->orders_count;
+            });
+
+        return array_values($topVendorsList->toArray());
     }
 
     public function get_seller_best_selling_products($seller_id, Request $request)

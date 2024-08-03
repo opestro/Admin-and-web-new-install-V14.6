@@ -26,7 +26,7 @@ class ProductIDRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'product_id.required' => translate('Product_is_required'),
+            'product_id.required' => translate('please_select_at_least_one_product'),
         ];
     }
 

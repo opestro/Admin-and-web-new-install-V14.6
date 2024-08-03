@@ -32,7 +32,7 @@ class InvoiceSettingsController extends Controller
     {
         $invoiceSettings = json_decode($this->businessSettingRepo->getFirstWhere(params: ['type'=>'invoice_settings']));
         if(!isset($invoiceSettings)){
-            $invoiceSettings = json_encode($this->businessSettingService->getInvoiceSettingsData(request:null,image:null));
+            $invoiceSettings = json_encode($this->businessSettingService->getInvoiceSettingsData(request:null,imageArray:null));
             $this->businessSettingRepo->updateOrInsert(type: 'invoice_settings', value: $invoiceSettings);
         }else{
             $invoiceSettings = $invoiceSettings->value;
@@ -42,11 +42,16 @@ class InvoiceSettingsController extends Controller
     }
     public function update(Request $request):JsonResponse
     {
-        $invoiceSettings = json_decode(json: $this->businessSettingRepo->getFirstWhere(params: ['type'=>'invoice_settings'])->value);
+        $invoiceSettings = json_decode(json: $this->businessSettingRepo->getFirstWhere(params: ['type'=>'invoice_settings'])->value, associative: true);
+
         $image = isset($invoiceSettings->image) && $request->has('image') ?
-            $this->updateFile(dir: 'company/', oldImage: $invoiceSettings->image, format: 'webp', image: $request->file('image'))
+            $this->updateFile(dir: 'company/', oldImage: (is_array($invoiceSettings['image']) ? $invoiceSettings['image']['image_name'] : $invoiceSettings['image'] ), format: 'webp', image: $request->file('image'))
             : ($request->has('image') ? $this->upload(dir: 'company/', format: 'webp', image: $request->file('image')): $invoiceSettings?->image);
-        $value = $this->businessSettingService->getInvoiceSettingsData(request:$request,image:$image);
+        $imageArray = [
+            'image_name' => $image ,
+            'storage' => config('filesystems.disks.default') ?? 'public'
+        ];
+        $value = $this->businessSettingService->getInvoiceSettingsData(request:$request,imageArray:$imageArray);
         $this->businessSettingRepo->updateOrInsert(type: 'invoice_settings', value: json_encode($value));
         return response()->json(['message'=>translate('invoice_settings_update_successfully')]);
     }

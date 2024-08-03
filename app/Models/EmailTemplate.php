@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\StorageTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @property string $template_name
@@ -30,7 +32,7 @@ use Illuminate\Support\Carbon;
 
 class EmailTemplate extends Model
 {
-    use HasFactory;
+    use HasFactory,StorageTrait;
     protected $fillable = [
         'template_name',
         'user_type',
@@ -82,5 +84,65 @@ class EmailTemplate extends Model
     public function translationCurrentLanguage(): MorphMany
     {
         return $this->morphMany('App\Models\Translation', 'translationable')->where('locale', getDefaultLanguage());
+    }
+    public function getImageFullUrlAttribute():string|null|array
+    {
+        $value = $this->image;
+        if (count($this->storage) > 0 && $this->storageConnectionCheck() == 's3') {
+            foreach ($this->storage as $storage) {
+                if ($storage['key'] == 'image') {
+                    return $this->storageLink('email-template',$value,$storage['value']);
+                }
+            }
+        }
+        return $this->storageLink('email-template',$value,'public');
+    }
+    public function getLogoFullUrlAttribute():string|null|array
+    {
+        $value = $this->logo;
+        if (count($this->storage) > 0 && $this->storageConnectionCheck() == 's3') {
+            foreach ($this->storage as $storage) {
+                if ($storage['key'] == 'logo') {
+                    return $this->storageLink('email-template',$value,$storage['value']);
+                }
+            }
+        }
+        return $this->storageLink('email-template',$value,'public');
+    }
+    public function getBannerImageFullUrlAttribute():string|null|array
+    {
+        $value = $this->banner_image;
+        if (count($this->storage) > 0 && $this->storageConnectionCheck() == 's3') {
+            foreach ($this->storage as $storage) {
+                if ($storage['key'] == 'banner_image') {
+                    return $this->storageLink('email-template',$value,$storage['value']);
+                }
+            }
+        }
+        return $this->storageLink('email-template',$value,'public');
+    }
+    protected $with = ['translations','translationCurrentLanguage','storage'];
+    protected $appends = ['logo_full_url','image_full_url','banner_image_full_url'];
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::saved(function ($model) {
+            $fileArray =['logo','image','banner_image'];
+            $storage = config('filesystems.disks.default') ?? 'public';
+            foreach ($fileArray as $file) {
+                if($model->isDirty($file)){
+                    $value = $storage;
+                    DB::table('storages')->updateOrInsert([
+                        'data_type' => get_class($model),
+                        'data_id' => $model->id,
+                        'key' => $file,
+                    ], [
+                        'value' => $value,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+        });
     }
 }

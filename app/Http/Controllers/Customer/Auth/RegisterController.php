@@ -9,7 +9,7 @@ use App\Models\BusinessSetting;
 use App\Models\PhoneOrEmailVerification;
 use App\Models\Wishlist;
 use App\Traits\EmailTemplateTrait;
-use App\User;
+use App\Models\User;
 use App\Utils\CartManager;
 use App\Utils\Helpers;
 use App\Utils\SMS_module;

@@ -4,10 +4,12 @@ namespace App\Models;
 
 use App\Models\Admin;
 use App\Models\Seller;
-use App\User;
+use App\Traits\StorageTrait;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class Message
@@ -38,6 +40,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Chatting extends Model
 {
+    use StorageTrait;
     protected $casts = [
         'id' => 'integer',
         'user_id' => 'integer',
@@ -89,6 +92,10 @@ class Chatting extends Model
     {
         return $this->belongsTo(Seller::class, 'seller_id');
     }
+    public function seller():BelongsTo
+    {
+        return $this->belongsTo(Seller::class, 'seller_id');
+    }
     public function customer():BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -105,5 +112,17 @@ class Chatting extends Model
     public function admin():BelongsTo
     {
         return $this->belongsTo(Admin::class, 'admin_id');
+    }
+    public function getAttachmentFullUrlAttribute():array
+    {
+        $images = [];
+        $value = json_decode($this->attachment);
+        if ($value){
+            foreach ($value as $item){
+                $item = isset($item->file_name) ? (array)$item : ['file_name' => $item, 'storage' => 'public'];
+                $images[] =  $this->storageLink('chatting',$item['file_name'],$item['storage'] ?? 'public');
+            }
+        }
+        return $images;
     }
 }

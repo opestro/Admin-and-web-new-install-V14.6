@@ -24,7 +24,7 @@
                     <div class="px-3 py-4">
                         <div class="row justify-content-between align-items-center flex-grow-1">
                             <div class="col-sm-4 col-md-6 col-lg-8 mb-2 mb-sm-0">
-                                <span class="title-color text-capitalize font-weight-bold">
+                                <span class="title-color text-capitalize font-weight-bold float-start">
                                     {{translate('language_table')}}
                                     <span class="input-label-secondary cursor-pointer" data-toggle="tooltip" data-placement="right" title="{{translate('after_adding_a_new_language,_you_need_to_translate_the_key_contents_for_users_to_experience_this_feature').' . '.translate('to_translate_a_language_click_the_action_button_from_the_language_table_&_click_translate').'.'.translate('then_change_the_key_language_value_manually_or_click_the_‘Auto_Translate’_button').'.'.translate('Finally,_click_‘Update’_to_save_the_changes').'.'}}">
                                         <img width="16" src="{{dynamicAsset(path: 'public/assets/back-end/img/info-circle.svg')}}" alt="">

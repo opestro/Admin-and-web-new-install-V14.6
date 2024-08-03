@@ -69,9 +69,16 @@
                                 </label>
                                 <div class="mx-auto text-center">
                                     <div class="uploadDnD">
+                                        @php
+                                            $imageArray = [
+                                                'image_name' => $invoiceSettings?->image->image_name ?? $invoiceSettings?->image,
+                                                'storage' => $invoiceSettings?->image?->storage ?? 'public',
+                                            ];
+                                            $imagePath = storageLink('company',$imageArray['image_name'],$imageArray['storage']);
+                                        @endphp
                                         <div class="form-group inputDnD input_image input_image_edit"
-                                             data-bg-img="{{ dynamicStorage(path: 'storage/app/public/company/'.$invoiceSettings?->image) }}"
-                                             data-title="{{ file_exists('storage/app/public/company/'.$invoiceSettings?->image) ? '': translate('drag_and_drop_file_or_Browse_file')}}">
+                                             data-bg-img="{{$imagePath['path']}}"
+                                             data-title="{{ !is_null($imagePath['path']) ? '': translate('drag_and_drop_file_or_Browse_file')}}">
                                             <input type="file" name="image" class="form-control-file text--primary font-weight-bold" id="invoice-image"  accept=".jpg, .png, .jpeg, .gif, .bmp, .webp |image/*">
                                         </div>
                                     </div>

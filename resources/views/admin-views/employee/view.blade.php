@@ -17,7 +17,7 @@
                     <div class="col-lg-7 col-xl-8">
                         <div class="media align-items-center flex-wrap flex-sm-nowrap gap-3">
                             <img width="250" class="rounded"
-                            src="{{getValidImage(path: 'storage/app/public/admin/'.$employee['image'],type:'backend-profile')}}" alt="{{translate('image_Description')}}">
+                            src="{{getStorageImages(path: $employee->image_full_url,type:'backend-profile')}}" alt="{{translate('image_Description')}}">
                             <div class="media-body">
                                 <div class="text-capitalize mb-4">
                                     <h4 class="mb-2">{{$employee->name}}</h4>

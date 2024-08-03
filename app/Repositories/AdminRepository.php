@@ -38,7 +38,7 @@ class AdminRepository implements AdminRepositoryInterface
 
     public function getListWhere(array $orderBy = [], string $searchValue = null, array $filters = [], array $relations = [], int|string $dataLimit = DEFAULT_DATA_LIMIT, int $offset = null): Collection|LengthAwarePaginator
     {
-        $query = $this->admin
+        $query = $this->admin->with($relations)
                 ->when($searchValue, function ($query) use($searchValue){
                     $query->where('name', 'like', "%$searchValue%")
                         ->orWhere('phone', 'like', "%$searchValue%")
@@ -54,7 +54,7 @@ class AdminRepository implements AdminRepositoryInterface
 
     public function update(string $id, array $data): bool
     {
-        return $this->admin->where('id', $id)->update($data);
+        return $this->admin->find($id)->update($data);
     }
 
     public function delete(array $params): bool

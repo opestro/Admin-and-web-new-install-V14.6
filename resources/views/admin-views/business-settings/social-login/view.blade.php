@@ -192,9 +192,9 @@
                         <ol class="d-flex flex-column gap-2">
                             <li>{{translate('go_to_the_Google_Developers_Console')}}.</li>
                             <li>{{translate('create_a_new_project_or_select_an_existing_project').'.'}}</li>
-                            <li>{{translate('click_on_"Credentials"_in_the_left-hand_menu').'.'}}</li>
+                            <li>{{translate('click_on_Credentials_in_the_left-hand_menu').'.'}}</li>
                             <li>{{translate('create_an_OAuth_client_ID_for_a_web_application').'.'}}</li>
-                            <li>{{translate('enter_a_name_for_your_client ID_and_click_"Create"').'.'}}</li>
+                            <li>{{translate('enter_a_name_for_your_client ID_and_click_Create').'.'}}</li>
                             <li>{{translate('enter_the_URL_of_your_website_as_an_authorized_JavaScript_origin').'.'}}</li>
                             <li>{{translate('enter_the_callback_URL_as_an_authorized_redirect_URL').'.'}}</li>
                             <li>{{translate('copy_and_paste_the_client_ID_and_client_secret_into_your_application`s_settings').'.'}}</li>
@@ -224,9 +224,9 @@
                         <ol class="d-flex flex-column gap-2">
                             <li>{{translate('go_to_the_Facebook_Developer_website').'.'}}</li>
                             <li>{{translate('create_a_new_app_or_select_an_existing_app').'.'}}</li>
-                            <li>{{translate('click_on_"Add_a_New_App"_or_select_an_existing_app_from_the_dashboard').'.'}}</li>
+                            <li>{{translate('click_on_Add_a_New_App_or_select_an_existing_app_from_the_dashboard').'.'}}</li>
                             <li>{{translate('fill_in_the_required_details,_such_as_Display_Name,_Contact_Email,_and_App_Purpose').'.'}}</li>
-                            <li>{{translate('click_"Create_App"_to_create_your_app').'.'}}</li>
+                            <li>{{translate('click_Create_App_to_create_your_app').'.'}}</li>
                             <li>{{translate('in_the_left-hand_menu,_click_on "Settings"_and_then_"Basic"_to access_your_app`s_basic_settings').'.'}}</li>
                             <li>{{translate('scroll_down_to_the_"Facebook_Login"_section_and_click_on_"Set_Up"_to_configure_your_Facebook_login_settings').'.'}}</li>
                             <li>{{translate('choose_the_login_behavior,_permissions,_and_other_settings_as_per_your_requirements').'.'}}</li>

@@ -5,7 +5,7 @@ namespace App\Services;
 class OrderDetailsService
 {
 
-    public function getPOSOrderDetailsData(int|string $orderId,array $item ,object $product,float $price ,float $tax):array
+    public function getPOSOrderDetailsData(int|string $orderId, array $item, object $product, float $price, float $tax): array
     {
         return [
             'order_id' => $orderId,
@@ -14,9 +14,9 @@ class OrderDetailsService
             'qty' => $item['quantity'],
             'price' => $price,
             'seller_id' => $product['user_id'],
-            'tax' => $tax*$item['quantity'],
+            'tax' => $tax * $item['quantity'],
             'tax_model' => $product['tax_model'],
-            'discount' => $item['discount']*$item['quantity'],
+            'discount' => $item['discount'] * $item['quantity'],
             'discount_type' => 'discount_on_product',
             'delivery_status' => 'delivered',
             'payment_status' => 'paid',

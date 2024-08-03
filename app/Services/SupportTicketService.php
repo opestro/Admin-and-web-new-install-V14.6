@@ -14,7 +14,10 @@ class SupportTicketService
         if ($request->file('image')) {
             foreach ($request->image as $key => $imageFile) {
                 $image_name = $this->upload(dir:'support-ticket/', format: 'webp', image: $imageFile);
-                $images[] = $image_name;
+                $images[] = [
+                    'file_name' => $image_name,
+                    'storage'=> getWebConfig(name: 'storage_connection_type') ?? 'public',
+                ];
             }
         }
 
@@ -22,7 +25,7 @@ class SupportTicketService
             'admin_message' => $request['replay'],
             'admin_id' => $request['adminId'],
             'support_ticket_id' => $request['id'],
-            'attachment' => json_encode($images),
+            'attachment' => $images,
             'created_at' => now(),
             'updated_at' => now()
         ];

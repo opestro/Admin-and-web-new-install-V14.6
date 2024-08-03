@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\FlashDealProduct;
+use App\Traits\FileManagerTrait;
 use App\Utils\Helpers;
 use App\Enums\GlobalConstant;
 use App\Models\Banner;
@@ -39,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
 
     use AddonHelper;
     use ThemeHelper;
+    use FileManagerTrait;
 
     /**
      * Register any application services.
@@ -71,6 +73,7 @@ class AppServiceProvider extends ServiceProvider
             try {
                 if (Schema::hasTable('business_settings')) {
 
+                    $this->setStorageConnectionEnvironment();
                     $web = BusinessSetting::all();
                     $settings = Helpers::get_settings($web, 'colors');
                     $data = json_decode($settings['value'], true);
@@ -89,12 +92,12 @@ class AppServiceProvider extends ServiceProvider
                         'primary_color_light' => isset($data['primary_light']) ? $data['primary_light'] : '',
                         'name' => Helpers::get_settings($web, 'company_name'),
                         'phone' => Helpers::get_settings($web, 'company_phone'),
-                        'web_logo' => Helpers::get_settings($web, 'company_web_logo'),
-                        'mob_logo' => Helpers::get_settings($web, 'company_mobile_logo'),
-                        'fav_icon' => Helpers::get_settings($web, 'company_fav_icon'),
+                        'web_logo' => getWebConfig('company_web_logo'),
+                        'mob_logo' => getWebConfig( 'company_mobile_logo'),
+                        'fav_icon' => getWebConfig( 'company_fav_icon'),
                         'email' => Helpers::get_settings($web, 'company_email'),
                         'about' => Helpers::get_settings($web, 'about_us'),
-                        'footer_logo' => Helpers::get_settings($web, 'company_footer_logo'),
+                        'footer_logo' => getWebConfig('company_footer_logo'),
                         'copyright_text' => Helpers::get_settings($web, 'company_copyright_text'),
                         'decimal_point_settings' => !empty(\App\Utils\Helpers::get_business_settings('decimal_point_settings')) ? \App\Utils\Helpers::get_business_settings('decimal_point_settings') : 0,
                         'seller_registration' => BusinessSetting::where(['type' => 'seller_registration'])->first()->value,

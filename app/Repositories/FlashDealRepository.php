@@ -42,7 +42,7 @@ class FlashDealRepository implements FlashDealRepositoryInterface
 
     public function update(string $id, array $data): bool
     {
-        return $this->flashDeal->where('id', $id)->update($data);
+        return $this->flashDeal->find($id)->update($data);
     }
 
     public function updateWhere(array $params, array $data): bool

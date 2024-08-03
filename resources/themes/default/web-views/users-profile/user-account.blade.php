@@ -48,7 +48,7 @@
                                 <div class="profile--info mb-4">
                                     <div class="position-relative profile-img mb-3">
                                         <img id="blah" alt=""
-                                             src="{{ getValidImage(path: 'storage/app/public/profile/'.$customerDetail['image'], type: 'avatar') }}">
+                                             src="{{ getStorageImages(path: $customerDetail->image_full_url, type: 'avatar') }}">
                                         <label class="change-profile-icon m-0">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                  viewBox="0 0 18 18" fill="none">

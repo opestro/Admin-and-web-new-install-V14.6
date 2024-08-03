@@ -11,9 +11,10 @@ trait CalculatorTrait
         } else {
             $value = $discount;
         }
-        return round($value,4);
+        return round($value, 4);
     }
-    protected function getTaxAmount(float $price, float $tax):float
+
+    protected function getTaxAmount(float $price, float $tax): float
     {
         return ($price / 100) * $tax;
     }

@@ -15,7 +15,7 @@
                         <div class="grid-item basic-box-shadow">
                             <div class="d-flex align-items-center gap-10">
                                 <img class="avatar rounded-circle avatar-sm" alt=""
-                                     src="{{getValidImage(path: 'storage/app/public/shop/'.$vendor->seller->shop['image'] ?? '',type:'backend-basic')}}">
+                                     src="{{getStorageImages(path: $vendor->seller->shop->image_full_url,type:'backend-basic')}}">
 
                                 <h5 class="shop-name">{{ $vendor->seller->shop['name'] ?? 'Not exist' }}</h5>
                             </div>

@@ -3,10 +3,15 @@
 namespace App\Models;
 
 use App\Models\AdminRole;
+use App\Traits\StorageTrait;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class Admin
@@ -32,7 +37,7 @@ use Illuminate\Notifications\Notifiable;
 
 class Admin extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable,StorageTrait;
 
     protected $fillable = [
         'name',
@@ -73,6 +78,49 @@ class Admin extends Authenticatable
     public function role(): BelongsTo
     {
         return $this->belongsTo(AdminRole::class,'admin_role_id');
+    }
+    public function getImageFullUrlAttribute():string|null|array
+    {
+        $value = $this->image;
+        if (count($this->storage) > 0) {
+            $storage = $this->storage->where('key', 'image')->first();
+        }
+        return $this->storageLink('admin',$value,$storage['value'] ?? 'public');
+    }
+    public function getIdentifyImagesFullUrlAttribute():array
+    {
+        $images = [];
+        $value = json_decode($this->identify_image);
+        if ($value){
+            foreach ($value as $item){
+                $item = isset($item->image_name) ? (array)$item : ['image_name' => $item, 'storage' => 'public'];
+                $images[] =  $this->storageLink('admin',$item['image_name'],$item['storage'] ?? 'public');
+            }
+        }
+        return $images;
+    }
+    protected $appends = ['image_full_url','identify_images_full_url'];
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::saved(function ($model) {
+            $fileArray =['image','identify_image'];
+            $storage =  config('filesystems.disks.default') ?? 'public';
+            foreach ($fileArray as $file) {
+                if($model->isDirty($file)){
+                    $value = $storage;
+                    DB::table('storages')->updateOrInsert([
+                        'data_type' => get_class($model),
+                        'data_id' => $model->id,
+                        'key' => $file,
+                    ], [
+                        'value' => $value,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+        });
     }
 
 }

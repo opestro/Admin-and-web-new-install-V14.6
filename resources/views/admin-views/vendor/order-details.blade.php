@@ -50,7 +50,7 @@
                             </div>
                             <div class="text-sm-right flex-grow-1">
                                 <div class="d-flex flex-wrap gap-10">
-                                    @if (isset($order->verification_images) && count($order->verification_images)>0 && $order->verification_status ==1)
+                                    @if (isset($order->verificationImages) && count($order->verificationImages)>0 && $order->verification_status ==1)
                                         <div>
                                             <button class="btn btn--primary px-4" data-toggle="modal"
                                                     data-target="#order_verification_modal"><i
@@ -189,7 +189,7 @@
                                             <td>
                                                 <div class="media align-items-center gap-10">
                                                     <img class="avatar avatar-60 rounded"
-                                                         src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$detail->productAllStatus['thumbnail'], type: 'backend-product') }}"
+                                                         src="{{ getStorageImages(path:$detail->productAllStatus?->thumbnail_full_url, type: 'backend-product') }}"
                                                          alt="{{translate('image_description')}}">
                                                     <div>
                                                         <h6 class="title-color">{{substr($detail->productAllStatus['name'],0,30)}}{{strlen($detail->productAllStatus['name'])>10?'...':''}}</h6>
@@ -449,7 +449,7 @@
                                         <div class="p-2 bg-light rounded mt-4">
                                             <div class="media m-1 gap-3">
                                                 <img class="avatar rounded-circle"
-                                                     src="{{ getValidImage(path: "storage/app/public/profile/".isset($order->deliveryMan->image) ?? '', type: 'backend-basic') }}"
+                                                     src="{{ getStorageImages(path: $order?->deliveryMan?->image_full_url, type: 'backend-basic') }}"
                                                      alt="{{translate('image')}}">
                                                 <div class="media-body">
                                                     <h5 class="mb-1">{{ isset($order->delivery_man) ? $order->deliveryMan->f_name.' '.$order->delivery_man->l_name :''}}</h5>
@@ -522,7 +522,7 @@
                             <div class="media flex-wrap gap-3">
                                 <div class="">
                                     <img class="avatar rounded-circle avatar-70"
-                                         src="{{ getValidImage(path: 'storage/app/public/profile/'.$order->customer->image, type: 'backend-profile') }}"
+                                         src="{{ getStorageImages(path: $order->customer->image_full_url, type: 'backend-profile') }}"
                                          alt="{{translate('image')}}">
                                 </div>
                                 <div class="media-body d-flex flex-column gap-1">
@@ -669,7 +669,7 @@
                                 @if(!empty($order->seller->shop))
                                     <div class="mr-3">
                                         <img class="avatar rounded avatar-70"
-                                             src="{{ getValidImage(path:'storage/app/public/shop/'.$order->seller->shop->image,type: 'backend-basic')}}"
+                                             src="{{ getStorageImages(path:$order?->seller?->shop->image_full_url,type: 'backend-basic')}}"
                                              alt="">
                                     </div>
                                     <div class="media-body d-flex flex-column gap-2">
@@ -696,7 +696,7 @@
             </div>
         </div>
     </div>
-    @if (isset($order->verification_images) && count($order->verification_images)>0)
+    @if (isset($order->verificationImages) && count($order->verificationImages)>0)
         <div class="modal fade" id="order_verification_modal" tabindex="-1" aria-labelledby="order_verification_modal"
              aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">

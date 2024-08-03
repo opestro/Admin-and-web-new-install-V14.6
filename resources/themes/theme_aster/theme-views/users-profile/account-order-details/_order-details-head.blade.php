@@ -62,8 +62,16 @@
                class="{{Request::is('account-order-details-vendor-info')  ? 'active' :''}} text-capitalize">{{translate('vendor_info')}}</a>
             <a href="{{ route('account-order-details-delivery-man-info', ['id'=>$order->id]) }}"
                class="{{Request::is('account-order-details-delivery-man-info')  ? 'active' :''}} text-capitalize">{{translate('delivery_man_info')}}</a>
-            <a href="{{route('track-order.order-wise-result-view',['order_id'=>$order['id']])}}"
-               class="{{Request::is('track-order/order-wise-result-view*')  ? 'active' :''}} text-capitalize">{{translate('track_order')}}</a>
+            @if($order->order_type != 'POS')
+                <a href="{{ route('account-order-details-reviews', ['id'=>$order->id]) }}"
+                   class="{{ Request::is('account-order-details-reviews')  ? 'active' :''}} text-capitalize">
+                    {{ translate('reviews') }}
+                </a>
+                <a href="{{route('track-order.order-wise-result-view',['order_id'=>$order['id']])}}"
+                   class="{{Request::is('track-order/order-wise-result-view*')  ? 'active' :''}} text-capitalize">
+                    {{ translate('track_order') }}
+                </a>
+            @endif
         </div>
     </nav>
 </div>

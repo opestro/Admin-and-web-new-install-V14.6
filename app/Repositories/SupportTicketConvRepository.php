@@ -44,7 +44,7 @@ class SupportTicketConvRepository implements SupportTicketConvRepositoryInterfac
 
     public function update(string $id, array $data): bool
     {
-        return $this->supportTicketConv->where('id', $id)->update($data);
+        return $this->supportTicketConv->find($id)->update($data);
     }
 
     public function delete(array $params): bool

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\RestAPI\v2\delivery_man;
 
+use App\Enums\GlobalConstant;
 use App\Events\ChattingEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Chatting;
 use App\Models\Seller;
-use App\User;
+use App\Models\User;
+use App\Utils\FileManagerLogic;
 use App\Utils\Helpers;
 use App\Utils\ImageManager;
 use Illuminate\Http\Request;
@@ -156,11 +158,17 @@ class ChatController extends Controller
 
         if (!empty($query->get())) {
             $message = $query->paginate($request->limit, ['*'], 'page', $request->offset);
-
-            $message->map(function ($conversation) {
-                $conversation->attachment = json_decode($conversation->attachment);
+            $message?->map(function ($conversation) {
+                if (!is_null($conversation->attachment_full_url) && count($conversation->attachment_full_url) > 0) {
+                    $attachmentData = [];
+                    foreach ($conversation->attachment_full_url as $key=>$attachment) {
+                        $attachmentData[] = (object)$this->getAttachmentData($attachment);
+                    }
+                    $conversation->attachment = $attachmentData ;
+                }else{
+                    $conversation->attachment = [] ;
+                }
             });
-
             $query->where($sent_by, 1)->update(['seen_by_delivery_man' => 1]);
 
             $data = array();
@@ -176,27 +184,50 @@ class ChatController extends Controller
 
     public function send_message(Request $request, $type)
     {
+
         $validator = Validator::make($request->all(), [
             'id' => 'required',
-        ]);
+            'message' => 'required_without_all:file,image',
+            'image.*' => 'image|max:2048|mimes:'.str_replace('.', '', implode(',', GlobalConstant::IMAGE_EXTENSION)),
+            'file.*' => 'file|max:2048|mimes:'.str_replace('.', '', implode(',', GlobalConstant::DOCUMENT_EXTENSION)),
+        ],
+            [
+                'required_without_all' => translate('type_something').'!',
+                'image.mimes' => translate('the_image_format_is_not_supported').' '.translate('supported_format_are').' '.str_replace('.', '', implode(',', GlobalConstant::IMAGE_EXTENSION)),
+                'image.max' => translate('image_maximum_size_') . MAXIMUM_IMAGE_UPLOAD_SIZE,
+                'file.mimes' => translate('the_file_format_is_not_supported').' '.translate('supported_format_are').' '.str_replace('.', '', implode(',', GlobalConstant::DOCUMENT_EXTENSION)),
+                'file.max' => translate('file_maximum_size_') . MAXIMUM_IMAGE_UPLOAD_SIZE,
+            ]
+        );
         if ($validator->fails()) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
         $delivery_man = $request['delivery_man'];
 
-        $image = [];
+        $attachment = [] ;
         if ($request->file('image')) {
-            foreach ($request->image as $key=>$value) {
-                $image_name = ImageManager::upload('chatting/', 'webp', $value);
-                $image[] = $image_name;
+            foreach ($request['image'] as $image) {
+                $attachment[] = [
+                    'file_name' => ImageManager::upload('chatting/', 'webp', $image),
+                    'storage' => getWebConfig(name: 'storage_connection_type') ?? 'public',
+
+                ];
+            }
+        }
+        if($request->file('file')) {
+            foreach ($request['file'] as $file) {
+                $attachment[] = [
+                    'file_name' => ImageManager::file_upload(dir: 'chatting/', format: $file->getClientOriginalExtension(), file: $file),
+                    'storage' => getWebConfig(name: 'storage_connection_type') ?? 'public',
+                ];
             }
         }
 
         $chatting                       = new Chatting();
         $chatting->delivery_man_id      = $delivery_man->id;
         $chatting->message              = $request->message;
-        $chatting->attachment           = json_encode($image);
+        $chatting->attachment           = json_encode($attachment);
         $chatting->sent_by_delivery_man = 1;
         $chatting->seen_by_delivery_man = 1;
 
@@ -223,9 +254,26 @@ class ChatController extends Controller
         }
 
         if ($chatting->save()) {
-            return response()->json(['message' => $request->message, 'time' => now(), 'image' => $image], 200);
+            return response()->json(['message' => $request->message, 'time' => now(), 'attachment' => $attachment], 200);
         } else {
             return response()->json(['message' => translate('Message sending failed')], 403);
         }
+    }
+    private function getAttachmentData($attachment):array
+    {
+        $extension = strrchr($attachment['path'],'.');
+        if(in_array($extension,GlobalConstant::DOCUMENT_EXTENSION)){
+            $type = 'file';
+        }else{
+            $type = 'image';
+        }
+        $path=  $attachment['status'] == 200 ? $attachment['path'] : null;
+        $size = $attachment['status'] == 200 ?  FileManagerLogic::getFileSize(path:$path) : null;
+        return [
+            'type' => $type,
+            'key' => $attachment['key'],
+            'path' => $path,
+            'size' => $size
+        ];
     }
 }

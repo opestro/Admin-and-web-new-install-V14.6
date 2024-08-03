@@ -2,11 +2,14 @@
 
 namespace App\Exceptions;
 
+use App\Traits\ErrorLogsTrait;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
 class Handler extends ExceptionHandler
 {
+    use ErrorLogsTrait;
+
     /**
      * A list of the exception types that are not reported.
      *
@@ -29,7 +32,7 @@ class Handler extends ExceptionHandler
     /**
      * Report or log an exception.
      *
-     * @param  \Throwable  $exception
+     * @param \Throwable $exception
      * @return void
      *
      * @throws \Throwable
@@ -42,14 +45,20 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Throwable  $exception
+     * @param \Illuminate\Http\Request $request
+     * @param \Throwable $exception
      * @return \Symfony\Component\HttpFoundation\Response
      *
      * @throws \Throwable
      */
     public function render($request, Throwable $exception)
     {
+        if ($this->isHttpException($exception) && $exception?->getStatusCode() == 404) {
+            $redirectUrl = $this->storeErrorLogsUrl(url: $request->fullUrl(), statusCode: $exception->getStatusCode());
+            if ($redirectUrl && isset($redirectUrl['redirect_url'])) {
+                return redirect(to: $redirectUrl['redirect_url'], status: ($redirectUrl['redirect_status'] ?? '301'));
+            }
+        }
         return parent::render($request, $exception);
     }
 }

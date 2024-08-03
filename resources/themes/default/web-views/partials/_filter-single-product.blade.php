@@ -20,7 +20,7 @@
             @endif
             <div class="p-10px pb-0">
                 <a href="{{route('product',$product->slug)}}" class="w-100">
-                    <img alt="" src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'product') }}">
+                    <img alt="" src="{{ getStorageImages(path: $product->thumbnail_full_url, type: 'product') }}">
                 </a>
             </div>
 

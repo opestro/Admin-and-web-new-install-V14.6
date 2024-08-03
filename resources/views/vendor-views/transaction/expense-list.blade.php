@@ -129,7 +129,7 @@
                             {{translate('download_PDF')}}
                         </a>
                     </div>
-                    <div>
+                    <div class="dropdown">
                         <button type="button" class="btn btn-outline--primary text-nowrap btn-block"
                                 data-toggle="dropdown">
                             <i class="tio-download-to"></i>

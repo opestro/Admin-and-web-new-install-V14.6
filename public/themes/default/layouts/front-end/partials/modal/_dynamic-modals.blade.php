@@ -1,25 +1,3 @@
-<div class="modal fade" id="remove-wishlist-modal">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header border-0">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body pb-5">
-                <div class="text-center">
-                    <img src="{{theme_asset(path: 'public/assets/front-end/img/icons/remove-wishlist.png')}}" alt="">
-                    <h6 class="font-semi-bold mt-3 mb-4 mx-auto __max-w-220">{{translate('Product_has_been_removed_from_wishlist')}}</h6>
-                </div>
-                <div class="d-flex gap-3 justify-content-center">
-                    <a href="javascript:" class="btn btn--primary __rounded-10" data-dismiss="modal">
-                        {{translate('Okay')}}
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="modal fade" id="out-of-stock-modal">
     <div class="modal-dialog modal-dialog-centered" role="document">

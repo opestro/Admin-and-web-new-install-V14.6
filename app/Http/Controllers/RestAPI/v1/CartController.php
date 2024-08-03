@@ -25,7 +25,7 @@ class CartController extends Controller
     public function cart(Request $request)
     {
         $user = Helpers::get_customer($request);
-        $cart_query = Cart::with('product:id,name,slug,current_stock,minimum_order_qty,variation', 'shop');
+        $cart_query = Cart::with('product','shop');
         if ($user == 'offline') {
             $cart = $cart_query->where(['customer_id' => $request->guest_id, 'is_guest' => 1])->get();
         } else {
@@ -83,7 +83,7 @@ class CartController extends Controller
         return response()->json($cart, 200);
     }
 
-    public function add_to_cart(Request $request)
+    public function addToCart(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'id' => 'required',

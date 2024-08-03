@@ -417,56 +417,64 @@
 
 <body>
 
+<?php
+$orderTotalPriceSummary = \App\Utils\OrderManager::getOrderTotalPriceSummary(order: $order);
+?>
+
 <div class="first content-position" style="width:595px;margin: 0 auto;">
     @php($companyName = getWebConfig(name: 'company_name'))
     @if ($order->order_type == 'default_type')
         <table class="fz-10 border bs-0"  style="border-radius:12px;background:#F3F7FF;border-color:#D6EBFF">
-        <tr>
-            <td class="border-bottom" style="padding:16px 20px;text-align:{{$direction === "rtl" ? 'right' : 'left'}};border-color:#D6EBFF">
-                <div class="text-dark" style="text-transform:uppercase; font-size:22px;margin-bottom:5px">
-                    {{ translate('Invoice')}}
-                </div>
-                <div class="font-normal">
-                    <span class="font-bold">{{ translate('invoice_Date')}}</span> : {{date('M d ,Y',strtotime($order['created_at']))}}
-                </div>
-                @if($invoiceSettings?->business_identity)
-                    <div>
-                        <span class="font-bold">{{$invoiceSettings?->business_identity}}</span> : <span class="font-normal">{{$invoiceSettings?->business_identity_value }}</span>
+            <tr>
+                <td class="border-bottom" style="padding:16px 20px;text-align:{{$direction === "rtl" ? 'right' : 'left'}};border-color:#D6EBFF">
+                    <div class="text-dark" style="text-transform:uppercase; font-size:22px;margin-bottom:5px">
+                        {{ translate('Invoice')}}
                     </div>
-                @endif
-                @if($order['seller_is']!='admin' && isset($order['seller']) && $order['seller']->gst != null)
-                    <div>
-                        <span class="font-bold">{{translate('GST')}}</span> : <span class="font-normal">{{ $order['seller']->gst }}</span>
+                    <div class="font-normal">
+                        <span class="font-bold">{{ translate('invoice_Date')}}</span> : {{date('M d ,Y',strtotime($order['created_at']))}}
                     </div>
-                @endif
-            </td>
-            <td class="border-bottom" style="padding:16px 20px;text-align:{{$direction === "rtl" ? 'left' : 'right'}};border-color:#D6EBFF">
-                <img width="60" height="40" src="{{dynamicStorage(path: "storage/app/public/company/".getWebConfig(name: 'company_web_logo'))}}"
-                     alt="" style="margin-bottom:5px">
-                <div class="font-normal">
-                    {{getWebConfig('shop_address')}}
-                </div>
-                <div class="font-normal">
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="text-left" style="padding:23px 16px">
-                <div class="mb-1 fz-10">
-                    <span class="font-bold">{{ translate('Order')}}</span> <span class="font-normal">#{{ $order->id }}</span>
-                </div>
-                <div class="mb-1 fz-10">
-                    <span class="font-bold">{{ translate('date')}}</span> : <span class="font-normal">{{date('M d ,Y',strtotime($order['created_at']))}}</span>
-                </div>
-            </td>
-            <td class="text-right" style="padding:23px 16px">
-                <div class="mb-1 fz-10 font-normal">
-                    <span class="font-bold">{{translate('invoice_of')}}</span> <span class="font-normal">{{' ( '.$currencyCode.' )'}}</span>
-                </div>
-                <div class="fz-17 text-primary text-right">{{ webCurrencyConverter(amount: $order->order_amount) }}</div>
-            </td>
-        </tr>
-    </table>
+                    @if(isset($invoiceSettings['business_identity']))
+                        <div>
+                            <span class="font-bold">{{$invoiceSettings['business_identity']}}</span> : <span class="font-normal">{{$invoiceSettings['business_identity'] }}</span>
+                        </div>
+                    @endif
+                    @if($order['seller_is']!='admin' && isset($order['seller']) && $order['seller']->gst != null)
+                        <div>
+                            <span class="font-bold">{{translate('GST')}}</span> : <span class="font-normal">{{ $order['seller']->gst }}</span>
+                        </div>
+                    @endif
+                </td>
+                <td class="border-bottom" style="padding:16px 20px;text-align:{{$direction === "rtl" ? 'left' : 'right'}};border-color:#D6EBFF">
+                        <?php
+                        $imagePath = isset($invoiceSettings['image']) ? imagePathProcessing(imageData:  $invoiceSettings['image'] ,path:'company') : null;
+                        ?>
+                    <img width="60" height="40"
+                         src="{{getStorageImages(path: (isset($imagePath['path']) ? $imagePath : getWebConfig(name: 'company_web_logo')) ,type:'backend-logo')}}"
+                         alt="" style="margin-bottom:5px">
+                    <div class="font-normal">
+                        {{getWebConfig('shop_address')}}
+                    </div>
+                    <div class="font-normal">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="text-left" style="padding:23px 16px">
+                    <div class="mb-1 fz-10">
+                        <span class="font-bold">{{ translate('Order')}}</span> <span class="font-normal">#{{ $order->id }}</span>
+                    </div>
+                    <div class="mb-1 fz-10">
+                        <span class="font-bold">{{ translate('date')}}</span> : <span class="font-normal">{{date('M d ,Y',strtotime($order['created_at']))}}</span>
+                    </div>
+                </td>
+                <td class="text-right" style="padding:23px 16px">
+                    <div class="mb-1 fz-10 font-normal">
+                        <span class="font-bold">{{translate('invoice_of')}}</span> <span class="font-normal">{{' ( '.$currencyCode.' )'}}</span>
+                    </div>
+                    <div class="fz-17 text-primary text-right">{{ webCurrencyConverter(amount: $orderTotalPriceSummary['totalAmount']) }}</div>
+                </td>
+            </tr>
+        </table>
     @else
         <table class="fz-10">
             <tr>
@@ -479,15 +487,18 @@
                     </div>
                 </td>
                 <td style="padding:0;text-align:{{$direction === "rtl" ? 'left' : 'right'}}">
-                    <img height="40" width="60"
-                         src="{{getValidImage(path:'storage/app/public/company/'.($invoiceSettings?->image ?? getWebConfig(name: 'company_web_logo')),type:'backend-logo')}}"
+                        <?php
+                        $imagePath = isset($invoiceSettings['image']) ? imagePathProcessing(imageData:  $invoiceSettings['image'] ,path:'company') : null;
+                        ?>
+                    <img width="60" height="40"
+                         src="{{getStorageImages(path: (isset($imagePath['path']) ? $imagePath : getWebConfig(name: 'company_web_logo')) ,type:'backend-logo')}}"
                          alt="" style="margin-bottom:5px">
                     <div class="font-normal">
                         {{getWebConfig('shop_address')}}
                     </div>
-                    @if($invoiceSettings?->business_identity)
+                    @if($invoiceSettings['business_identity'])
                         <div class="font-normal">
-                            <strong>{{$invoiceSettings?->business_identity}}</strong> : {{$invoiceSettings?->business_identity_value }}
+                            <strong>{{ $invoiceSettings['business_identity'] }}</strong> : {{$invoiceSettings['business_identity_value'] }}
                         </div>
                     @endif
                 </td>
@@ -520,27 +531,27 @@
                     @endif
                 </td>
                 @if(!$order->is_guest && $order->billing_address_data)
-                <td class="fz-10 border-left vertical-align-top" style="padding:8px 16px; width:34%">
-                    <?php
-                    $billingAddress = $order->billing_address_data
-                    ?>
-                    <span class="font-bold fz-11">{{ translate('billed_To')}}</span>
-                    ({{translate($billingAddress->address_type)}})
-                    <div class="">
-                        <div class="font-normal mt-6px">
-                            {{$billingAddress->contact_person_name}}
+                    <td class="fz-10 border-left vertical-align-top" style="padding:8px 16px; width:34%">
+                            <?php
+                            $billingAddress = $order->billing_address_data
+                            ?>
+                        <span class="font-bold fz-11">{{ translate('billed_To')}}</span>
+                        ({{translate($billingAddress->address_type)}})
+                        <div class="">
+                            <div class="font-normal mt-6px">
+                                {{$billingAddress->contact_person_name}}
+                            </div>
+                            <div class="font-semibold mt-6px">
+                                {{$billingAddress->phone}}
+                            </div>
+                            <div class="font-normal mt-6px">
+                                {{$billingAddress->address}}
+                            </div>
+                            <div class="font-normal mt-6px">
+                                {{$billingAddress->city}} {{$billingAddress->zip}}
+                            </div>
                         </div>
-                        <div class="font-semibold mt-6px">
-                            {{$billingAddress->phone}}
-                        </div>
-                        <div class="font-normal mt-6px">
-                            {{$billingAddress->address}}
-                        </div>
-                        <div class="font-normal mt-6px">
-                            {{$billingAddress->city}} {{$billingAddress->zip}}
-                        </div>
-                    </div>
-                </td>
+                    </td>
                 @endif
                 <td class="fz-10 vertical-align-top  {{$direction === "rtl" ? '' : 'border-left'}}" style="padding:8px 16px; width:34%">
                     @if($order->shipping_address_data)
@@ -605,7 +616,7 @@
                         {{translate('invoice_of')}}
                         <span>{{' ( '.$currencyCode.' )'}}</span>
                     </div>
-                    <div class="fz-17 text-primary text-right">{{ webCurrencyConverter(amount: $order->order_amount) }}</div>
+                    <div class="fz-17 text-primary text-right">{{ webCurrencyConverter(amount: $orderTotalPriceSummary['totalAmount']) }}</div>
                 </td>
             </tr>
             <tr>
@@ -684,14 +695,6 @@
         </tr>
         <tr>
             <td colspan="5" class="pt-0 pb-0">
-                <?php
-                if ($order['extra_discount_type'] == 'percent') {
-                    $extraDiscount = ($itemPrice / 100) * $order['extra_discount'];
-                } else {
-                    $extraDiscount = $order['extra_discount'];
-                }
-                ?>
-                @php($shipping=$order['shipping_cost'])
                 <table class="fz-10">
                     <tr>
                         <th class="text-left" style="width:50%">
@@ -701,44 +704,44 @@
                                 <tbody>
                                 <tr>
                                     <td class="text-left font-bold">{{ translate('total_Item_Price')}}</td>
-                                    <td class="text-right">{{ webCurrencyConverter(amount: $itemPrice) }}</td>
+                                    <td class="text-right">{{ webCurrencyConverter(amount: $orderTotalPriceSummary['itemPrice']) }}</td>
                                 </tr>
                                 <tr>
                                     <td class="text-left font-bold">{{ translate('product_Discount')}}</td>
                                     <td class="text-right">
-                                        - {{ webCurrencyConverter(amount: $totalDiscountOnProduct) }}</td>
+                                        - {{ webCurrencyConverter(amount: $orderTotalPriceSummary['itemDiscount']) }}</td>
                                 </tr>
                                 <tr>
                                     <td class="text-left font-bold">{{ translate('sub_Total')}}</td>
-                                    <td class="text-right">{{ webCurrencyConverter(amount: $subTotal) }}</td>
+                                    <td class="text-right">{{ webCurrencyConverter(amount: $orderTotalPriceSummary['subTotal']) }}</td>
                                 </tr>
                                 @if($order->order_type == 'default_type')
                                     <tr>
                                         <td class="text-left font-bold">{{ translate('shipping')}}</td>
-                                        <td class="text-right">{{webCurrencyConverter(amount: $shipping - ($order->is_shipping_free ? $order->extra_discount : 0)) }}</td>
+                                        <td class="text-right">{{ webCurrencyConverter(amount: $orderTotalPriceSummary['shippingTotal']) }}</td>
                                     </tr>
                                 @endif
                                 <tr>
                                     <td class="text-left font-bold">{{ translate('coupon_Discount')}}</td>
                                     <td class="text-right">
-                                        - {{ webCurrencyConverter(amount: $order->discount_amount) }}</td>
+                                        - {{ webCurrencyConverter(amount: $orderTotalPriceSummary['couponDiscount']) }}</td>
                                 </tr>
                                 <tr>
                                     <td class="text-left font-bold">{{ translate('tax')}}</td>
-                                    <td class="text-right">{{ webCurrencyConverter(amount: $totalTax) }}</td>
+                                    <td class="text-right">{{ webCurrencyConverter(amount: $orderTotalPriceSummary['taxTotal']) }}</td>
                                 </tr>
                                 @if ($order->order_type != 'default_type')
                                     <tr>
                                         <td class="text-left font-bold">{{ translate('extra_Discount')}}</td>
                                         <td class="text-right">
-                                            - {{ webCurrencyConverter(amount: $extraDiscount) }}</td>
+                                            - {{ webCurrencyConverter(amount: $orderTotalPriceSummary['extraDiscount']) }}</td>
                                     </tr>
                                 @endif
                                 <tr>
                                     <td class="border-dashed-top font-weight-bold text-left fz-14 font-bold">
                                         {{ translate('total')}}</td>
                                     <td class="border-dashed-top font-weight-bold text-right fz-14">
-                                        {{ webCurrencyConverter(amount: $order->order_amount) }}
+                                        {{ webCurrencyConverter(amount: $orderTotalPriceSummary['totalAmount']) }}
                                     </td>
                                 </tr>
                                 </tbody>
@@ -758,16 +761,16 @@
         </tr>
     </table>
     <br>
-    @if($invoiceSettings?->terms_and_condition)
-    <table style="background:#F9FAFC">
-        <tr>
-            <td class="text-dark text-capitalize" style="font-size: 14px; font-weight:600; margin:0;padding:15px">
-                {{'* '.translate('terms_&_conditions') }}
-                <div
-                    class="fz-10 font-normal">{{$invoiceSettings?->terms_and_condition.'.'}}</div>
-            </td>
-        </tr>
-    </table>
+    @if(isset($invoiceSettings['terms_and_condition']))
+        <table style="background:#F9FAFC">
+            <tr>
+                <td class="text-dark text-capitalize" style="font-size: 14px; font-weight:600; margin:0;padding:15px">
+                    {{'* '.translate('terms_&_conditions') }}
+                    <div
+                        class="fz-10 font-normal">{{$invoiceSettings['terms_and_condition'].'.'}}</div>
+                </td>
+            </tr>
+        </table>
     @endif
 </div>
 </body>

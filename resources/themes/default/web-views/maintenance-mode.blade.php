@@ -5,8 +5,8 @@
     <meta charset="utf-8">
     <title>{{ translate('maintenance_Mode_On') }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ dynamicStorage(path: 'storage/app/public/company/'.$web_config['fav_icon']->value) }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ dynamicStorage(path: 'storage/app/public/company/'.$web_config['fav_icon']->value) }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ $web_config['fav_icon']['path']}}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ $web_config['fav_icon']['path'] }}">
     <link rel="stylesheet" media="screen" href="{{theme_asset(path: 'public/assets/front-end/css/theme.css')}}">
 </head>
 

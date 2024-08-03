@@ -90,7 +90,7 @@ class DashboardController extends BaseController
             'delivery_charge_earned' => $admin_wallet['delivery_charge_earned'] ?? 0,
             'pending_amount' => $admin_wallet['pending_amount'] ?? 0,
             'total_tax_collected' => $admin_wallet['total_tax_collected'] ?? 0,
-            'getTotalCustomerCount' => $this->customerRepo->getList()->count(),
+            'getTotalCustomerCount' => $this->customerRepo->getList(dataLimit: 'all')->count(),
             'getTotalVendorCount' => $this->vendorRepo->getListWhere(dataLimit: 'all')->count(),
             'getTotalDeliveryManCount' => $this->deliveryManRepo->getListWhere(filters:['seller_id' => 0],dataLimit: 'all')->count(),
         ];

@@ -45,14 +45,14 @@
                                     ({{ strtoupper($lang) }})
                                 </label>
                                 <input type="text" {{ $lang == $defaultLanguage ? 'required' : '' }} name="name[]"
-                                       id="{{ $lang }}_name" class="form-control" placeholder="New Product">
+                                       id="{{ $lang }}_name" class="form-control {{ $lang == $defaultLanguage ? 'product-title-default-language' : '' }}" placeholder="{{ translate('new_Product') }}">
                             </div>
                             <input type="hidden" name="lang[]" value="{{ $lang }}">
                             <div class="form-group pt-2">
-                                <label class="title-color"
-                                       for="{{ $lang }}_description">{{ translate('description') }}
-                                    ({{ strtoupper($lang) }})</label>
-                                <textarea class="summernote" name="description[]">{{ old('details') }}</textarea>
+                                <label class="title-color" for="{{ $lang }}_description">
+                                    {{ translate('description') }} ({{ strtoupper($lang) }})
+                                </label>
+                                <textarea class="summernote {{ $lang == $defaultLanguage ? 'product-description-default-language' : '' }}" name="description[]">{{ old('details') }}</textarea>
                             </div>
                         </div>
                     @endforeach
@@ -143,7 +143,9 @@
                                 <label for="digital_product_type"
                                        class="title-color">{{ translate("delivery_type") }}</label>
                                 <span class="input-label-secondary cursor-pointer" data-toggle="tooltip"
-                                      title="{{ translate('for_“Ready_Product”_deliveries,_customers_can_pay_&_instantly_download_pre-uploaded_digital_products._For_“Ready_After_Sale”_deliveries,_customers_pay_first,_then_admin_uploads_the_digital_products_that_become_available_to_customers_for_download') }}">
+                                      title="{{
+                                      translate('for_Ready_Product_deliveries,_customers_can_pay_&_instantly_download_pre-uploaded_digital_products').' '.
+                                      translate('For_Ready_After_Sale_deliveries,_customers_pay_first_then_admin_uploads_the_digital_products_that_become_available_to_customers_for_download') }}">
                                     <img src="{{ dynamicAsset(path: 'public/assets/back-end/img/info-circle.svg') }}" alt="">
                                 </span>
                                 <select name="digital_product_type" id="digital_product_type" class="form-control"
@@ -154,30 +156,6 @@
                                     <option value="ready_after_sell">{{ translate("ready_After_Sell") }}</option>
                                     <option value="ready_product">{{ translate("ready_Product") }}</option>
                                 </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4 col-xl-3" id="digital_file_ready_show">
-                            <div class="form-group">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <label for="digital_file_ready" class="title-color mb-0">
-                                        {{ translate("upload_file") }}
-                                    </label>
-
-                                    <span class="input-label-secondary cursor-pointer" data-toggle="tooltip"
-                                          title="{{ translate('upload_the_digital_products_from_here') }}">
-                                        <img src="{{ dynamicAsset(path: 'public/assets/back-end/img/info-circle.svg') }}" alt="">
-                                    </span>
-                                </div>
-                                <div class="input-group">
-                                    <div class="custom-file">
-                                        <input type="file" class="custom-file-input" name="digital_file_ready"
-                                               id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
-                                        <label class="custom-file-label"
-                                               for="inputGroupFile01">{{ translate('choose_file') }}</label>
-                                    </div>
-                                </div>
-
-                                <div class="mt-2">{{ translate('file_type') }}: {{ "jpg, jpeg, png, gif, zip, pdf" }}</div>
                             </div>
                         </div>
 
@@ -365,7 +343,7 @@
                                            for="tax_model">{{ translate('tax_calculation') }}</label>
 
                                     <span class="input-label-secondary cursor-pointer" data-toggle="tooltip"
-                                          title="{{ translate('set_the_tax_calculation_method_from_here._Select_“Include_with_product”_to_combine_product_price_and_tax_on_the_checkout._Pick_“Exclude_from_product”_to_display_product_price_and_tax_amount_separately.') }}">
+                                          title="{{ translate('set_the_tax_calculation_method_from_here.').' '.translate('select_Include_with_product_to_combine_product_price_and_tax_on_the_checkout.').' '.translate('pick_Exclude_from_product_to_display_product_price_and_tax_amount_separately.') }}">
                                         <img src="{{ dynamicAsset(path: 'public/assets/back-end/img/info-circle.svg') }}" alt="">
                                     </span>
                                 </div>
@@ -474,6 +452,31 @@
                     </div>
                 </div>
             </div>
+
+            <div class="card mt-3 rest-part digitalProductVariationSetupSection">
+                <div class="card-header">
+                    <div class="d-flex gap-2">
+                        <i class="tio-user-big"></i>
+                        <h4 class="mb-0">{{ translate('product_variation_setup') }}</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2" id="digital-product-type-choice-section">
+                        <div class="col-sm-6 col-md-4 col-xxl-3">
+                            <div class="multi--select">
+                                <label class="title-color">{{ translate('File_Type') }}</label>
+                                <select class="js-example-basic-multiple js-select2-custom form-control" name="file-type" multiple id="digital-product-type-select">
+                                    @foreach($digitalProductFileTypes as $FileType)
+                                        <option value="{{ $FileType }}">{{ translate($FileType) }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3 rest-part" id="digital-product-variation-section"></div>
 
             <div class="mt-3 rest-part">
                 <div class="row g-2">
@@ -661,18 +664,18 @@
                                     </span>
                                 </label>
                                 <input type="text" name="meta_title" placeholder="{{ translate('meta_Title') }}"
-                                       class="form-control">
+                                       class="form-control" id="meta_title">
                             </div>
                             <div class="form-group">
                                 <label class="title-color">
                                     {{ translate('meta_Description') }}
                                     <span class="input-label-secondary cursor-pointer" data-toggle="tooltip"
                                           data-placement="top"
-                                          title="{{ translate('write_a_short_description_of_the_InHouse_shops_product').' '.translate('this_description_will_be_seen_on_Search_Engine_Results_Pages_and_while_sharing_the_products_link_on_social_platforms') .' [ '. translate('character_Limit') }} : 100 ]">
+                                          title="{{ translate('write_a_short_description_of_the_InHouse_shops_product').' '.translate('this_description_will_be_seen_on_Search_Engine_Results_Pages_and_while_sharing_the_products_link_on_social_platforms') .' [ '. translate('character_Limit') }} : 160 ]">
                                         <img src="{{ dynamicAsset(path: 'public/assets/back-end/img/info-circle.svg') }}" alt="">
                                     </span>
                                 </label>
-                                <textarea rows="4" type="text" name="meta_description" class="form-control"></textarea>
+                                <textarea rows="4" type="text" name="meta_description" id="meta_description" class="form-control"></textarea>
                             </div>
                         </div>
 
@@ -698,20 +701,21 @@
                                     <div>
                                         <div class="custom_upload_input">
                                             <input type="file" name="meta_image"
-                                                   class="custom-upload-input-file meta-img action-upload-color-image" id=""
+                                                   class="custom-upload-input-file meta-img action-upload-color-image"
                                                    data-imgpreview="pre_meta_image_viewer"
+                                                   id="meta_image_input"
                                                    accept=".jpg, .webp, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*">
 
                                             <span class="delete_file_input btn btn-outline-danger btn-sm square-btn d--none">
                                                 <i class="tio-delete"></i>
                                             </span>
 
-                                            <div class="img_area_with_preview position-absolute z-index-2">
-                                                <img id="pre_meta_image_viewer" class="h-auto bg-white onerror-add-class-d-none" alt=""
+                                            <div class="img_area_with_preview position-absolute z-index-2 d-flex align-items-center justify-content-center">
+                                                <img id="pre_meta_image_viewer" class="h-auto bg-white onerror-add-class-d-none pre-meta-image-viewer" alt=""
                                                      src="{{ dynamicAsset(path: 'public/assets/back-end/img/icons/product-upload-icon.svg-dummy') }}">
                                             </div>
                                             <div
-                                                class="position-absolute h-100 top-0 w-100 d-flex align-content-center justify-content-center">
+                                                class="position-absolute h-100 top-0 w-100 d-flex align-content-center justify-content-center overflow-hidden">
                                                 <div
                                                     class="d-flex flex-column justify-content-center align-items-center">
                                                     <img alt="" class="w-75"
@@ -726,17 +730,22 @@
                             </div>
                         </div>
                     </div>
+
+                    @include('admin-views.product.partials._seo-section')
                 </div>
             </div>
 
             <div class="row justify-content-end gap-3 mt-3 mx-1">
                 <button type="reset" class="btn btn-secondary px-5">{{ translate('reset') }}</button>
-                <button type="button" class="btn btn--primary px-5 product-add-requirements-check">{{ translate('submit') }}</button>
+                <button type="button" class="btn btn--primary px-5 product-add-requirements-check">
+                    {{ translate('submit') }}
+                </button>
             </div>
         </form>
     </div>
 
     <span id="route-admin-products-sku-combination" data-url="{{ route('admin.products.sku-combination') }}"></span>
+    <span id="route-admin-products-digital-variation-combination" data-url="{{ route('admin.products.digital-variation-combination') }}"></span>
     <span id="image-path-of-product-upload-icon" data-path="{{ dynamicAsset(path: 'public/assets/back-end/img/icons/product-upload-icon.svg') }}"></span>
     <span id="image-path-of-product-upload-icon-two" data-path="{{ dynamicAsset(path: 'public/assets/back-end/img/400x400/img2.jpg') }}"></span>
     <span id="message-enter-choice-values" data-text="{{ translate('enter_choice_values') }}"></span>

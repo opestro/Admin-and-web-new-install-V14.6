@@ -15,14 +15,18 @@ class FeaturesSectionService
             $bottomSectionData = json_decode($featuresBottomSection['value']);
         }
         foreach($request['features_section_bottom']['title'] as $key => $value) {
-            $image = '';
+            $iconArray = null;
             if (!empty($request['features_section_bottom_icon']) && isset($request['features_section_bottom_icon'][$key])) {
                 $image = $this->upload(dir: 'banner/', format: 'webp', image: $request['features_section_bottom_icon'][$key]);
+                $iconArray = [
+                    'image_name' =>  $image,
+                    'storage' => config('filesystems.disks.default') ?? 'public'
+                ];
             }
             $bottomSectionData[] = [
                 'title' => $request['features_section_bottom']['title'][$key],
                 'subtitle' => $request['features_section_bottom']['subtitle'][$key],
-                'icon' => $image,
+                'icon' => $iconArray,
             ];
         }
         return $bottomSectionData;
@@ -35,7 +39,7 @@ class FeaturesSectionService
             if($request->title != $item->title && $request->subtitle != $item->subtitle){
                 $newArray[] = $item;
             }else{
-                $this->delete(filePath: "/banner/" . $item->icon);
+                $this->delete(filePath: "/banner/" . ($item?->icon?->image_name ?? $item?->icon));
             }
         }
         return $newArray;
@@ -43,18 +47,22 @@ class FeaturesSectionService
 
     public function getReliabilityUpdateData(object $request, object $data): array
     {
-        $image = '';
-        $item = [];
-        if ($request->has('image')) {
-            $image = $this->upload(dir: 'company-reliability/', format: 'webp', image: $request->file('image'));
-        }
 
+        $item = [];
+        $imageArray = null;
         foreach (json_decode($data['value'], true) as $key => $data) {
+            if ($request->has('image') && $data['item'] == $request['item']){
+
+                $imageArray = [
+                    'image_name' =>  $this->update(dir: 'company-reliability/', oldImage: (is_array($data['image']) ? $data['image']['image_name'] : $data['image'] ), format: 'webp', image: $request->file('image')),
+                    'storage' => config('filesystems.disks.default') ?? 'public'
+                ];
+            }
             if ($data['item'] == $request['item']) {
                 $item_data = [
                     'item' => $request['item'],
                     'title' => $request->title ?? '',
-                    'image' => $image === '' ? $data['image'] : $image,
+                    'image' => $request->has('image') ? $imageArray : $data['image'],
                     'status' => $request->status ?? 0,
                 ];
             } else {
@@ -66,6 +74,7 @@ class FeaturesSectionService
                 ];
             }
             $item[] = $item_data;
+            $imageArray = null;
         }
 
         return $item;

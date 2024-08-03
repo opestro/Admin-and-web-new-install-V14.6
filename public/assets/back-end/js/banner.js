@@ -115,12 +115,11 @@ backgroundImage.css("background-image", function () {
 $('.most-demanded-product-delete-button').on('click', function () {
     let productId = $(this).attr("id");
     Swal.fire({
-        title: "{{ translate('are_you_sure_delete_this_most_demanded_product') }}?",
-        text: "{{ translate('you_will_not_be_able_to_revert_this') }}!",
+        title: $(this).data('warning-text'),
+        text:  $(this).data('text'),
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: '{{ translate("yes_delete_it") }}!',
         type: 'warning',
         reverseButtons: true
     }).then((result) => {

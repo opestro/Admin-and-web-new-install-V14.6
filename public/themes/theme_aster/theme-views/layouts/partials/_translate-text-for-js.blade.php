@@ -17,3 +17,4 @@
 <span class="minimum_order_quantity_msg" data-text="{{translate('minimum_order_quantity_cannot_be_less_than')}} "></span>
 <span id="password-error-message" data-max-character="{{translate('at_least_8_characters').'.'}}" data-uppercase-character="{{translate('at_least_one_uppercase_letter_').'(A...Z)'.'.'}}" data-lowercase-character="{{translate('at_least_one_uppercase_letter_').'(a...z)'.'.'}}"
       data-number="{{translate('at_least_one_number').'(0...9)'.'.'}}" data-symbol="{{translate('at_least_one_symbol').'(!...%)'.'.'}}"></span>
+<span class="login-warning" data-login-warning-message = "{{translate('please_login_your_account')}}"> </span>

@@ -59,32 +59,44 @@ class InhouseShopController extends BaseController
     {
         $imgBanner = $this->businessSettingRepo->getFirstWhere(params: ['type' => 'shop_banner']);
         if ($request->has('shop_banner')) {
-            $imgBannerImage = $imgBanner ? $this->updateFile(dir: 'shop/', oldImage: $imgBanner['value'], format: 'webp', image: $request->file('shop_banner')):$this->upload('shop/', 'webp',  $request->file('shop_banner'));
-            $this->businessSettingRepo->updateOrInsert(type: 'shop_banner', value: $imgBannerImage);
+            $imgBannerImage = $imgBanner ? $this->updateFile(dir: 'shop/', oldImage: (is_array($imgBanner['value']) ? $imgBanner['value']['image_name'] : $imgBanner['value'] ), format: 'webp', image: $request->file('shop_banner')):$this->upload('shop/', 'webp',  $request->file('shop_banner'));
+            $imgBannerImageArray = [
+                'image_name' =>  $imgBannerImage,
+                'storage' => config('filesystems.disks.default') ?? 'public'
+            ];
+            $this->businessSettingRepo->updateOrInsert(type: 'shop_banner', value: $imgBannerImageArray);
         }
         $bottomBanner = $this->businessSettingRepo->getFirstWhere(params: ['type' => 'bottom_banner']);
         if ($request->has('bottom_banner')) {
-            $bottomBannerImage = !empty($bottomBanner) ? $this->updateFile(dir: 'shop/', oldImage: $bottomBanner['value'], format: 'webp', image: $request->file('bottom_banner')) : $this->upload('shop/', 'webp',  $request->file('bottom_banner')) ;
-            $this->businessSettingRepo->updateOrInsert(type: 'bottom_banner', value: $bottomBannerImage);
+            $bottomBannerImage = !empty($bottomBanner) ? $this->updateFile(dir: 'shop/', oldImage: (is_array($bottomBanner['value']) ? $bottomBanner['value']['image_name'] : $bottomBanner['value'] ), format: 'webp', image: $request->file('bottom_banner')) : $this->upload('shop/', 'webp',  $request->file('bottom_banner')) ;
+            $bottomBannerImageArray = [
+                'image_name' =>  $bottomBannerImage,
+                'storage' => config('filesystems.disks.default') ?? 'public'
+            ];
+            $this->businessSettingRepo->updateOrInsert(type: 'bottom_banner', value: json_encode($bottomBannerImageArray));
         }
 
         $offerBanner = $this->businessSettingRepo->getFirstWhere(params: ['type' => 'offer_banner']);
         if ($request->has('offer_banner')) {
-            $offerBannerImage = !empty($offerBanner) ? $this->updateFile(dir: 'shop/', oldImage: $offerBanner['value'], format: 'webp', image: $request->file('offer_banner')) : $this->upload('shop/', 'webp',  $request->file('offer_banner'));
-            $this->businessSettingRepo->updateOrInsert(type: 'offer_banner', value: $offerBannerImage);
+            $offerBannerImage = !empty($offerBanner) ? $this->updateFile(dir: 'shop/', oldImage: (is_array($offerBanner['value']) ? $offerBanner['value']['image_name'] : $offerBanner['value'] ), format: 'webp', image: $request->file('offer_banner')) : $this->upload('shop/', 'webp',  $request->file('offer_banner'));
+            $offerBannerImageArray = [
+                'image_name' =>  $offerBannerImage,
+                'storage' => config('filesystems.disks.default') ?? 'public'
+            ];
+            $this->businessSettingRepo->updateOrInsert(type: 'offer_banner', value: json_encode($offerBannerImageArray));
         }
 
         if ($request->has('minimum_order_amount')) {
             $this->businessSettingRepo->updateOrInsert(
                 type: 'minimum_order_amount',
-                value: usdToDefaultCurrency(amount: $request->get('minimum_order_amount', 0))
+                value: currencyConverter(amount: $request->get('minimum_order_amount', 0))
             );
         }
 
         if ($request->has('free_delivery_over_amount')) {
             $this->businessSettingRepo->updateOrInsert(
                 type: 'free_delivery_over_amount',
-                value: usdToDefaultCurrency(amount: $request->get('free_delivery_over_amount', 0))
+                value: currencyConverter(amount: $request->get('free_delivery_over_amount', 0))
             );
         }
 

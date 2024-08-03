@@ -5,9 +5,9 @@
     <div class="row gy-3">
         <div class="col-md-5">
             <div class="d-flex align-items-center justify-content-center active">
-                <img class="img-responsive w-100 rounded"
-                     src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'backend-product') }}"
-                     data-zoom="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'backend-product') }}"
+                <img class="img-responsive w-100 rounded aspect-1"
+                     src="{{ getStorageImages(path:$product->thumbnail_full_url, type: 'backend-product') }}"
+                     data-zoom="{{ getStorageImages(path: $product->thumbnail_full_url, type: 'backend-product') }}"
                      alt="{{translate('product_image')}}">
                 <div class="cz-image-zoom-pane"></div>
             </div>
@@ -107,11 +107,13 @@
                                 }
                             @endphp
                         </div>
+
                         @foreach (json_decode($product->choice_options) as $key => $choice)
                             <div class="d-flex gap-3 flex-wrap align-items-center mb-3">
                                 <div class="my-2 w-43px">
                                     <strong class="text-dark">{{ ucfirst($choice->title) }}</strong>
                                 </div>
+
                                 <div class="d-flex gap-2 flex-wrap">
                                     @foreach ($choice->options as $index => $option)
                                         <input class="btn-check" type="radio"
@@ -124,6 +126,34 @@
                                 </div>
                             </div>
                         @endforeach
+
+                        @php($extensionIndex=0)
+                        @if($product['product_type'] == 'digital' && $product['digital_product_file_types'] && count($product['digital_product_file_types']) > 0 && $product['digital_product_extensions'])
+                            @foreach($product['digital_product_extensions'] as $extensionKey => $extensionGroup)
+                                <div class="d-flex gap-3 flex-wrap align-items-center mb-3">
+                                    <div class="my-2">
+                                        <strong class="text-dark">{{ translate($extensionKey) }} :</strong>
+                                    </div>
+
+                                    @if(count($extensionGroup) > 0)
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            @foreach($extensionGroup as $index => $extension)
+                                                <input class="btn-check" type="radio"
+                                                       id="extension_{{ str_replace(' ', '-', $extension) }}"
+                                                       name="variant_key" value="{{ $extensionKey.'-'.preg_replace('/\s+/', '-', $extension) }}"
+                                                       {{ $extensionIndex == 0 ? 'checked' : ''}} autocomplete="off">
+                                                <label class="btn btn-sm check-label border-0 mb-0 w-auto pos-check-label"
+                                                       for="extension_{{ str_replace(' ', '-', $extension) }}">
+                                                    {{ $extension }}
+                                                </label>
+                                                @php($extensionIndex++)
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        @endif
+
                     </div>
                     <div class="d-flex flex-wrap gap-2 position-relative price-section">
                         <div class="alert alert--message flex-row alert-dismissible fade show pos-alert-message gap-2 d-none" role="alert">

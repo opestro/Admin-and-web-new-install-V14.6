@@ -17,7 +17,7 @@
                 <div class="card">
                     <div class="card-body text-start">
                         <form action="{{ route('admin.brand.update', [$brand['id']]) }}" method="post"
-                              enctype="multipart/form-data">
+                              enctype="multipart/form-data" class="brand-setup-form">
                             @csrf
 
                             <ul class="nav nav-tabs w-fit-content mb-4">
@@ -55,31 +55,53 @@
                                         </div>
                                         <input type="hidden" name="lang[]" value="{{$lang}}">
                                     @endforeach
-                                    <div class="form-group">
-                                        <label class="title-color" for="brand">
-                                            {{ translate('brand_Logo') }}
-                                        </label>
-                                        <span class="ml-2 text-info">
-                                            {{ THEME_RATIO[theme_root_path()]['Category Image'] }}
-                                        </span>
-                                        <div class="custom-file text-left">
-                                            <input type="file" name="image" id="brand-image"
-                                                   class="custom-file-input image-preview-before-upload" data-preview="#viewer"
-                                                   accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*">
-                                            <label class="custom-file-label" for="brand-image">
-                                                {{ translate('choose_file') }}
-                                            </label>
-                                        </div>
-                                    </div>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <div class="text-center">
-                                        <img class="upload-img-view" id="viewer"
-                                             src="{{ getValidImage(path: 'storage/app/public/brand/'.$brand['image'], type: 'backend-brand') }}"
-                                             alt="">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="title-color text-capitalize">
+                                            {{ translate('image_alt_text') }}
+                                        </label>
+                                        <input type="text" name="image_alt_text" class="form-control" value="{{$brand['image_alt_text']}}"
+                                               placeholder="{{ translate('ex').' : '.translate('apex_Brand') }}">
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="card mb-4 shadow-none">
+                                <div class="card-body py-5">
+                                    <div class="mx-auto text-center max-w-170px">
+                                        <label class="d-block text-center font-weight-bold">
+                                            {{translate('image')}}  <small class="text-danger">{{'('.translate('size').': 1:1)'}}</small>
+                                        </label>
+
+                                        <label class="custom_upload_input d-block mx-2 cursor-pointer">
+                                            <input data-image="{{ getStorageImages(path: $brand->image_full_url, type: 'backend-brand') }}" type="file" name="image" id="brand-image" class="custom-file-input image-preview-before-upload d-none" data-preview="#pre_img_viewer" accept="image/*">
+
+                                            <span class="delete_file_input btn btn-outline-danger btn-sm square-btn d--none">
+                                                <i class="tio-delete"></i>
+                                            </span>
+
+                                            <div class="img_area_with_preview position-absolute z-index-2 p-0">
+                                                <img id="pre_img_viewer" class="h-auto aspect-1 bg-white d-none"
+                                                        src="" alt="">
+                                            </div>
+                                            <div class="placeholder-image">
+                                                <div
+                                                    class="d-flex flex-column justify-content-center align-items-center aspect-1">
+                                                    <img alt="" width="33" src="{{ dynamicAsset(path: 'public/assets/back-end/img/icons/product-upload-icon.svg') }}">
+                                                    <h3 class="text-muted fz-12">{{ translate('upload_image') }}</h3>
+                                                </div>
+                                            </div>
+                                        </label>
+
+                                        <p class="text-muted mt-2 fz-12 m-0">
+                                            {{ translate('image_format') }} : {{ "jpg, png, jpeg, webp" }}
+                                            <br>
+                                            {{ translate('image_size') }} : {{ translate('max') }} {{ "2 MB" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
 
                             <div class="d-flex justify-content-end gap-3">
                                 <button type="reset" id="reset"
@@ -95,5 +117,10 @@
 @endsection
 
 @push('script')
+    <script>
+        $('.brand-setup-form').on('reset', function () {
+            window.location.reload()
+        });
+    </script>
     <script src="{{ dynamicAsset(path: 'public/assets/back-end/js/products-management.js') }}"></script>
 @endpush

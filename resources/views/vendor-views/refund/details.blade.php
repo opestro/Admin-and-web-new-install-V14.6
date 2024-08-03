@@ -99,7 +99,7 @@
                         <div class="refund-details">
                             <div class="img">
                                 <div class="onerror-image border rounded">
-                                    <img src="{{getValidImage(path:  'storage/app/public/product/thumbnail/'.($refund->product ? $refund->product->thumbnail:''),type: 'backend-product')}}" alt="">
+                                    <img src="{{getStorageImages(path:$refund?->product?->thumbnail_full_url,type: 'backend-product')}}" alt="">
                                 </div>
                             </div>
                             <div class="--content flex-grow-1">
@@ -210,10 +210,10 @@
                             </p>
                             @if ($refund->images)
                                 <div class="gallery grid-gallery">
-                                    @foreach (json_decode($refund->images) as $key => $photo)
-                                        <a href="{{getValidImage(path: 'storage/app/public/refund/'.$photo,type:'backend-basic')}}"
+                                    @foreach ($refund->images_full_url as $key => $photo)
+                                        <a href="{{getStorageImages(path:$photo,type:'backend-basic')}}"
                                            data-lightbox="mygallery">
-                                            <img src="{{getValidImage(path: 'storage/app/public/refund/'.$photo,type:'backend-basic')}}" width="50" alt="">
+                                            <img src="{{getStorageImages(path:$photo,type:'backend-basic')}}" width="50" alt="">
                                         </a>
                                     @endforeach
                                 </div>

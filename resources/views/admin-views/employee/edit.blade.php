@@ -72,7 +72,7 @@
                                 <div class="form-group">
                                     <div class="text-center mb-3">
                                         <img class="upload-img-view" id="viewer"
-                                             src="{{ getValidImage(path: 'storage/app/public/admin/'.$employee['image'] , type: 'backend-profile') }}"
+                                             src="{{ getStorageImages(path: $employee->image_full_url , type: 'backend-profile') }}"
                                             alt=""/>
                                     </div>
                                     <label for="customFileUpload" class="title-color">{{translate('employee_image')}}</label>
@@ -90,10 +90,10 @@
                                     <div>
                                         <div class="row select-multiple-image">
                                             @if ($employee['identify_image'])
-                                                @foreach(json_decode($employee['identify_image'],true) as $img)
+                                                @foreach($employee->identify_images_full_url as $img)
                                                     <div class="col-md-4 mb-3">
                                                         <img height="150" alt=""
-                                                             src="{{ getValidImage(path: 'storage/app/public/admin/'.$img, type: 'backend-basic') }}">
+                                                             src="{{ getStorageImages(path: $img, type: 'backend-basic') }}">
                                                     </div>
                                                 @endforeach
                                             @endif

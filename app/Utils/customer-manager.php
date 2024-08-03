@@ -9,7 +9,7 @@ use App\Models\OrderDetail;
 use App\Models\SupportTicket;
 use App\Models\Transaction;
 use App\Models\WalletTransaction;
-use App\User;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class CustomerManager

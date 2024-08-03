@@ -43,7 +43,7 @@
                                                     <span class="ms-2 fs-18">
                                                     <i class="bi bi-info-circle" data-bs-toggle="tooltip"
                                                        data-bs-placement="right"
-                                                       title="{{ translate('if_you_want_to_add_fund_to_your_wallet_then_click_add_fund_button') }}"></i>
+                                                       title="{{ translate('this_wallet_balance_can_be_used_for_product_purchase_and_if_want_to_add_more_fund_to_wallet,_click_on_add_fund') }}"></i>
                                                 </span>
                                                 @endif
 
@@ -204,7 +204,9 @@
                                                                 width="25" alt="">
                                                         @endif
 
-                                                        {{ $item['debit'] != 0 ? ' - '.Helpers::currency_converter($item['debit']) : ' + '.Helpers::currency_converter($item['credit']) }}
+                                                        <span class="absolute-ltr font-bold fs-18">
+                                                            {{ $item['debit'] != 0 ? ' - '.webCurrencyConverter(amount: $item['debit']): ' + '.webCurrencyConverter(amount: $item['credit']) }}
+                                                        </span>
                                                     </h4>
                                                     <h6 class="text-muted">
                                                         @if ($item['transaction_type'] == 'add_fund_by_admin')
@@ -325,7 +327,7 @@
                                                 @php( $payment_method_img = !empty($gateway->additional_data) ? json_decode($gateway->additional_data)->gateway_image : '' )
                                                 <div class="form-check-label gap-3 d-flex align-items-center">
                                                     <img width="60" alt=""
-                                                         src="{{ getValidImage(path: 'storage/app/public/payment_modules/gateway_image/'.$payment_method_img, type: 'banner') }}">
+                                                         src="{{ getValidImage(path: 'storage/app/public/payment_modules/gateway_image/'.$payment_method_img, type:'banner') }}">
                                                     <span>{{ $payment_method_title }}</span>
                                                 </div>
                                             </label>

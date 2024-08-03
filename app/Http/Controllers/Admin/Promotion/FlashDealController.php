@@ -112,15 +112,14 @@ class FlashDealController extends BaseController
 
     public function addProduct(ProductIDRequest $request, $deal_id, FlashDealService $flashDealService): RedirectResponse
     {
-        $flashDealProducts = $this->flashDealProductRepo->getFirstWhere(params: ['flash_deal_id'=>$deal_id, 'product_id'=>$request['product_id']]);
-        if(!isset($flashDealProducts)) {
-            $dataArray = $flashDealService->getAddProduct(request: $request, id:$deal_id);
-            $this->flashDealProductRepo->add(data: $dataArray);
-            Toastr::success(translate('product_added_successfully'));
-            return back();
+        foreach ($request['product_id'] as $key=>$productId) {
+            $flashDealProducts = $this->flashDealProductRepo->getFirstWhere(params: ['flash_deal_id'=>$deal_id, 'product_id'=>$productId]);
+            if (!$flashDealProducts){
+                $dataArray = $flashDealService->getAddProduct(request: $request,productId:$productId, id:$deal_id);
+                $this->flashDealProductRepo->add(data: $dataArray);
+            }
         }
-
-        Toastr::info(translate('product_already_added'));
+        Toastr::success(translate('product_added_successfully'));
         return back();
     }
 

@@ -7,7 +7,7 @@
     </div>
     <div class="main-table-inner mb-4">
         <div class="d-flex justify-content-center pt-3">
-            <img width="76" class="mb-4" id="view-mail-logo" src="{{$template['logo'] ? dynamicStorage('storage/app/public/email-template/'.$template['logo']) : getValidImage(path: "storage/app/public/company/".$companyLogo, type:'backend-logo')}}" alt="">
+            <img width="76" class="mb-4" id="view-mail-logo" src="{{$template->logo_full_url['path'] ?? getStorageImages(path: $companyLogo, type:'backend-logo')}}" alt="">
         </div>
         <h3 class="mb-3 text-center">{{translate('order_Info')}}</h3>
         <div class="main-table-inner bg-white">
@@ -40,7 +40,7 @@
                             $finalAmount = 0;
                         @endphp
                         @foreach($data['order']->details as $key=>$detail)
-                            @php($productDetails = $detail?->product ?? json_decode($detail->product_details) )
+                            @php($productDetails = $detail?->productAllStatus ?? json_decode($detail->product_details) )
                             <tr>
                                 <td>
                                     <div class="d-flex gap-2">

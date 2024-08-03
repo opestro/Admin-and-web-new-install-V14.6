@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property int $quantity
  * @property float $price
  * @property float $tax
+ * @property integer $is_checked
  * @property float $discount
  * @property string $tax_model
  * @property string $slug
@@ -52,6 +53,7 @@ class Cart extends Model
         'quantity' => 'integer',
         'price' => 'float',
         'tax' => 'float',
+        'is_checked' => 'integer',
         'discount' => 'float',
         'seller_id' => 'integer',
         'created_at' => 'datetime',

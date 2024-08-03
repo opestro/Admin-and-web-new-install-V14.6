@@ -173,11 +173,12 @@ class ChattingController extends BaseController
     public function addAdminMessage(ChattingRequest $request):JsonResponse
     {
         $data = [];
+        $shop = [
+            'name'=> getWebConfig(name: 'company_name')
+        ];
         $messageForm = (object)[
             'f_name'=>'admin',
-            'shop'=> [
-                'name'=> getWebConfig(name: 'company_name')
-            ]
+            'shop'=> (object)$shop,
         ];
         if ($request->has(key: 'delivery_man_id')) {
             $this->chattingRepo->add(
@@ -245,13 +246,7 @@ class ChattingController extends BaseController
     protected function getRenderMessagesView(object $user, object $message, string $type): array
     {
         $userData = ['name' => $user['f_name'].' '.$user['l_name'],'phone' => $user['country_code'].$user['phone']];
-
-        if ($type == 'customer') {
-            $userData['image'] = getValidImage(path: 'storage/app/public/profile/' . ($user['image']), type: 'backend-profile');
-        }else {
-            $userData['image'] = getValidImage(path: 'storage/app/public/delivery-man/' . ($user['image']), type: 'backend-profile');
-        }
-
+        $userData['image'] = getStorageImages(path: $user->image_full_url, type: 'backend-profile');
         return [
             'userData' => $userData,
             'chattingMessages' => view('admin-views.chatting.messages', [

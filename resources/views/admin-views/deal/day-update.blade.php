@@ -61,7 +61,7 @@
                                                value="{{ $deal['product_id'] }}" hidden>
                                         <div class="dropdown select-product-search w-100">
                                             <button class="form-control text-start dropdown-toggle select-product-button"
-                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" type="button">
                                                 {{isset($deal->product) ? $deal->product->name : translate('product_not_found')}}
                                             </button>
                                             <div class="dropdown-menu w-100 px-2">

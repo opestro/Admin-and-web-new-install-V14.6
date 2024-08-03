@@ -29,7 +29,7 @@ class ProfileController extends BaseController
     }
     public function getListView():View
     {
-        $admin = $this->adminRepo->getFirstWhere(['id'=>auth('admin')->id()]);
+        $admin = $this->adminRepo->getFirstWhere(params:['id'=>auth('admin')->id()]);
         return view(Profile::INDEX[VIEW],compact('admin'));
     }
 
@@ -39,7 +39,7 @@ class ProfileController extends BaseController
      */
     public function getUpdateView(string|int $id):View|RedirectResponse
     {
-        $admin = $this->adminRepo->getFirstWhere(['id' => $id]);
+        $admin = $this->adminRepo->getFirstWhere(params:['id' => $id]);
         $shopBanner = getWebConfig('shop_banner');
         return view(Profile::UPDATE[VIEW],compact('admin','shopBanner'));
     }
@@ -52,7 +52,7 @@ class ProfileController extends BaseController
     public function update(AdminRequest $request, string|int $id):RedirectResponse
     {
 
-        $admin = $this->adminRepo->getFirstWhere(['id' => $id]);
+        $admin = $this->adminRepo->getFirstWhere(params:['id' => $id]);
         $this->adminRepo->update(id: $id, data: $this->adminService->getAdminDataForUpdate(request: $request, admin: $admin));
         Toastr::success(translate('profile_updated_successfully'));
         return redirect()->back();

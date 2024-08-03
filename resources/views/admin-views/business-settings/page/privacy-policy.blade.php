@@ -21,7 +21,7 @@
                     <div class="card-header">
                         <h5 class="mb-0">{{translate('privacy_policy')}}</h5>
                     </div>
-                    <form action="{{route('admin.business-settings.privacy-policy')}}" method="post">
+                    <form action="{{route('admin.business-settings.privacy-policy-update')}}" method="post">
                         @csrf
                         <div class="card-body">
                             <div class="form-group">

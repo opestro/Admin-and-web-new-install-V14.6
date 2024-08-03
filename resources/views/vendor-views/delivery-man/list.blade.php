@@ -75,7 +75,7 @@
                             <td>
                                 <div class="media align-items-center gap-10">
                                     <img class="avatar avatar-lg rounded-circle" alt=""
-                                            src="{{getValidImage('storage/app/public/delivery-man/'.$deliveryMan['image'],type:'backend-profile')}}">
+                                            src="{{getStorageImages($deliveryMan->image_full_url,type:'backend-profile')}}">
                                     <div class="media-body">
                                         <a title="Earning Statement"
                                            class="title-color hover-c1"

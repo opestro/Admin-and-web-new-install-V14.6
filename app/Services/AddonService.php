@@ -19,7 +19,7 @@ class AddonService
     {
         $tempFolderPath = storage_path('app/temp/');
         if (!File::exists($tempFolderPath)) {
-            File::makeDirectory($tempFolderPath);
+            File::makeDirectory($tempFolderPath, 0775, true);
         }
 
         $file = $request->file('file_upload');
@@ -47,7 +47,7 @@ class AddonService
             {
                 $extractPath = base_path('Modules');
                 if (!File::exists($extractPath)) {
-                    File::makeDirectory($extractPath);
+                    File::makeDirectory($extractPath, 0775, true);
                 }
                 if (File::exists($extractPath.'/'.$getAddonFolder)) {
                     $message = translate('already_installed');

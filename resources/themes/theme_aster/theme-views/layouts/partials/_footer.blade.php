@@ -6,7 +6,7 @@
             <div class="row gy-3 align-items-center">
                 <div class="col-lg-3 col-sm-3 text-center text-lg-start">
                     <img width="180" loading="lazy" alt="{{translate('image')}}"
-                         src="{{ getValidImage(path: 'storage/app/public/company/'.($web_config['footer_logo']->value), type:'logo') }}">
+                         src="{{ getStorageImages(path: $web_config['footer_logo'], type:'logo') }}">
                 </div>
                 <div
                     class="col-lg-6 col-sm-6 d-flex justify-content-center justify-content-sm-start justify-content-lg-center">
@@ -92,7 +92,7 @@
                                 <h6 class="text-uppercase mb-2 font-weight-bold footer-heder">{{translate('newsletter')}}</h6>
                                 <i class="bi bi-send-fill mt-n1"></i>
                             </div>
-                            <p>{{translate('subscribe_our_newsletter_to_get_latest_updates')}}</p>
+                            <p class="text-start">{{translate('subscribe_our_newsletter_to_get_latest_updates')}}</p>
                         </div>
                         <form class="newsletter-form" action="{{ route('subscription') }}" method="post">
                             @csrf

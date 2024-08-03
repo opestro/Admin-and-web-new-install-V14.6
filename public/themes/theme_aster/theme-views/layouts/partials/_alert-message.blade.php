@@ -11,7 +11,6 @@
                 <span>
                     {{translate('though_it_is_a_demo_site').'.'.translate('_our_system_automatically_reset_after_one_hour_&_that’s_why_you_logged_out').'.'}}
                 </span>
-                <h6 class="text-primary mt-2">{{ translate('why_am_I_seeing_this').'?'}}</h6>
             </div>
             <button type="button" class="close position-relative border-0" data-bs-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>

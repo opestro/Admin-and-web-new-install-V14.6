@@ -5,9 +5,15 @@
     <meta charset="utf-8">
     <title>@yield('title')</title>
     <meta name="_token" content="{{csrf_token()}}">
+
+    <meta name="google-site-verification" content="{{getWebConfig('google_search_console_code')}}">
+    <meta name="msvalidate.01" content="{{getWebConfig('bing_webmaster_code')}}">
+    <meta name="baidu-site-verification" content="{{getWebConfig('baidu_webmaster_code')}}">
+    <meta name="yandex-verification" content="{{getWebConfig('yandex_webmaster_code')}}">
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ getValidImage(path: 'storage/app/public/company/'.$web_config['fav_icon']->value, type: 'logo') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ getValidImage(path: 'storage/app/public/company/'.$web_config['fav_icon']->value, type: 'logo') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ $web_config['fav_icon']['path'] }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ $web_config['fav_icon']['path'] }}">
     <link rel="stylesheet" media="screen" href="{{ theme_asset(path: 'public/assets/front-end/vendor/simplebar/dist/simplebar.min.css') }}">
     <link rel="stylesheet" media="screen" href="{{ theme_asset(path: 'public/assets/front-end/vendor/tiny-slider/dist/tiny-slider.css') }}">
     <link rel="stylesheet" media="screen" href="{{ theme_asset(path: 'public/assets/front-end/vendor/drift-zoom/dist/drift-basic.min.css') }}">
@@ -23,6 +29,8 @@
     <link rel="stylesheet" href="{{ theme_asset(path: 'public/assets/front-end/css/owl.carousel.min.css') }}">
 
     @stack('css_or_js')
+
+    @include(VIEW_FILE_NAMES['robots_meta_content_partials'])
 
     <link rel="stylesheet" href="{{ theme_asset(path: 'public/assets/front-end/css/home.css') }}"/>
     <link rel="stylesheet" href="{{ theme_asset(path: 'public/assets/front-end/css/responsive1.css') }}"/>
@@ -114,7 +122,7 @@
         <div id="loading" class="d--none">
            <div class="text-center">
             <img width="200" alt=""
-                 src="{{ getValidImage(path: 'storage/app/public/company/'.getWebConfig(name: 'loader_gif'), type: 'source', source: theme_asset(path: 'public/assets/front-end/img/loader.gif')) }}">
+                 src="{{ getStorageImages(path: getWebConfig(name: 'loader_gif'), type: 'source', source: theme_asset(path: 'public/assets/front-end/img/loader.gif')) }}">
             </div>
         </div>
     </div>
@@ -144,7 +152,7 @@
 <span id="message-sorry-the-minimum-order-quantity-not-match" data-text="{{ translate('sorry_the_minimum_order_quantity_does_not_match') }}"></span>
 <span id="message-cart" data-text="{{ translate('cart') }}"></span>
 
-<span id="route-messages-store" data-url="{{ route('messages_store') }}"></span>
+<span id="route-messages-store" data-url="{{ route('messages') }}"></span>
 <span id="route-address-update" data-url="{{ route('address-update') }}"></span>
 <span id="route-coupon-apply" data-url="{{ route('coupon.apply') }}"></span>
 <span id="route-cart-add" data-url="{{ route('cart.add') }}"></span>
@@ -179,19 +187,20 @@
 @include('layouts.front-end.partials._footer')
 @include('layouts.front-end.partials.modal._dynamic-modals')
 
-<a class="btn-scroll-top btn--primary" href="#top" data-scroll>
-    <span class="btn-scroll-top-tooltip text-muted font-size-sm mr-2">{{ translate('top')}}</span>
-    <i class="btn-scroll-top-icon czi-arrow-up"></i>
-</a>
-<div class="__floating-btn">
-    @php($whatsapp = getWebConfig(name: 'whatsapp'))
-    @if(isset($whatsapp['status']) && $whatsapp['status'] == 1 )
-        <div class="wa-widget-send-button">
-            <a href="https://wa.me/{{ $whatsapp['phone'] }}?text=Hello%20there!" target="_blank">
-                <img src="{{theme_asset(path: 'public/assets/front-end/img/whatsapp.svg')}}" class="wa-messenger-svg-whatsapp wh-svg-icon" alt="{{ translate('Chat_with_us_on_WhatsApp') }}">
-            </a>
-        </div>
-    @endif
+<div class="floating-btn-grp">
+    <div class="__floating-btn">
+        @php($whatsapp = getWebConfig(name: 'whatsapp'))
+        @if(isset($whatsapp['status']) && $whatsapp['status'] == 1 )
+            <div class="wa-widget-send-button">
+                <a href="https://wa.me/{{ $whatsapp['phone'] }}?text=Hello%20there!" target="_blank">
+                    <img src="{{theme_asset(path: 'public/assets/front-end/img/whatsapp.svg')}}" class="wa-messenger-svg-whatsapp wh-svg-icon" alt="{{ translate('Chat_with_us_on_WhatsApp') }}">
+                </a>
+            </div>
+        @endif
+    </div>
+    <a class="btn-scroll-top btn--primary" href="#top" data-scroll>
+        <i class="btn-scroll-top-icon czi-arrow-up"></i>
+    </a>
 </div>
 
 <script src="{{ theme_asset(path: 'public/assets/front-end/vendor/jquery/dist/jquery-2.2.4.min.js') }}"></script>

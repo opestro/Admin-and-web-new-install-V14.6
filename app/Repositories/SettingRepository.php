@@ -45,12 +45,18 @@ class SettingRepository implements SettingRepositoryInterface
         int        $offset = null): Collection|LengthAwarePaginator
     {
         $query = $this->setting
-                ->when($searchValue, function ($query) use ($searchValue) {
-                    return $query->where('key_name', 'like', "%$searchValue%");
-                })
-                ->when(!empty($orderBy), function ($query) use ($orderBy) {
-                    $query->orderBy(array_key_first($orderBy),array_values($orderBy)[0]);
-                });
+            ->when($searchValue, function ($query) use ($searchValue) {
+                return $query->where('key_name', 'like', "%$searchValue%");
+            })
+            ->when(isset($filters['settings_type']), function ($query) use ($filters) {
+                return $query->where(['settings_type' => $filters['settings_type']]);
+            })
+            ->when(isset($filters['is_active']), function ($query) use ($filters) {
+                $query->where('is_active', $filters['is_active']);
+            })
+            ->when(!empty($orderBy), function ($query) use ($orderBy) {
+                $query->orderBy(array_key_first($orderBy), array_values($orderBy)[0]);
+            });
 
         $filters += ['searchValue' =>$searchValue];
         return $dataLimit == 'all' ? $query->get() : $query->paginate($dataLimit)->appends($filters);
@@ -60,25 +66,31 @@ class SettingRepository implements SettingRepositoryInterface
     {
         $query = $this->setting
             ->with($relations)
-            ->when($searchValue, function ($query) use($searchValue){
+            ->when($searchValue, function ($query) use ($searchValue) {
                 return $query->where('key_name', 'like', "%$searchValue%");
             })
-            ->when(isset($filters['id']) , function ($query) use ($filters){
+            ->when(isset($filters['id']), function ($query) use ($filters) {
                 return $query->where(['id' => $filters['id']]);
             })
-            ->when(isset($filters['key_name']) , function ($query) use ($filters){
+            ->when(isset($filters['settings_type']), function ($query) use ($filters) {
+                return $query->where(['settings_type' => $filters['settings_type']]);
+            })
+            ->when(isset($filters['key_name']), function ($query) use ($filters) {
                 return $query->where(['key_name' => $filters['key_name']]);
             })
+            ->when(isset($filters['is_active']), function ($query) use ($filters) {
+                $query->where('is_active', $filters['is_active']);
+            })
             ->when(!empty($whereInFilters), function ($query) use ($whereInFilters) {
-                foreach ($whereInFilters as $key => $filterIndex){
-                    $query->whereIn($key , $filterIndex);
+                foreach ($whereInFilters as $key => $filterIndex) {
+                    $query->whereIn($key, $filterIndex);
                 }
             })
             ->when(!empty($nullFields), function ($query) use ($nullFields) {
                 return $query->whereNull($nullFields);
             })
             ->when(!empty($orderBy), function ($query) use ($orderBy) {
-                return $query->orderBy(array_key_first($orderBy),array_values($orderBy)[0]);
+                return $query->orderBy(array_key_first($orderBy), array_values($orderBy)[0]);
             });
 
         $filters += ['searchValue' =>$searchValue];

@@ -93,7 +93,7 @@
                                 <a class="d-block me-2 position-relative overflow-hidden"
                                    href="{{route('product',$cartItem['slug'])}}">
                                     <img width="64" class="{{ $product ? ($product->status == 0?'blur-section':'') : 'blur-section' }}"
-                                         src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$cartItem['thumbnail'], type: 'backend-product') }}"
+                                         src="{{ getStorageImages(path: $product->thumbnail_full_url, type: 'backend-product') }}"
                                          alt="{{ translate('product') }}"/>
                                     @if (!$product || $product->status == 0)
                                         <span class="temporary-closed position-absolute text-center p-2">
@@ -111,8 +111,7 @@
                                         </h6>
                                         @if(!empty($cartItem['variant']))
                                             <div>
-                                                <span
-                                                    class="__text-12px">{{translate('variant')}} : {{$cartItem['variant']}}</span>
+                                                <span class="__text-12px">{{translate('variant')}} : {{$cartItem['variant']}}</span>
                                             </div>
                                         @endif
                                         <div class="widget-product-meta">

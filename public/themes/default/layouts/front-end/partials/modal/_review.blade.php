@@ -18,7 +18,7 @@
                                     <div class="position-relative">
                                         <img class="d-block get-view-by-onclick"
                                              data-link="{{route('product',$order_details->product['slug'])}}"
-                                             src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$order_details->product['thumbnail'], type: 'product') }}"
+                                             src="{{ getStorageImages(path:$order_details->product->thumbnail_full_url, type: 'product') }}"
                                              alt="{{ translate('product') }}" width="100">
 
                                         @if($order_details->product->discount > 0)
@@ -72,7 +72,6 @@
                             @endif
                         </div>
                     </div>
-{{--                    @dd($order_details->reviewData);--}}
                     @if(isset($order_details->reviewData))
                         <?php
                             $rating = $order_details->reviewData->rating;
@@ -129,20 +128,20 @@
                         <div class="mt-2">
                             <div class="d-flex gap-2 flex-wrap">
                                 <div class="d-flex gap-4 flex-wrap coba_review">
-                                    @if ($order_details->reviewData && isset($order_details->reviewData->attachment) && $order_details->reviewData->attachment != [])
-                                        @foreach ($order_details->reviewData->attachment as $key => $photo)
+                                    @if ($order_details?->reviewData && $order_details?->reviewData?->attachment_full_url && count($order_details->reviewData->attachment_full_url) > 0)
+                                        @foreach ($order_details->reviewData->attachment_full_url as $key => $attachment)
                                             <div
                                                 class="position-relative img_row{{$key}} border rounded border-primary-light">
                                                 <span class="img_remove_icon remove-img-row-by-key cursor-pointer"
                                                       data-key="{{$key}}"
                                                       data-review-id="{{ $order_details->reviewData->id }}"
-                                                      data-photo="{{ $photo }}"
+                                                      data-photo="{{ $attachment['key'] }}"
                                                       data-route="{{ route('delete-review-image') }}">
                                                     <i class="czi-close"></i>
                                                 </span>
                                                 <div class="overflow-hidden upload_img_box_img rounded">
-                                                    <img class="h-auto"
-                                                         src="{{ getValidImage(path: 'storage/app/public/review/'.$photo, type: 'product') }}"
+                                                    <img class="h-100 w-100 object-cover"
+                                                         src="{{ getStorageImages(path: $attachment, type: 'product') }}"
                                                          alt="{{ translate('review') }}">
                                                 </div>
                                             </div>

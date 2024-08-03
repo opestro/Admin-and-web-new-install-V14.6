@@ -46,11 +46,11 @@ class DeliveryManService
         $identityImage = [];
         if (!empty($request->file('identity_image'))) {
             foreach ($request->identity_image as $image) {
-                $identityImage[] = $this->upload(dir: 'delivery-man/', format: 'webp', image: $image);
+                $identityImage[] = [
+                    'image_name'=>$this->upload(dir: 'delivery-man/', format: 'webp', image: $image),
+                    'storage' => getWebConfig(name: 'storage_connection_type') ?? 'public',
+                ];
             }
-            $identityImage = json_encode($identityImage);
-        } else {
-            $identityImage = json_encode([]);
         }
         $commonArray = $this->getCommonDeliveryManData(request: $request, addedBy: $addedBy);
         $imageArray = [
@@ -63,22 +63,24 @@ class DeliveryManService
     /**
      * @param object $request
      * @param string $addedBy
-     * @param string $identityImages
+     * @param array|null $identityImages
      * @param string $deliveryManImage
      * @return array
      * This array return column name and there value when update delivery man
      */
-    public function getDeliveryManUpdateData(object $request,string $addedBy,string $identityImages,string $deliveryManImage): array
+    public function getDeliveryManUpdateData(object $request,string $addedBy,array|null $identityImages,string $deliveryManImage): array
     {
         if (!empty($request->file('identity_image'))) {
-            foreach (json_decode($identityImages, true) as $image) {
-                $this->delete(filePath: 'delivery-man/' . $image);
+            foreach ($identityImages as $image) {
+                $this->delete(filePath: 'delivery-man/' . (isset($image['image_name']) ? $image['image_name'] : $image));
             }
             $identityImage = [];
             foreach ($request['identity_image'] as $img) {
-                $identityImage[] = $this->upload('delivery-man/', 'webp', $img);
+                $identityImage[] = [
+                    'image_name'=>$this->upload(dir: 'delivery-man/', format: 'webp', image: $img),
+                    'storage' => getWebConfig(name: 'storage_connection_type') ?? 'public',
+                ];
             }
-            $identityImage = json_encode($identityImage);
         } else {
             $identityImage = $identityImages;
         }
@@ -98,8 +100,11 @@ class DeliveryManService
     function deleteImages(object $deliveryMan): bool
     {
         $this->delete(filePath: 'delivery-man/' . $deliveryMan['image']);
-        foreach (json_decode($deliveryMan['identity_image'], true) as $image) {
-            $this->delete(filePath: 'delivery-man/' . $image);
+        if(count($deliveryMan['identity_image'])>0){
+            foreach ($deliveryMan['identity_image'] as $image) {
+                $imageName = is_string($image) ? $image : $image['image_name'];
+                $this->delete(filePath: 'delivery-man/'.$imageName);
+            }
         }
 
         return true;

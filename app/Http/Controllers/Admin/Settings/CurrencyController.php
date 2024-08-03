@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Admin\Settings;
 use App\Contracts\Repositories\BusinessSettingRepositoryInterface;
 use App\Contracts\Repositories\CurrencyRepositoryInterface;
 use App\Contracts\Repositories\SettingRepositoryInterface;
+use App\Enums\GlobalConstant;
 use App\Enums\ViewPaths\Admin\Currency;
 use App\Http\Controllers\BaseController;
+use App\Services\SettingService;
+use App\Traits\PaymentGatewayTrait;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -16,10 +19,13 @@ use Illuminate\Http\Request;
 class CurrencyController extends BaseController
 {
 
+    use PaymentGatewayTrait;
+
     public function __construct(
         private readonly CurrencyRepositoryInterface        $currencyRepo,
         private readonly BusinessSettingRepositoryInterface $businessSettingRepo,
-        private readonly SettingRepositoryInterface $settingRepo,
+        private readonly SettingRepositoryInterface         $settingRepo,
+        private readonly SettingService                     $settingService,
     )
     {
     }
@@ -37,28 +43,82 @@ class CurrencyController extends BaseController
 
     public function getListView(Request $request): View
     {
+        $paymentPublishedStatus = config('get_payment_publish_status') ?? 0;
+        $paymentGatewayPublishedStatus = isset($paymentPublishedStatus[0]['is_published']) ? $paymentPublishedStatus[0]['is_published'] : 0;
+        $paymentGatewayUrl = $this->settingService->getVacationData(type: 'payment_setup');
+
+        if ($paymentGatewayPublishedStatus) {
+            $activePaymentGateway = $this->settingRepo->getListWhere(filters: ['settings_type' => 'payment_config', 'is_active' => 1], dataLimit: 'all');
+        } else {
+            $activePaymentGateway = $this->settingRepo->getListWhereIn(filters: ['settings_type' => 'payment_config', 'is_active' => 1], whereInFilters: ['key_name' => GlobalConstant::DEFAULT_PAYMENT_GATEWAYS], dataLimit: 'all');
+        }
         $currencies = $this->currencyRepo->getListWhere(
             searchValue: $request['searchValue'],
             dataLimit: getWebConfig(name: 'pagination_limit'),
         );
+
         $activeCurrencies = $this->currencyRepo->getListWhere(
             filters: ['status' => 1],
             dataLimit: 'all',
         );
-        $currencyModel=$this->businessSettingRepo->getFirstWhere(params:['type'=>'currency_model']);
-        $default=$this->businessSettingRepo->getFirstWhere(params:['type'=>'system_default_currency']);
-        return view(Currency::LIST[VIEW], compact('activeCurrencies','currencies','currencyModel','default'));
+
+        $currencies->map(function ($currency) use ($currencies, $activePaymentGateway) {
+            $checkedData = self::checkPaymentGatewaySupportedCurrencies($currency->code, $currencies, $activePaymentGateway);
+            $currency['is_enabled_to_use'] = $checkedData['is_enabled_to_use'];
+            $currency['total_supported_gateway'] = $checkedData['total_supported_gateway'];
+            $currency['must_required_for_gateway'] = $checkedData['must_required_for_gateway'];
+            $currency['supported_gateway'] = $checkedData['supported_gateway'];
+        });
+
+        $digitalPaymentStatus = getWebConfig(name: 'digital_payment')['status'] ?? 0;
+        $currencyModel = $this->businessSettingRepo->getFirstWhere(params: ['type' => 'currency_model']);
+        $default = $this->businessSettingRepo->getFirstWhere(params: ['type' => 'system_default_currency']);
+        return view(Currency::LIST[VIEW], compact('activeCurrencies', 'currencies', 'currencyModel', 'default', 'paymentGatewayPublishedStatus', 'paymentGatewayUrl', 'digitalPaymentStatus'));
+    }
+
+    function checkPaymentGatewaySupportedCurrencies($currencyCode, $currencyCodes, $paymentGateways): array
+    {
+        $isEnabledToUse = 0;
+        $totalSupportedGateway = 0;
+        $supportForGateway = [];
+        $mustRequiredForGateway = 1;
+        foreach ($paymentGateways as $paymentGateway) {
+            $getPaymentGatewaySupportedCurrencies = $this->getPaymentGatewaySupportedCurrencies(key: $paymentGateway->key_name);
+            if ($getPaymentGatewaySupportedCurrencies && array_key_exists($currencyCode, $getPaymentGatewaySupportedCurrencies)) {
+                $isEnabledToUse = 1;
+                $totalSupportedGateway += 1;
+                $supportForGateway[] = $paymentGateway->key_name;
+                foreach ($currencyCodes as $singleCode) {
+                    if ($singleCode->status == 1 && $singleCode->code != $currencyCode && array_key_exists($singleCode->code, $getPaymentGatewaySupportedCurrencies)) {
+                        $mustRequiredForGateway = 0;
+                    }
+                }
+            }
+        }
+        if (count($supportForGateway) == 0) {
+            $mustRequiredForGateway = 0;
+        }
+        return [
+            'is_enabled_to_use' => $isEnabledToUse,
+            'total_supported_gateway' => $totalSupportedGateway,
+            'must_required_for_gateway' => $mustRequiredForGateway,
+            'supported_gateway' => $supportForGateway,
+        ];
     }
 
     public function add(Request $request): RedirectResponse
     {
-        $currency = [
+        $currencyExist = $this->currencyRepo->getFirstWhere(params: ['code' => $request['code']]);
+        if ($currencyExist) {
+            Toastr::warning(translate('Currency_already_exist'));
+            return redirect()->back();
+        }
+        $this->currencyRepo->add([
             'name' => $request['name'],
             'symbol' => $request['symbol'],
             'code' => $request['code'],
             'exchange_rate' => $request->has('exchange_rate') ? $request['exchange_rate'] : 1,
-        ];
-        $this->currencyRepo->add($currency);
+        ]);
         Toastr::success(translate('New_Currency_inserted_successfully'));
         return redirect()->back();
     }
@@ -129,6 +189,23 @@ class CurrencyController extends BaseController
                 return response()->json([
                     'status' => 0,
                     'message' => translate('You_can_not_disable_all_currencies.')
+                ]);
+            }
+
+            $paymentPublishedStatus = config('get_payment_publish_status') ?? 0;
+            $paymentGatewayPublishedStatus = isset($paymentPublishedStatus[0]['is_published']) ? $paymentPublishedStatus[0]['is_published'] : 0;
+            if ($paymentGatewayPublishedStatus) {
+                $activePaymentGateway = $this->settingRepo->getListWhere(filters: ['settings_type' => 'payment_config', 'is_active' => 1], dataLimit: 'all');
+            } else {
+                $activePaymentGateway = $this->settingRepo->getListWhereIn(filters: ['settings_type' => 'payment_config', 'is_active' => 1], whereInFilters: ['key_name' => GlobalConstant::DEFAULT_PAYMENT_GATEWAYS], dataLimit: 'all');
+            }
+            $currencies = $this->currencyRepo->getListWhere(searchValue: $request['searchValue'], dataLimit: getWebConfig(name: 'pagination_limit'));
+            $currency = $this->currencyRepo->getFirstWhere(params: ['id' => $request['id']]);
+            $checkedData = self::checkPaymentGatewaySupportedCurrencies($currency->code, $currencies, $activePaymentGateway);
+            if ($checkedData['must_required_for_gateway']) {
+                return response()->json([
+                    'status' => 0,
+                    'message' => translate('If_you_disable_this_currency_please_check_in_payment_gateway_settings_that_gateway_only_dependent_on_support_this_currency')
                 ]);
             }
         }

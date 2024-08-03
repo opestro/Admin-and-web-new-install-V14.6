@@ -110,7 +110,7 @@
                                         </div>
                                         <div class="mt-4 text-center">
                                             <img class="upload-img-view" id="viewer"
-                                                 src="{{ getValidImage(path: 'storage/app/public/delivery-man/'.$deliveryMan['image'], type: 'backend-profile') }}"
+                                                 src="{{ getStorageImages(path:$deliveryMan->image_full_url, type: 'backend-profile') }}"
                                                  alt=""/>
                                         </div>
                                     </div>
@@ -121,10 +121,10 @@
                                         <div>
                                             <div class="row" id="coba">
                                                 @if($deliveryMan['identity_image'])
-                                                    @foreach(json_decode($deliveryMan['identity_image'],true) as $img)
+                                                    @foreach($deliveryMan->identity_images_full_url as $img)
                                                         <div class="col-md-4 mb-3">
                                                             <img height="150" alt=""
-                                                                 src="{{getValidImage(path: 'storage/app/public/delivery-man/'.$img,type:'backend-basic')}}">
+                                                                 src="{{getStorageImages(path:$img,type:'backend-basic')}}">
                                                         </div>
                                                     @endforeach
                                                 @endif

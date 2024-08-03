@@ -31,19 +31,21 @@
                                 </form>
                             </div>
                             <div class="col-sm-4 col-md-6 col-lg-8 d-flex justify-content-end">
-                                <button type="button" class="btn btn-outline--primary" data-toggle="dropdown">
-                                    <i class="tio-download-to"></i>
-                                    {{ translate('export') }}
-                                    <i class="tio-chevron-down"></i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('admin.brand.export', ['searchValue'=>request('searchValue')]) }}">
-                                            <img width="14" src="{{ dynamicAsset(path: 'public/assets/back-end/img/excel.png') }}" alt="">
-                                            {{ translate('excel') }}
-                                        </a>
-                                    </li>
-                                </ul>
+                                <div class="dropdown">
+                                    <button type="button" class="btn btn-outline--primary" data-toggle="dropdown">
+                                        <i class="tio-download-to"></i>
+                                        {{ translate('export') }}
+                                        <i class="tio-chevron-down"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin.brand.export', ['searchValue'=>request('searchValue')]) }}">
+                                                <img width="14" src="{{ dynamicAsset(path: 'public/assets/back-end/img/excel.png') }}" alt="">
+                                                {{ translate('excel') }}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -68,7 +70,7 @@
                                         <td>
                                             <div class="avatar-60 d-flex align-items-center rounded">
                                                 <img class="img-fluid" alt=""
-                                                     src="{{ getValidImage(path: 'storage/app/public/brand/'.$brand['image'], type: 'backend-brand') }}">
+                                                     src="{{ getStorageImages(path:$brand->image_full_url, type: 'backend-brand') }}">
                                             </div>
                                         </td>
                                         <td class="overflow-hidden max-width-100px">

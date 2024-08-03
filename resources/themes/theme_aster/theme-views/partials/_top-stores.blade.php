@@ -24,10 +24,7 @@
                              data-swiper-breakpoints='{"0": {"slidesPerView": "1"}, "768": {"slidesPerView": "2"}, "992": {"slidesPerView": "3"}}'>
                             <div class="swiper-wrapper">
                                 @foreach($topVendorsList as $vendorData)
-{{--                                    @if($vendorData['id'] == 11)--}}
-{{--                                        @dd($vendorData)--}}
-{{--                                    @endif--}}
-                                    @if($vendorData)
+                                    @if($vendorData && $vendorData->products_count >0)
                                         <div class="swiper-slide align-items-start bg-light rounded">
                                             <div class="bg-light position-relative rounded p-3 p-sm-4 w-100">
                                                 @if(isset($vendorData?->coupon_list) && count($vendorData?->coupon_list)>0)
@@ -71,9 +68,9 @@
                                                                         <i class="bi bi-eye fs-12"></i>
                                                                     </span>
                                                                     <img width="100"
-                                                                         src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'product') }}"
+                                                                         src="{{getStorageImages(path:$product['thumbnail_full_url'], type: 'product') }}"
                                                                          alt="" loading="lazy"
-                                                                         class="dark-support rounded">
+                                                                         class="dark-support rounded aspect-1 img-fit">
                                                                 </div>
                                                                 <div
                                                                     class="product__price d-flex justify-content-center flex-wrap column-gap-2">
@@ -87,6 +84,14 @@
                                                                 </div>
                                                             </a>
                                                         @endforeach
+                                                        <!-- Adjust extra width -->
+                                                        @if(count($vendorData->products)==1)
+                                                            <div></div>
+                                                            <div></div>
+                                                        @endif
+                                                        @if(count($vendorData->products)==2)
+                                                            <div></div>
+                                                        @endif
                                                     </div>
                                                 @endif
                                             </div>
@@ -102,7 +107,7 @@
         @if(isset($footer_banner[1]))
             <div class="col-12 mt-3 d-sm-none">
                 <a href="{{ $footer_banner[1]['url'] }}" class="ad-hover">
-                    <img src="{{ getValidImage(path: 'storage/app/public/banner/'.$footer_banner[1]['photo'], type:'banner') }}" loading="lazy"
+                    <img src="{{ getStorageImages(path: $footer_banner[1]['photo_full_url'], type:'banner') }}" loading="lazy"
                          class="dark-support rounded w-100" alt="">
                 </a>
             </div>

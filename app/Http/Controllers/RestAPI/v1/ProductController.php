@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\Review;
 use App\Models\ShippingMethod;
 use App\Models\Wishlist;
+use App\Traits\FileManagerTrait;
 use App\Utils\CategoryManager;
 use App\Utils\Helpers;
 use App\Utils\ImageManager;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
+    use FileManagerTrait;
     public function __construct(
         private Product      $product,
         private Order        $order,
@@ -178,11 +180,11 @@ class ProductController extends Controller
         return response()->json(['products' => $products_array], 200);
     }
 
-    public function get_product(Request $request, $slug)
+    public function getProductDetails(Request $request, $slug)
     {
         $user = Helpers::get_customer($request);
 
-        $product = Product::with(['reviews.customer', 'seller.shop', 'tags'])
+        $product = Product::with(['reviews.customer', 'seller.shop', 'tags', 'digitalVariation'])
             ->withCount(['wishList' => function ($query) use ($user) {
                 $query->where('customer_id', $user != 'offline' ? $user->id : '0');
             }])
@@ -225,7 +227,9 @@ class ProductController extends Controller
 
     public function get_home_categories(Request $request)
     {
-        $categories = Category::where('home_status', true)->get();
+        $categories = Category::whereHas('product', function ($query){
+            return $query->active();
+        })->where('home_status', true)->get();
         $categories->map(function ($data) use ($request) {
             $data['products'] = Helpers::product_data_formatting(CategoryManager::products($data['id'], $request), true);
             return $data;
@@ -247,21 +251,17 @@ class ProductController extends Controller
 
     public function get_product_reviews($id)
     {
-        $reviews = Review::with(['customer'])->where(['product_id' => $id])->get();
-
-        $storage = [];
+        $reviews = Review::with(['customer', 'reply'])->where(['product_id' => $id])->get();
         foreach ($reviews as $item) {
-            $item['attachment'] = json_decode($item['attachment']);
-            array_push($storage, $item);
+            $item['attachment_full_url'] = $item->attachment_full_url;
         }
-
-        return response()->json($storage, 200);
+        return response()->json($reviews, 200);
     }
 
-    public function getProductReviewByOrder(Request $request, $productId, $orderId)
+    public function getProductReviewByOrder(Request $request, $productId, $orderId): JsonResponse
     {
         $user = $request->user();
-        $reviews = Review::where(['product_id' => $productId, 'customer_id' => $user->id])->whereNull('delivery_man_id')->get();
+        $reviews = Review::with('reply')->where(['product_id' => $productId, 'customer_id' => $user->id])->whereNull('delivery_man_id')->get();
         $reviewData = null;
         foreach ($reviews as $review) {
             if ($review->order_id == $orderId) {
@@ -272,10 +272,10 @@ class ProductController extends Controller
             $reviewData = ($reviews[0]['order_id'] == null) ? $reviews[0] : null;
         }
         if ($reviewData) {
-            $reviewData['attachment'] = $reviewData['attachment'] ? json_decode($reviewData['attachment']) : [];
+            $reviewData['attachment_full_url'] = $reviewData->attachment_full_url;
         }
 
-        return response()->json($reviewData, 200);
+        return response()->json($reviewData ?? [], 200);
     }
 
     public function deleteReviewImage(Request $request): JsonResponse
@@ -283,15 +283,16 @@ class ProductController extends Controller
         $review = Review::find($request['id']);
 
         $array = [];
-        foreach (json_decode($review['attachment']) as $image) {
-            if ($image != $request['name']) {
+        foreach ($review->attachment as $image) {
+            $imageName = $image['file_name'] ?? $image;
+            if ($imageName != $request['name']) {
                 $array[] = $image;
             } else {
-                ImageManager::delete('review/' . $request['name']);
+                $this->delete(filePath: 'review/' . $request['name']);
             }
         }
 
-        $review->attachment = json_encode($array);
+        $review->attachment = $array;
         $review->save();
         return response()->json(translate('review_image_removed_successfully'), 200);
     }
@@ -332,6 +333,7 @@ class ProductController extends Controller
 
     public function submit_product_review(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'product_id' => 'required',
             'order_id' => 'required',
@@ -342,32 +344,53 @@ class ProductController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
-
-
         $image_array = [];
         if (!empty($request->file('fileUpload'))) {
             foreach ($request->file('fileUpload') as $image) {
                 if ($image != null) {
-                    array_push($image_array, ImageManager::upload('review/', 'webp', $image));
+                    $image_array[] = [
+                        'file_name' => $this->upload('review/', 'webp', $image),
+                        'storage' => getWebConfig(name: 'storage_connection_type') ?? 'public',
+                    ];
                 }
             }
         }
 
-        Review::updateOrCreate(
-            [
+
+        $reviewData = Review::where([
                 'delivery_man_id' => null,
                 'customer_id' => $request->user()->id,
-                'product_id' => $request->product_id,
-                'order_id' => $request->order_id
-            ],
-            [
+                'product_id' => $request['product_id'],
+                'order_id' => $request['order_id'],
+            ])->first();
+        if ($reviewData) {
+            $reviewData->update([
                 'customer_id' => $request->user()->id,
-                'product_id' => $request->product_id,
-                'comment' => $request->comment,
-                'rating' => $request->rating,
-                'attachment' => json_encode($image_array),
-            ]
-        );
+                'product_id' => $request['product_id'],
+                'comment' => $request['comment'],
+                'rating' => $request['rating'],
+                'attachment' => $image_array,
+            ]);
+        } else {
+            $reviewArray = [
+                'customer_id' => $request->user()->id,
+                'order_id' => $request['order_id'],
+                'product_id' => $request['product_id'],
+                'comment' => $request['comment'],
+                'rating' => $request['rating'],
+                'attachment' => $image_array,
+            ];
+
+
+            $oldReview = Review::where(['order_id' => $request['order_id']])->get();
+            if (count($oldReview) > 0) {
+                $review_id = $oldReview[0]['order_id'] . (count($oldReview) + 1);
+            } else {
+                $review_id = $request['order_id'] . '1';
+            }
+            $reviewArray['id'] = $review_id;
+            Review::create($reviewArray);
+        }
 
         return response()->json(['message' => translate('successfully_review_submitted')], 200);
     }
@@ -386,11 +409,19 @@ class ProductController extends Controller
         }
 
         $review = Review::find($request['id']);
-        $image_array = $review->attachment ? json_decode($review->attachment) : [];
+        $image_array = [];
+        if ($review && $review->attachment && $request->has('fileUpload')) {
+            foreach ($review->attachment as $image) {
+                $image_array[] = $image;
+            }
+        }
         if (!empty($request->file('fileUpload'))) {
             foreach ($request->file('fileUpload') as $image) {
                 if ($image != null) {
-                    array_push($image_array, ImageManager::upload('review/', 'webp', $image));
+                    $image_array[] = [
+                        'file_name' => $this->upload('review/', 'webp', $image),
+                        'storage' => getWebConfig(name: 'storage_connection_type') ?? 'public',
+                    ];
                 }
             }
         }
@@ -398,7 +429,7 @@ class ProductController extends Controller
         $review->order_id = $request->order_id;
         $review->comment = $request->comment;
         $review->rating = $request->rating;
-        $review->attachment = json_encode($image_array);
+        $review->attachment = $image_array;
         $review->save();
 
         return response()->json(['message' => translate('successfully_review_updated')], 200);

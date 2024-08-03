@@ -244,9 +244,9 @@ class ChattingController extends BaseController
         $userData = ['name' => $user['f_name'].' '.$user['l_name'],'phone' => $user['country_code'].$user['phone']];
 
         if ($type == 'customer') {
-            $userData['image'] = getValidImage(path: 'storage/app/public/profile/' . ($user['image']), type: 'backend-profile');
+            $userData['image'] = getStorageImages(path: $user->image_full_url, type: 'backend-profile');
         }else {
-            $userData['image'] = getValidImage(path: 'storage/app/public/delivery-man/' . ($user['image']), type: 'backend-profile');
+            $userData['image'] = getStorageImages(path: $user->image_full_url, type: 'backend-profile');
         }
 
         return [

@@ -140,36 +140,39 @@
                         class="card-header border-0 gap-2 d-flex flex-column flex-sm-row align-items-center justify-content-between">
                         <h5 class="mb-0 font-bold fs-16">{{ translate('Transaction_History') }}</h5>
 
-                        @if(count($loyaltyPointList) > 0)
                             <div class="navbar-nav">
                                 <div class="dropdown border rounded">
-                                    <button class="btn btn-sm pl-3 dropdown-toggle ps-0" type="button" id="dropdownMenuButton"
+                                    <button class="btn btn-sm pl-3 dropdown-toggle" type="button" id="dropdownMenuButton"
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        {{ translate('filter')}}
-                                        : {{ request()->has('type') ? ucwords(translate(request('type'))):translate('all')}}
+                                        @if (Session::get('direction') === 'rtl')
+                                            {{ request()->has('type') ? ucwords(translate(request('type'))):translate('all')}}
+                                            : {{ translate('filter')}}
+                                        @else
+                                            {{ translate('filter')}}
+                                            : {{ request()->has('type') ? ucwords(translate(request('type'))):translate('all')}}
+                                        @endif
                                     </button>
 
-                                    <div class="dropdown-menu __dropdown-menu-3 __min-w-165px text-align-direction"
-                                         aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item" href="{{route('loyalty')}}/?type=all">
-                                            {{translate('all_Transaction')}}
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="{{route('loyalty')}}/?type=order_place">
-                                            {{translate('order_transactions')}}
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="{{route('loyalty')}}/?type=point_to_wallet">
-                                            {{translate('point_to_wallet')}}
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="{{route('loyalty')}}/?type=refund_order">
-                                            {{translate('refund_order')}}
-                                        </a>
-                                    </div>
+                                <div class="dropdown-menu __dropdown-menu-3 __min-w-165px text-align-direction"
+                                     aria-labelledby="dropdownMenuButton">
+                                    <a class="dropdown-item" href="{{route('loyalty')}}/?type=all">
+                                        {{translate('all_Transaction')}}
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="{{route('loyalty')}}/?type=order_place">
+                                        {{translate('order_transactions')}}
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="{{route('loyalty')}}/?type=point_to_wallet">
+                                        {{translate('point_to_wallet')}}
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="{{route('loyalty')}}/?type=refund_order">
+                                        {{translate('refund_order')}}
+                                    </a>
                                 </div>
                             </div>
-                        @endif
+                        </div>
 
                     </div>
 
@@ -188,7 +191,7 @@
                                                     src="{{ theme_asset(path: 'public/assets/front-end/img/icons/coin-success.png') }}"
                                                     width="25" alt="">
                                             @endif
-                                            <span class="fs-18 font-bold">
+                                            <span class="absolute-ltr font-bold fs-18">
                                                 {{ $item['debit'] != 0 ? ' - '.$item['debit'] : ' + '.$item['credit'] }}
                                             </span>
                                         </h6>

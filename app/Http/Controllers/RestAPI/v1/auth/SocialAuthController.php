@@ -4,7 +4,7 @@ namespace App\Http\Controllers\RestAPI\v1\auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\BusinessSetting;
-use App\User;
+use App\Models\User;
 use App\Utils\CartManager;
 use App\Utils\Helpers;
 use Firebase\JWT\JWT;
@@ -163,19 +163,15 @@ class SocialAuthController extends Controller
 
     public static function login_process_passport($user, $email, $password)
     {
-        $data = [
-            'email' => $email,
-            'password' => $password
-        ];
-
-        if (isset($user) && $user->is_active && auth()->attempt($data)) {
+        $token = null;
+        if (isset($user)) {
+            auth()->login($user);
             $token = auth()->user()->createToken('LaravelAuthApp')->accessToken;
-        } else {
-            $token = null;
         }
 
         return $token;
     }
+
     public function update_phone(Request $request)
     {
         $validator = Validator::make($request->all(), [

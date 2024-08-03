@@ -25,3 +25,8 @@ const GATEWAYS_DEFAULT_UPDATE_200 = [
     'response_code' => 'gateways_default_update_200',
     'message' => 'successfully updated'
 ];
+
+const GATEWAYS_STATUS_UPDATE_FAIL = [
+    'response_code' => 'gateways_default_update_200',
+    'message' => 'status update failed'
+];

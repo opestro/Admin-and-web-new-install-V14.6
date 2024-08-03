@@ -13,7 +13,7 @@
                             <div class="d-flex justify-content-center align-items-center __pt-20 __m-20-r">
                                 <div class="position-relative">
                                     <img class="__rounded-top aspect-1 h-auto" alt=""
-                                         src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$deal_of_the_day->product['thumbnail'], type: 'product') }}">
+                                         src="{{ getStorageImages(path: $deal_of_the_day?->product?->thumbnail_full_url, type: 'product') }}">
                                     @if($deal_of_the_day->discount > 0)
                                         <span class="for-discount-value p-1 pl-2 pr-2 font-bold fs-13">
                                             <span class="direction-ltr d-block">
@@ -81,7 +81,7 @@
 
                                 <div class="d-flex justify-content-center align-items-center __pt-20 __m-20-r">
                                     <div class="position-relative">
-                                        <img src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$recommendedProduct['thumbnail'], type: 'product') }}"
+                                        <img src="{{ getStorageImages(path: $recommendedProduct?->thumbnail_full_url, type: 'product') }}"
                                             alt="">
                                         @if($recommendedProduct->discount > 0)
                                             <span class="for-discount-value p-1 pl-2 pr-2 font-bold fs-13">

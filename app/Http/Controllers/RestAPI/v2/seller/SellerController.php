@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers\RestAPI\v2\seller;
 
-use App\Http\Controllers\api\v2\seller\Review;
-use App\Http\Controllers\Controller;
-use App\Models\DeliveryMan;
-use App\Models\OrderTransaction;
-use App\Models\Product;
-use App\Models\Seller;
-use App\Models\SellerWallet;
 use App\Models\Shop;
-use App\Models\WithdrawRequest;
-use App\Utils\BackEndHelper;
+use App\Models\Review;
+use App\Models\Seller;
 use App\Utils\Convert;
 use App\Utils\Helpers;
+use App\Models\Product;
+use App\Models\DeliveryMan;
 use App\Utils\ImageManager;
+use Illuminate\Support\Str;
+use App\Models\SellerWallet;
+use App\Utils\BackEndHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use App\Models\WithdrawRequest;
+use App\Models\OrderTransaction;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class SellerController extends Controller
 {

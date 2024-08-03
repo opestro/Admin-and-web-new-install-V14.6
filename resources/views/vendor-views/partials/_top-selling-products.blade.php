@@ -13,7 +13,7 @@
                         <div class="grid-item bg-transparent basic-box-shadow">
                             <div class="d-flex align-items-center gap-10">
                                 <img class="avatar avatar-lg rounded avatar-bordered"
-                                     src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'. $product['thumbnail'], type: 'backend-product') }}"
+                                     src="{{ getStorageImages(path:$product->thumbnail_full_url, type: 'backend-product') }}"
                                      alt="{{$product->name}} image">
                                 <span class="title-color line--limit-2">{{substr($product['name'],0,40)}} {{strlen($product['name'])>20?'...':''}}</span>
                             </div>

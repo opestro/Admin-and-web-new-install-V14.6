@@ -17,6 +17,8 @@
                 <input type="hidden" name="quantity" value="1">
                 <input type="hidden" name="currency" value="{{ $data->currency_code }}">
                 <input type="hidden" name="metadata" value="{{ json_encode($array = ['orderID' => $data->attribute_id]) }}">
+                <input type="hidden" name="metadata"
+                       value="{{ json_encode($array = ['orderID' => $data->attribute_id,'cancel_action'=> route('paystack.cancel', ['payments_id' => $data->id])]) }}">
                 <input type="hidden" name="reference" value="{{ $reference }}">
                 <button class="btn btn-block d--none" id="pay-button" type="submit"></button>
             </div>

@@ -143,8 +143,15 @@
 
                                             <div class="mb-2 d-flex">
                                                 <div class="custom_img_upload aspect-ratio-3-15">
+                                                    <?php
+                                                        $imageArray = [
+                                                            'image_name' => $item?->icon->image_name ?? $item?->icon,
+                                                            'storage' => $item?->icon?->storage ?? 'public',
+                                                        ];
+                                                        $imagePath = storageLink('banner',$imageArray['image_name'],$imageArray['storage']);
+                                                    ?>
                                                     <img id="pre_img_header_logo{{ $card_index }}"
-                                                         src="{{ getValidImage(path: 'storage/app/public/banner/'.$item->icon, type: 'backend-basic') }}" class="w-100" alt="">
+                                                         src="{{ getStorageImages(path: $imagePath, type: 'backend-basic') }}" class="w-100" alt="">
                                                 </div>
                                             </div>
                                         </div>

@@ -35,7 +35,7 @@
                                 <div class="d-flex flex-wrap">
                                     <div class="top-rated-image">
                                         <img class="rounded"
-                                             src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$top->product['thumbnail'], type: 'product') }}"
+                                             src="{{ getStorageImages(path: $top->product->thumbnail_full_url, type: 'product') }}"
                                              alt="{{ translate('product') }}"/>
                                     </div>
                                     <div class="top-rated-details">

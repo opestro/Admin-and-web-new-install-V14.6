@@ -196,7 +196,7 @@
                             <button type="submit" class="btn btn--primary">{{ translate('search')}}</button>
                         </div>
                     </form>
-                    <div>
+                    <div class="dropdown">
                         <button type="button" class="btn btn-outline--primary text-nowrap btn-block"
                                 data-toggle="dropdown">
                             <i class="tio-download-to"></i>

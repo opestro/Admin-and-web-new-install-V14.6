@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\StorageTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class MostDemanded
@@ -22,7 +24,7 @@ use Illuminate\Support\Carbon;
  */
 class MostDemanded extends Model
 {
-    use HasFactory;
+    use HasFactory,StorageTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -52,5 +54,32 @@ class MostDemanded extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+    public function getBannerFullUrlAttribute():array|null
+    {
+        $value = $this->banner;
+        if (count($this->storage) > 0) {
+            $storage = $this->storage->where('key', 'banner')->first();
+        }
+        return $this->storageLink('most-demanded',$value,$storage['value'] ?? 'public');
+    }
+    protected $appends = ['banner_full_url'];
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::saved(function ($model) {
+            if($model->isDirty('banner')){
+                $storage = config('filesystems.disks.default') ?? 'public';
+                DB::table('storages')->updateOrInsert([
+                    'data_type' => get_class($model),
+                    'data_id' => $model->id,
+                    'key' => 'banner',
+                ], [
+                    'value' => $storage,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        });
     }
 }

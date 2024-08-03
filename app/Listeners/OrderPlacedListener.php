@@ -42,7 +42,7 @@ class OrderPlacedListener
         try {
             $this->sendingMail(sendMailTo: $email, userType: $data['userType'], templateName: $data['templateName'], data: $data);
         } catch (\Exception $exception) {
-            dd($exception);
+
         }
     }
 

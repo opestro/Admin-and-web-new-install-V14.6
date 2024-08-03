@@ -3,11 +3,11 @@
 @section('title', translate('track_Order_Result'))
 
 @push('css_or_js')
-    <meta property="og:image" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']->value}}"/>
+    <meta property="og:image" content="{{$web_config['web_logo']['path']}}"/>
     <meta property="og:title" content="{{$web_config['name']->value}} "/>
     <meta property="og:url" content="{{env('APP_URL')}}">
     <meta property="og:description" content="{{ substr(strip_tags(str_replace('&nbsp;', ' ', $web_config['about']->value)),0,160) }}">
-    <meta property="twitter:card" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']->value}}"/>
+    <meta property="twitter:card" content="{{$web_config['web_logo']['path']}}"/>
     <meta property="twitter:title" content="{{$web_config['name']->value}}"/>
     <meta property="twitter:url" content="{{env('APP_URL')}}">
     <meta property="twitter:description" content="{{ substr(strip_tags(str_replace('&nbsp;', ' ', $web_config['about']->value)),0,160) }}">

@@ -4,7 +4,7 @@
             <div class="row align-items-center">
                 <div class="col-lg-6">
                     <div class="text-center">
-                        <img width="360" src=" {{ !empty($downloadVendorApp?->image) ? getValidImage(path:'storage/app/public/vendor-registration-setting/'.$downloadVendorApp?->image,type: 'product') : theme_asset('public/assets/front-end/img/media/phone.png')}}" class="dark-support" alt="">
+                        <img width="360" src=" {{ !empty($downloadVendorApp?->image) ? getStorageImages(path:imagePathProcessing(imageData: $downloadVendorApp?->image, path: 'vendor-registration-setting'),type: 'product') : theme_asset('public/assets/front-end/img/media/phone.png')}}" class="dark-support" alt="">
                     </div>
                 </div>
                 <div class="col-lg-6">

@@ -289,7 +289,7 @@
                                             <td>
                                                 <div class="media align-items-center gap-3">
                                                     <img class="rounded border" alt="{{ translate('product') }}"
-                                                         src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$productDetails->thumbnail, type: 'product') }}"
+                                                         src="{{ getStorageImages(path: $orderDetail?->productAllStatus?->thumbnail_full_url, type: 'product') }}"
                                                          width="100px">
                                                     <div class="get-view-by-onclick" data-link="{{route('product',$productDetails->slug)}}">
                                                         <a href="{{route('product',$productDetails->slug)}}">

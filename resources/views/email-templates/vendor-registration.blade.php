@@ -213,7 +213,7 @@ $direction = Session::get('direction');
     <tr>
         <td>
             <img class="mail-img-2"
-                 src="{{ getValidImage(path: "storage/app/public/company/".$companyLogo, type:'backend-logo') }}"
+                 src="{{ getStorageImages(path: $companyLogo, type:'backend-logo') }}"
                  id="logoViewer" alt="">
             <span class="privacy">
                     <a href="{{route('privacy-policy') }}" target="_blank"

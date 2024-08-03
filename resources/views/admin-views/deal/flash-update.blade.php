@@ -14,7 +14,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{route('admin.deal.update',[$deal['id']])}}" method="post"
+                        <form action="{{route('admin.deal.update-data',[$deal['id']])}}" method="post"
                               class="text-start onsubmit-disable-action-button"
                               enctype="multipart/form-data">
                             @csrf
@@ -74,7 +74,7 @@
                                         <div class="form-group">
                                             <div class="d-flex justify-content-center">
                                                 <img class="border radius-10 ratio-4:1 max-w-655px img-fit" id="viewer"
-                                                     src="{{ getValidImage(path: 'storage/app/public/deal/'. $deal['banner'] , type: 'backend-basic') }}"
+                                                     src="{{ getStorageImages(path: $deal->banner_full_url , type: 'backend-basic') }}"
                                                      alt="{{translate('banner_image')}}"/>
                                             </div>
                                         </div>

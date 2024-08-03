@@ -21,7 +21,7 @@
                     <div class="media gap-3">
                         <div class="avatar avatar-xxl position-relative overflow-hidden rounded">
                             <img loading="lazy" alt="Product"
-                                src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$cartItem['thumbnail'], type: 'product') }}"
+                                src="{{ getStorageImages(path: $cartItem?->product?->thumbnail_full_url, type: 'product') }}"
                                 class="img-fit dark-support rounded img-fluid overflow-hidden {{ $product && $product->status == 0?'blur-section':'' }}">
                             @if ($product && $product->status == 0)
                                 <span class="temporary-closed position-absolute text-center p-2">
@@ -30,9 +30,14 @@
                             @endif
                         </div>
                         <div class="media-body">
-                            <h6 class="mb-2 {{ $product && $product->status == 0 ? 'blur-section':'' }}">
+                            <h6 class="mb-1 {{ $product && $product->status == 0 ? 'blur-section':'' }}">
                                 <a href="{{ $product && $product->status == 1 ? route('product',$cartItem['slug']) : 'javascript:'}}">{{Str::limit($cartItem['name'],30)}}</a>
                             </h6>
+                            @if(!empty($cartItem['variant']))
+                                <div>
+                                    <span class="fs-12">{{translate('variant')}} : {{ $cartItem['variant'] }}</span>
+                                </div>
+                            @endif
                             <div class="d-flex gap-3 justify-content-between align-items-end">
                                 <div class="d-flex flex-column gap-1 {{ $product && $product->status == 0?'blur-section':'' }}">
                                     <div class="fs-12"><span

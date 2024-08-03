@@ -5,8 +5,12 @@ namespace App\Http\Controllers\Payment_Methods;
 use App\Models\PaymentRequest;
 use App\Models\User;
 use App\Traits\Processor;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 use Unicodeveloper\Paystack\Facades\Paystack;
@@ -86,6 +90,15 @@ class PaystackController extends Controller
         }
 
         $payment_data = $this->payment::where(['attribute_id' => $paymentDetails['data']['metadata']['orderID']])->first();
+        if (isset($payment_data) && function_exists($payment_data->failure_hook)) {
+            call_user_func($payment_data->failure_hook, $payment_data);
+        }
+        return $this->payment_response($payment_data, 'fail');
+    }
+
+    public function cancel(Request $request): Application|JsonResponse|Redirector|RedirectResponse
+    {
+        $payment_data = $this->payment::where(['id' => $request['payments_id']])->first();
         if (isset($payment_data) && function_exists($payment_data->failure_hook)) {
             call_user_func($payment_data->failure_hook, $payment_data);
         }

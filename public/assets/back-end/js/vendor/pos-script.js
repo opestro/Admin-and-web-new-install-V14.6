@@ -819,16 +819,22 @@ function getVariantPrice(type = null) {
                     $(".quick-view-modal-add-cart-button").text(
                         $("#message-update-to-cart").data("text")
                     );
+
                     if (type == null) {
                         $(".in-cart-quantity-field").val(data.inCartData.quantity);
                         data.inCartData.quantity == 1
-                            ? buttonDisableOrEnableFunction('in-cart-quantity-minus',true )
+                            ? buttonDisableOrEnableFunction('in-cart-quantity-minus', true)
                             : "";
+                        price = data.inCartData.price;
+                        tax = data.inCartData.tax;
+                        discount = (data.inCartData.discount * data.inCartData.quantity);
+                    } else {
+                        price = data.price;
+                        tax = data.tax;
+                        discount = (data.discount * data.requestQuantity);
                     }
-                    price = data.inCartData.price;
-                    tax = data.inCartData.tax;
-                    discount = (data.inCartData.discount*data.inCartData.quantity);
-                    stockStatus(data.quantity,'in-cart-quantity-plus','in-cart-quantity-field')
+
+                    stockStatus(data.quantity, 'in-cart-quantity-plus', 'in-cart-quantity-field')
                 }
                 setProductData('price-section',price,tax,discount);
             },

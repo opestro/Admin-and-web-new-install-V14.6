@@ -57,7 +57,7 @@
                                     </div>
                                 </form>
                             </div>
-                            <div class="">
+                            <div class="dropdown">
                                 <button type="button" class="btn btn-outline--primary text-nowrap" data-toggle="dropdown">
                                     <i class="tio-download-to"></i>
                                     {{translate('export')}}
@@ -103,7 +103,7 @@
                                 <td class="text-capitalize">
                                     <div class="media align-items-center gap-10">
                                         <img class="rounded-circle avatar avatar-lg" alt=""
-                                             src="{{getValidImage(path: 'storage/app/public/admin/'.$employee['image'],type:'backend-profile')}}">
+                                             src="{{getStorageImages(path: $employee->image_full_url,type:'backend-profile')}}">
                                         <div class="media-body">
                                             {{$employee['name']}}
                                         </div>

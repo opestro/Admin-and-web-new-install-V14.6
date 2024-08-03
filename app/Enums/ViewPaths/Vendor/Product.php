@@ -30,6 +30,16 @@ enum Product
         VIEW => ''
     ];
 
+    const DIGITAL_VARIATION_COMBINATION = [
+        URI => 'digital-variation-combination',
+        VIEW => 'vendor-views.product.partials._digital-variation-combination'
+    ];
+
+    const DIGITAL_VARIATION_FILE_DELETE = [
+        URI => 'digital-variation-file-delete',
+        VIEW => ''
+    ];
+
     const UPDATE_STATUS = [
         URI => 'status-update',
         VIEW => ''

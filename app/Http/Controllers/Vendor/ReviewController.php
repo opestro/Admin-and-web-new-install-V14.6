@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Vendor;
 
 use App\Contracts\Repositories\CustomerRepositoryInterface;
 use App\Contracts\Repositories\ProductRepositoryInterface;
+use App\Contracts\Repositories\ReviewReplyRepositoryInterface;
 use App\Contracts\Repositories\ReviewRepositoryInterface;
 use App\Contracts\Repositories\VendorRepositoryInterface;
 use App\Enums\ViewPaths\Vendor\Review;
@@ -24,12 +25,15 @@ class ReviewController extends BaseController
      * @param ReviewRepositoryInterface $reviewRepo
      * @param ProductRepositoryInterface $productRepo
      * @param CustomerRepositoryInterface $customerRepo
+     * @param VendorRepositoryInterface $vendorRepo
+     * @param ReviewReplyRepositoryInterface $reviewReplyRepo
      */
     public function __construct(
-        private readonly ReviewRepositoryInterface   $reviewRepo,
-        private readonly ProductRepositoryInterface  $productRepo,
-        private readonly CustomerRepositoryInterface $customerRepo,
-        private readonly VendorRepositoryInterface $vendorRepo,
+        private readonly ReviewRepositoryInterface      $reviewRepo,
+        private readonly ProductRepositoryInterface     $productRepo,
+        private readonly CustomerRepositoryInterface    $customerRepo,
+        private readonly VendorRepositoryInterface      $vendorRepo,
+        private readonly ReviewReplyRepositoryInterface $reviewReplyRepo,
     )
     {
     }
@@ -73,7 +77,7 @@ class ReviewController extends BaseController
                 globalScope: false,
                 orderBy: ['id' => 'desc'],
                 whereInFilters: $whereInFilters,
-                relations: ['product', 'customer'],
+                relations: ['product', 'customer', 'reply'],
                 nullFields: ['delivery_man_id'],
                 dataLimit: getWebConfig('pagination_limit'));
         } else {
@@ -83,7 +87,7 @@ class ReviewController extends BaseController
                 whereHasFilter: ['added_by' => 'seller', 'user_id' => $vendorId],
                 orderBy: ['id' => 'desc'],
                 filters: $filters,
-                relations: ['product', 'customer'],
+                relations: ['product', 'customer', 'reply'],
                 dataLimit: getWebConfig('pagination_limit'),
 
             );
@@ -181,5 +185,19 @@ class ReviewController extends BaseController
             'key' => $request['search'],
         ];
         return Excel::download(new CustomerReviewListExport($data), 'Product-Review-List.xlsx');
+    }
+
+    public function addReviewReply(Request $request): RedirectResponse
+    {
+        $this->reviewReplyRepo->updateOrInsert(params: [
+            'review_id' => $request['review_id'],
+            'added_by' => 'seller',
+            'added_by_id' => auth('seller')->id()
+        ], data: [
+            'reply_text' => $request['reply_text'],
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        return back();
     }
 }

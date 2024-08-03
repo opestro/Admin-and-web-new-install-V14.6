@@ -454,6 +454,7 @@ function buyNow(){
         if (redirectStatus === false) {
             $("#quickViewModal").modal("hide");
             $("#loginModal").modal("show");
+            toastr.warning($('.login-warning').data('login-warning-message'));
         }
     })
 }
@@ -576,6 +577,12 @@ function addToCart(form_id, redirect_to_checkout = false, url = null) {
                         timeOut: 3000,
                     });
 
+                    let actionAddToCartBtn = $('.add-to-cart');
+                    if (response.in_cart_key) {
+                        $('.in_cart_key[name="key"]').val(response.in_cart_key);
+                        actionAddToCartBtn.html(actionAddToCartBtn.data('update-text'))
+                    }
+
                     if (redirect_to_checkout == true && response.redirect_to_url) {
                         setTimeout(function () {
                             location.href = response.redirect_to_url;
@@ -673,19 +680,20 @@ function removeFromCart(key) {
         }
     }
 }
-function updateCart(){
-    $('.cart-quantity-update').on('click',function (){
+
+function updateCart() {
+    $('.cart-quantity-update').on('click', function () {
         let cartId = $(this).data('cart-id');
         let productId = $(this).data('product-id');
         let value = $(this).data('value')
         let event = $(this).data('event')
-        updateCartQuantity(cartId,productId,value,event)
+        updateCartQuantity(cartId, productId, value, event)
     });
-    $('.cart-quantity-update-input').on('change',function (){
+    $('.cart-quantity-update-input').on('change', function () {
         let cartId = $(this).data('cart-id');
         let productId = $(this).data('product-id');
         let value = $(this).data('value')
-        updateCartQuantity(cartId,productId,value)
+        updateCartQuantity(cartId, productId, value)
     });
 }
 updateCart();
@@ -774,6 +782,26 @@ function updateCartQuantity(cartId, productId, action, event) {
     }
 }
 
+function getUpdateProductAddUpdateCartBtn(response) {
+    try {
+        let productInfo = $('.product-generated-variation-code');
+        let productVariantExist = false;
+
+        response?.cartList?.map(function (item, index) {
+            if (productInfo.data('product-id') == item?.id && productInfo.val() == item?.variant) {
+                productVariantExist = true;
+            }
+        })
+
+        if (!productVariantExist) {
+            let actionAddToCartBtn = $('.add-to-cart');
+            actionAddToCartBtn.html(actionAddToCartBtn.data('add-text'))
+            $('.in_cart_key[name="key"]').val('');
+        }
+    } catch (e) {
+    }
+}
+
 function cartItemRemoveFunction(removeUrl, token, cartId, segment) {
     $.post(
         removeUrl,
@@ -787,6 +815,9 @@ function cartItemRemoveFunction(removeUrl, token, cartId, segment) {
                 CloseButton: true,
                 ProgressBar: true,
             });
+
+            getUpdateProductAddUpdateCartBtn(response)
+
             if (
                 segment === "shop-cart" ||
                 segment === "checkout-payment" ||
@@ -1366,13 +1397,7 @@ $('.digital-product-download').on('click',function (){
         },
         success: function (data) {
             if (data.status === 1 && data.file_path) {
-                const a = document.createElement('a');
-                a.href = data.file_path;
-                a.download = data.file_name;
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(data.file_path);
+                downloadFileUsingFileUrl(data.file_path);
             } else if (data.status === 0) {
                 toastr.error(data.message);
             }
@@ -1451,10 +1476,60 @@ renderCouponCodeApply()
 $('.close-element-onclick-by-data').on('click', function (){
     $($(this).data('selector')).slideUp('slow').fadeOut('slow');
 })
+
 function playAudio() {
     document.getElementById("myAudio").play();
 }
 
-$('#profile-reset-button').on('click', function () {
+$("#search-value").on("keyup", function () {
+    let value = $(this).val().toLowerCase();
+    $(".chat-list").filter(function () {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+});
 
+$(".remove-img-row-by-key").on("click", function () {
+    let reviewId = $(this).data("review-id");
+    let getPhoto = $(this).data("photo");
+    let key = $(this).data("key");
+
+    $.ajaxSetup({
+        headers: {"X-CSRF-TOKEN": $('meta[name="_token"]').attr("content")},
+    });
+    $.ajax({
+        type: "POST",
+        url: $(this).data("route"),
+        data: {
+            id: reviewId,
+            name: getPhoto,
+        },
+        success: function (response) {
+            if (response.message) {
+                toastr.success(response.message);
+            }
+            $(".img-container-" + key).remove();
+        },
+    });
+});
+
+function downloadFileUsingFileUrl(url) {
+    fetch(url)
+        .then(response => response.blob())
+        .then(blob => {
+            const filename = url.substring(url.lastIndexOf('/') + 1);
+            const blobUrl = window.URL.createObjectURL(new Blob([blob]));
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+        })
+        .catch(error => console.error('Error downloading file:', error));
+}
+
+
+$('.getDownloadFileUsingFileUrl').on('click', function() {
+    let getLink = $(this).data('file-path');
+    downloadFileUsingFileUrl(getLink)
 })

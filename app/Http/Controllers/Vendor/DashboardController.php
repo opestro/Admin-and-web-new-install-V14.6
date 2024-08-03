@@ -100,7 +100,7 @@ class DashboardController extends BaseController
         $dateType = 'yearEarn';
         $dashboardData = [
             'orderStatus' => $this->getOrderStatusArray(type: 'overall'),
-            'customers'=> $this->customerRepo->getList()->count(),
+                'customers'=> $this->customerRepo->getList(dataLimit: 'all')->count(),
             'products'=> $this->productRepo->getListWhere(filters: ['seller_id'=>$vendorId,'added_by'=>'seller'])->count(),
             'orders'=> $this->orderRepo->getListWhere(filters: ['seller_id'=>$vendorId,'seller_is'=>'seller'])->count(),
             'brands'=> $this->brandRepo->getListWhere(dataLimit: 'all')->count(),

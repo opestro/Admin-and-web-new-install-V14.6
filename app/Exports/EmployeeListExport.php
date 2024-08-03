@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -63,10 +64,20 @@ class EmployeeListExport implements FromView, ShouldAutoSize, WithStyles,WithCol
     }
     public function setImage($workSheet) {
         $this->data['employees']->each(function($item,$index) use($workSheet) {
-            $drawing = new Drawing();
+            $tempImagePath = null;
+            $filePath = 'admin/'.$item->image_full_url['key'];
+            $fileCheck = fileCheck(disk:'public',path: $filePath);
+            if($item->image_full_url['path'] && !$fileCheck){
+                $tempImagePath = getTemporaryImageForExport($item->image_full_url['path']);
+                $imagePath = getImageForExport($item->image_full_url['path']);
+                $drawing = new MemoryDrawing();
+                $drawing->setImageResource($imagePath);
+            }else{
+                $drawing = new Drawing();
+                $drawing->setPath(is_file(storage_path('app/public/'.$filePath)) ? storage_path('app/public/'.$filePath) : public_path('assets/back-end/img/employee.png'));
+            }
             $drawing->setName($item->name);
             $drawing->setDescription($item->name);
-            $drawing->setPath(file_exists(storage_path('app/public/admin/'.$item->image))? storage_path('app/public/admin/'.$item->image) : public_path('assets/back-end/img/employee.png'));
             $drawing->setHeight(50);
             $drawing->setOffsetX(45);
             $drawing->setOffsetY(10);
@@ -74,7 +85,9 @@ class EmployeeListExport implements FromView, ShouldAutoSize, WithStyles,WithCol
             $index+=5;
             $drawing->setCoordinates("B$index");
             $drawing->setWorksheet($workSheet);
-
+            if($tempImagePath){
+                imagedestroy($tempImagePath);
+            }
         });
     }
 

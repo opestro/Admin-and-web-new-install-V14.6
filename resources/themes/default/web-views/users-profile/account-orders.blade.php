@@ -60,10 +60,10 @@
                                                 <a href="{{ route('account-order-details', ['id'=>$order->id]) }}" class="d-block position-relative">
                                                 @if($order->seller_is == 'seller')
                                                     <img alt="{{ translate('shop') }}"
-                                                         src="{{ getValidImage(path: 'storage/app/public/shop/'.(isset($order->seller->shop) ? $order->seller->shop->image:'shop'), type: 'shop') }}">
+                                                         src="{{ getStorageImages(path: $order?->seller?->shop->image_full_url, type: 'shop') }}">
                                                 @elseif($order->seller_is == 'admin')
                                                     <img alt="{{ translate('shop') }}"
-                                                         src="{{ getValidImage(path: 'storage/app/public/company/'.$web_config['fav_icon']->value, type: 'shop') }}">
+                                                         src="{{ getStorageImages(path: $web_config['fav_icon'], type: 'shop') }}">
                                                 @endif
                                                 </a>
                                                 <div class="cont text-start">
@@ -99,7 +99,8 @@
                                         </td>
                                         <td class="bodytr">
                                             <div class="text-dark fs-13 font-bold">
-                                                {{ webCurrencyConverter(amount: $order['order_amount']) }}
+                                                @php($orderTotalPriceSummary = \App\Utils\OrderManager::getOrderTotalPriceSummary(order: $order))
+                                                {{ webCurrencyConverter(amount:  $orderTotalPriceSummary['totalAmount']) }}
                                             </div>
                                         </td>
                                         <td class="bodytr">
@@ -122,7 +123,7 @@
                         @else
                             <div class="d-flex justify-content-center align-items-center h-100">
                                 <div class="d-flex flex-column justify-content-center align-items-center gap-3">
-                                    <img src="{{ dynamicStorage(path: 'public/assets/front-end/img/empty-icons/empty-orders.svg') }}" alt="" width="100">
+                                    <img src="{{ theme_asset(path: 'public/assets/front-end/img/empty-icons/empty-orders.svg') }}" alt="" width="100">
                                     <h5 class="text-muted fs-14 font-semi-bold text-center">{{ translate('You_have_not_any_order_yet') }}!</h5>
                                 </div>
                             </div>
@@ -155,10 +156,10 @@
                                         <a href="{{ route('account-order-details', ['id'=>$order->id]) }}" class="d-block position-relative">
                                             @if($order->seller_is == 'seller')
                                                 <img class="border-lighter" alt="{{ translate('shop') }}"
-                                                     src="{{ getValidImage(path: 'storage/app/public/shop/'.(isset($order->seller->shop) ? $order->seller->shop->image:'shop'), type: 'shop') }}">
+                                                     src="{{ getStorageImages(path:  $order?->seller?->shop->image_full_url, type: 'shop') }}">
                                             @elseif($order->seller_is == 'admin')
                                                 <img alt="{{ translate('shop') }}"
-                                                     src="{{ getValidImage(path: 'storage/app/public/company/'.$web_config['fav_icon']->value, type: 'logo') }}">
+                                                     src="{{ getStorageImages(path:$web_config['fav_icon'], type: 'shop') }}">
                                             @endif
                                         </a>
                                         <div class="cont text-start">
@@ -209,7 +210,7 @@
                         @if($orders->count()==0)
                             <div class="d-flex justify-content-center align-items-center h-100 pt-5">
                                 <div class="d-flex flex-column justify-content-center align-items-center gap-3">
-                                    <img src="{{ dynamicStorage(path: 'public/assets/front-end/img/empty-icons/empty-orders.svg') }}" alt="" width="100">
+                                    <img src="{{ theme_asset(path: 'public/assets/front-end/img/empty-icons/empty-orders.svg') }}" alt="" width="100">
                                     <h5 class="text-muted fs-14 font-semi-bold text-center">{{ translate('You_have_not_any_order_yet') }}!</h5>
                                 </div>
                             </div>

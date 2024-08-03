@@ -1,6 +1,6 @@
 <div class="pos-product-item card action-select-product" data-id="{{ $product['id'] }}">
     <div class="pos-product-item_thumb">
-        <img class="img-fit" src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'backend-product') }}"
+        <img class="img-fit" src="{{ getStorageImages(path:$product->thumbnail_full_url, type: 'backend-product') }}"
              alt="{{ $product['name'] }}">
     </div>
 

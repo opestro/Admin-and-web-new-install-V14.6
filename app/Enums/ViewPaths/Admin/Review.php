@@ -24,6 +24,11 @@ enum Review
         VIEW => 'admin-views.partials._search-product'
     ];
 
+    const REVIEW_REPLY = [
+        URI => 'add-review-reply',
+        VIEW => ''
+    ];
+
     const EXPORT = [
         URI => 'export',
         VIEW => ''

@@ -8,7 +8,7 @@ use App\Models\Chatting;
 use App\Models\DeliveryMan;
 use App\Models\Seller;
 use App\Models\Shop;
-use App\User;
+use App\Models\User;
 use App\Utils\Helpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;

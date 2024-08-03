@@ -8,7 +8,7 @@
                         <div class="p-30">
                             @php($overall_rating = getOverallRating($deal_of_the_day->product->reviews))
                             <div class="today-best-deal d-flex justify-content-between gap-2 gap-sm-3">
-                                <div class="d-flex flex-column gap-1">
+                                <div class="d-flex flex-column gap-1 max-w-280px">
                                     <div class="mb-3 mb-sm-4">
                                         <div
                                             class="sub-title text-muted mb-1 text-capitalize">{{ translate('don’t_miss_the_chance').'!' }}
@@ -16,7 +16,7 @@
                                         <h2 class="title text-primary fw-extra-bold text-capitalize">{{ translate('today’s_best_deal') }}</h2>
                                     </div>
                                     <div class="mb-3 mb-sm-4 d-flex flex-column gap-1">
-                                        <h6 class="text-capitalize">{{ Str::limit($deal_of_the_day->product->name,30) }}</h6>
+                                        <h6 class="text-capitalize line-limit-2">{{ $deal_of_the_day->product->name }}</h6>
                                         <div class="d-flex gap-2 align-items-center">
                                             <div class="star-rating text-gold fs-12">
                                                 @for ($i = 1; $i <= 5; $i++)
@@ -40,9 +40,11 @@
                                             <ins class="product__new-price">
                                                 {{ Helpers::currency_converter($deal_of_the_day->product->unit_price-Helpers::get_product_discount($deal_of_the_day->product,$deal_of_the_day->product->unit_price)) }}
                                             </ins>
+                                        </div>
+                                        <div class="mt-xl-2">
                                             <span class="product__save-amount">{{ translate('save') }}
                                                 {{ Helpers::currency_converter(Helpers::get_product_discount($deal_of_the_day->product,$deal_of_the_day->product->unit_price)) }}
-                                        </span>
+                                            </span>
                                         </div>
                                     </div>
                                     <div class="d-flex">
@@ -52,7 +54,7 @@
                                 </div>
                                 <div class="text-center">
                                     <img width="309" alt="" class="dark-support rounded"
-                                         src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$deal_of_the_day->product->thumbnail, type: 'product') }}">
+                                         src="{{ getStorageImages(path: $deal_of_the_day?->product?->thumbnail_full_url, type: 'product') }}">
                                 </div>
                             </div>
                         </div>
@@ -85,8 +87,8 @@
                                                 </span>
                                             </span>
                                         @endif
-                                        <img width="100" alt="" loading="lazy" class="dark-support rounded"
-                                             src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'product') }}">
+                                        <img width="100" alt="" loading="lazy" class="dark-support rounded aspect-1"
+                                             src="{{ getStorageImages(path:$product->thumbnail_full_url, type: 'product') }}">
                                     </div>
                                     <div class="product__price d-flex flex-wrap justify-content-center column-gap-2">
                                         @if($product->discount > 0)

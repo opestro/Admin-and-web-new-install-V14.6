@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\PaymentRequest;
-use App\User;
+use App\Models\User;
 use App\Utils\Helpers;
 use App\Http\Controllers\Controller;
 use App\Library\Payer;
@@ -224,7 +224,7 @@ class PaymentController extends Controller
     {
         $additionalData = [
             'business_name' => getWebConfig(name: 'company_name'),
-            'business_logo' => asset('storage/app/public/company') . '/' . getWebConfig(name: 'company_web_logo'),
+            'business_logo' => getStorageImages(path: getWebConfig('company_web_logo'), type:'shop'),
             'payment_mode' => $request->has('payment_platform') ? $request['payment_platform'] : 'web',
         ];
 
@@ -260,6 +260,15 @@ class PaymentController extends Controller
             $additionalData['coupon_code'] = $request['coupon_code'];
             $additionalData['coupon_discount'] = $request['coupon_discount'];
             $additionalData['payment_request_from'] = $request['payment_request_from'];
+        } else {
+            $additionalData['customer_id'] = $user != 'offline' ? $user->id : $getCustomerID;
+            $additionalData['order_note'] = session('order_note') ?? null;
+            $additionalData['address_id'] = session('address_id') ?? 0;
+            $additionalData['billing_address_id'] = session('billing_address_id') ?? 0;
+
+            $additionalData['coupon_code'] = session('coupon_code') ?? null;
+            $additionalData['coupon_discount'] = session('coupon_discount') ?? 0;
+            $additionalData['payment_request_from'] = $request['payment_mode'] ?? 'web';
         }
         $additionalData['new_customer_id'] = $getCustomerID;
         $additionalData['is_guest_in_order'] = $isGuestUserInOrder;
@@ -397,7 +406,7 @@ class PaymentController extends Controller
 
         $additional_data = [
             'business_name' => BusinessSetting::where(['type' => 'company_name'])->first()->value,
-            'business_logo' => asset('storage/app/public/company') . '/' . Helpers::get_business_settings('company_web_logo'),
+            'business_logo' => getWebConfig('company_web_logo')['path'],
             'payment_mode' => $request->has('payment_platform') ? $request->payment_platform : 'web',
         ];
 

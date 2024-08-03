@@ -166,7 +166,6 @@
             }
             @endif
         });
-        initializePhoneInput(".phone-input-with-country-picker", ".country-picker-phone-number");
     </script>
     <script src="{{theme_asset('assets/js/password-strength.js')}}"></script>
 @endpush

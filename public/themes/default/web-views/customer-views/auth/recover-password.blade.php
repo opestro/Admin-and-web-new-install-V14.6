@@ -14,17 +14,17 @@
                 @if($verification_by == 'email')
 
                     <ol class="list-unstyled font-size-md p-0">
-                        <li>
+                        <li class="d-flex gap-1">
                             <span class="text-primary mr-2">{{ translate('1')}}.</span>
-                            {{ translate('use_your_registered_email_address')}}
+                            <span class="w-0 flex-grow">{{ translate('use_your_registered_email_address')}}</span>
                         </li>
-                        <li>
+                        <li class="d-flex gap-1">
                             <span class="text-primary mr-2">{{ translate('2')}}.</span>
-                            {{ translate('we_will_send_you_a_temporary_password_recovery_link_in_your_email') }}
+                            <span class="w-0 flex-grow">{{ translate('we_will_send_you_a_temporary_password_recovery_link_in_your_email') }}</span>
                         </li>
-                        <li>
+                        <li class="d-flex gap-1">
                             <span class="text-primary mr-2">{{ translate('3')}}.</span>
-                            {{ translate('Click_the_recovery_link_to_change_your_password_on_our_secure_website')}}
+                            <span class="w-0 flex-grow">{{ translate('Click_the_recovery_link_to_change_your_password_on_our_secure_website')}}</span>
                         </li>
                     </ol>
 

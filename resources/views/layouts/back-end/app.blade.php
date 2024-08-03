@@ -9,14 +9,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>@yield('title')</title>
-    <meta name="_token" content="{{csrf_token()}}">
-    <link rel="shortcut icon" href="{{dynamicStorage(path: 'storage/app/public/company/'.getWebConfig(name: 'company_fav_icon'))}}">
+    <meta name="_token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="shortcut icon" href="{{getStorageImages(path: getWebConfig(name: 'company_fav_icon'), type:'backend-logo')}}">
     <link rel="stylesheet" href="{{dynamicAsset(path: 'public/assets/back-end/css/vendor.min.css')}}">
     <link rel="stylesheet" href="{{dynamicAsset(path: 'public/assets/back-end/css/bootstrap.min.css')}}">
     <link rel="stylesheet" href="{{dynamicAsset(path: 'public/assets/back-end/css/google-fonts.css')}}">
     <link rel="stylesheet" href="{{dynamicAsset(path: 'public/assets/back-end/css/custom.css')}}">
     <link rel="stylesheet" href="{{dynamicAsset(path: 'public/assets/back-end/vendor/icon-set/style.css')}}">
     <link rel="stylesheet" href="{{dynamicAsset(path: 'public/assets/back-end/css/theme.minc619.css?v=1.0')}}">
+    <link rel="stylesheet" href="{{dynamicAsset(path: 'public/assets/back-end/css/daterangepicker.css')}}">
     <link rel="stylesheet" href="{{dynamicAsset(path: 'public/assets/back-end/css/style.css')}}">
     <link rel="stylesheet" href="{{dynamicAsset(path: 'public/assets/back-end/css/toastr.css')}}">
     @if(Session::get('direction') === "rtl")
@@ -90,6 +92,7 @@
 <span id="get-customer-list-without-all-customer-route" data-action="{{route('admin.customer.customer-list-without-all-customer')}}"></span>
 
 <span id="get-search-product-route" data-action="{{route('admin.products.search-product')}}"></span>
+<span id="get-multiple-product-details-route" data-action="{{route('admin.products.multiple-product-details')}}"></span>
 <span id="get-orders-list-route" data-action="{{route('admin.orders.list',['status'=>'all'])}}"></span>
 <span id="get-stock-limit-status" data-action="{{route('admin.products.stock-limit-status',['type'=>'in_house'])}}"></span>
 <span id="get-product-stock-limit-title" data-title="{{translate('warning')}}"></span>
@@ -117,6 +120,10 @@
 <script src="{{dynamicAsset(path: 'public/assets/back-end/js/sweet_alert.js')}}"></script>
 <script src="{{dynamicAsset(path: 'public/assets/back-end/js/toastr.js')}}"></script>
 <script src="{{dynamicAsset(path: 'public/js/lightbox.min.js')}}"></script>
+
+<script src="{{dynamicAsset(path: 'public/assets/back-end/js/moment.min.js')}}"></script>
+<script src="{{dynamicAsset(path: 'public/assets/back-end/js/daterangepicker.min.js')}}"></script>
+
 <script src="{{dynamicAsset(path: 'public/assets/back-end/js/custom.js')}}"></script>
 <script src="{{dynamicAsset(path: 'public/assets/back-end/js/app-script.js')}}"></script>
 

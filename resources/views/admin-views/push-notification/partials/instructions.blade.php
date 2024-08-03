@@ -33,7 +33,7 @@
                                      src="{{dynamicAsset(path: 'public/assets/back-end/img/json-file.png')}}"
                                      loading="lazy" alt="">
                                 <h4 class="lh-md mb-3 text-capitalize">{{translate('how_to_get_JSON_file')}}</h4>
-                                <p class="text-center">{{translate('in_project_ settings').', '.translate('_click_on_"generate_new_private_key"').'. '.translate('then_you_will_get_a_JSON_file').', '.translate('copy_the_JSON_file_and_paste_it_into_the_Firebase_configuration_field').', '.translate('_then_submit.').'.'}}</p>
+                                <p class="text-center">{{translate('in_project_ settings').', '.translate('_click_on_generate_new_private_key').'. '.translate('then_you_will_get_a_JSON_file').', '.translate('copy_the_JSON_file_and_paste_it_into_the_Firebase_configuration_field').', '.translate('_then_submit.').'.'}}</p>
                                 <button class="btn btn-primary w-100 max-w-250 mx-auto mt-3 text-capitalize"
                                         data-dismiss="modal">{{ translate('got_it') }}</button>
                             </div>

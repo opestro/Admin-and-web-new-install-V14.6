@@ -42,7 +42,7 @@
                             </div>
                             <div class="text-sm-right flex-grow-1">
                                 <div class="d-flex flex-wrap gap-10 justify-content-end">
-                                    @if ($order->verification_images && count($order->verification_images)>0 && $order->verification_status ==1)
+                                    @if ($order->verificationImages && count($order->verificationImages)>0 && $order->verification_status ==1)
                                         <div>
                                             <button class="btn btn--primary px-4" data-toggle="modal"
                                                     data-target="#order_verification_modal"><i
@@ -160,19 +160,18 @@
                                 @php($total_price=0)
                                 @php($subtotal=0)
                                 @php($total=0)
-                                @php($shipping=0)
                                 @php($discount=0)
                                 @php($tax=0)
                                 @php($row=0)
                                 @foreach($order->details as $key=>$detail)
-                                    @php($productDetails = $detail?->product ?? json_decode($detail->product_details) )
+                                    @php($productDetails = $detail?->productAllStatus ?? json_decode($detail->product_details) )
                                     @if($productDetails)
                                         <tr>
                                             <td>{{ ++$row }}</td>
                                             <td>
                                                 <div class="media align-items-center gap-10">
-                                                    <img class="avatar avatar-60 rounded"
-                                                         src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$productDetails->thumbnail, type: 'backend-product') }}"
+                                                    <img class="avatar avatar-60 rounded img-fit"
+                                                         src="{{ getStorageImages(path:$detail?->productAllStatus?->thumbnail_full_url, type: 'backend-product') }}"
                                                          alt="{{translate('image_Description')}}">
                                                     <div>
                                                         <h6 class="title-color">{{substr($productDetails->name, 0, 30)}}{{strlen($productDetails->name)>10?'...':''}}</h6>
@@ -180,7 +179,7 @@
                                                         </div>
                                                         <div>
                                                             <strong>{{translate('unit_price')}} :</strong>
-                                                            {{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $detail->price+( $detail->tax_model =='include' ? $detail->tax : 0)), currencyCode: getCurrencyCode())}}
+                                                            {{ setCurrencySymbol(amount: usdToDefaultCurrency(amount: $detail['price'] + ($detail->tax_model =='include' ? ($detail['tax'] / $detail['qty']) :0))) }}
                                                             @if ($detail->tax_model =='include')
                                                                 ({{translate('tax_incl.')}})
                                                             @else
@@ -189,11 +188,16 @@
 
                                                         </div>
                                                         @if ($detail->variant)
-                                                            <div><strong>{{translate('variation')}}
-                                                                    :</strong> {{$detail['variant']}}</div>
+                                                            <div>
+                                                                <strong>
+                                                                    {{translate('variation')}} :
+                                                                </strong>
+                                                                {{$detail['variant']}}
+                                                            </div>
                                                         @endif
                                                     </div>
                                                 </div>
+
                                                 @if(isset($productDetails->digital_product_type) && $productDetails->digital_product_type == 'ready_after_sell')
                                                     <button type="button" class="btn btn-sm btn--primary mt-2"
                                                             title="{{translate('file_upload')}}" data-toggle="modal"
@@ -229,13 +233,21 @@
                                                         method="post" enctype="multipart/form-data">
                                                         @csrf
                                                         <div class="modal-body">
-                                                            @if($detail->digital_file_after_sell)
+                                                            @if($detail?->digital_file_after_sell_full_url && isset($detail->digital_file_after_sell_full_url['key']))
+                                                                <div class="mb-4">
+                                                                    {{translate('uploaded_file').' : '}}
+                                                                    @php($downloadPathExist = $detail->digital_file_after_sell_full_url['status'])
+                                                                    <span data-file-path="{{ $downloadPathExist ? $detail->digital_file_after_sell_full_url['path'] : 'javascript:' }}" class="getDownloadFileUsingFileUrl btn btn-success btn-sm {{ $downloadPathExist ?  '' : 'download-path-not-found' }}" title="{{translate('download')}}">
+                                                                        {{translate('download')}} <i class="tio-download"></i>
+                                                                    </span>
+                                                                </div>
+                                                            @elseif($detail->digital_file_after_sell)
                                                                 <div class="mb-4">
                                                                     {{translate('uploaded_file').' : '}}
                                                                     @php($downloadPath =dynamicStorage(path: 'storage/app/public/product/digital-product/'.$detail->digital_file_after_sell))
-                                                                    <a href="{{file_exists( $downloadPath) ?  $downloadPath : 'javascript:' }}" class="btn btn-success btn-sm {{file_exists( $downloadPath) ?  $downloadPath : 'download-path-not-found'}}" title="{{translate('download')}}">
+                                                                    <span data-file-path="{{file_exists( $downloadPath) ?  $downloadPath : 'javascript:' }}" class="getDownloadFileUsingFileUrl btn btn-success btn-sm {{file_exists( $downloadPath) ?  $downloadPath : 'download-path-not-found'}}" title="{{translate('download')}}">
                                                                         {{translate('download')}} <i class="tio-download"></i>
-                                                                    </a>
+                                                                    </span>
                                                                 </div>
                                                             @else
                                                                 <h4 class="text-center">{{translate('file_not_found').'!'}}</h4>
@@ -278,24 +290,23 @@
                             </table>
                         </div>
 
-                        @php($shipping=$order['shipping_cost'])
-                        @php($coupon_discount = $order['discount_amount'])
                         <hr/>
+                        @php($orderTotalPriceSummary = \App\Utils\OrderManager::getOrderTotalPriceSummary(order: $order))
                         <div class="row justify-content-md-end mb-3">
                             <div class="col-md-9 col-lg-8">
                                 <dl class="row gy-1 text-sm-right">
                                     <dt class="col-5">{{translate('item_price')}}</dt>
                                     <dd class="col-6 title-color">
-                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $item_price), currencyCode: getCurrencyCode())}}</strong>
+                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $orderTotalPriceSummary['itemPrice']), currencyCode: getCurrencyCode())}}</strong>
                                     </dd>
                                     <dt class="col-5 text-capitalize">{{translate('item_discount')}}</dt>
                                     <dd class="col-6 title-color">
                                         -
-                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $discount), currencyCode: getCurrencyCode())}}</strong>
+                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $orderTotalPriceSummary['itemDiscount']), currencyCode: getCurrencyCode())}}</strong>
                                     </dd>
                                     <dt class="col-5 text-capitalize">{{translate('sub_total')}}</dt>
                                     <dd class="col-6 title-color">
-                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $item_price-$discount), currencyCode: getCurrencyCode())}}</strong>
+                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $orderTotalPriceSummary['subTotal']), currencyCode: getCurrencyCode())}}</strong>
                                     </dd>
                                     <dt class="col-5 text-nowrap">
                                         {{translate('coupon_discount')}}
@@ -303,11 +314,11 @@
                                         {{(!in_array($order['coupon_code'], [0, NULL]) ? '('.translate('expense_bearer_').($order['coupon_discount_bearer']=='inhouse' ? 'admin' : ($order['coupon_discount_bearer'] =='seller'? 'vendor' : $order['coupon_discount_bearer'])).')': '' )}}
                                     </dt>
                                     <dd class="col-6 title-color">
-                                        -<strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $coupon_discount), currencyCode: getCurrencyCode())}}</strong>
+                                        -<strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $orderTotalPriceSummary['couponDiscount']), currencyCode: getCurrencyCode())}}</strong>
                                     </dd>
                                     <dt class="col-5 text-uppercase">{{translate('vat')}}/{{translate('tax')}}</dt>
                                     <dd class="col-6 title-color">
-                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $tax), currencyCode: getCurrencyCode())}}</strong>
+                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $orderTotalPriceSummary['taxTotal']), currencyCode: getCurrencyCode())}}</strong>
                                     </dd>
                                     <dt class="col-5 text-capitalize">
                                         {{translate('delivery_fee')}}
@@ -315,16 +326,12 @@
                                         {{($order['is_shipping_free'] ? '('.translate('expense_bearer_').($order['free_delivery_bearer'] == 'seller' ? 'vendor' : $order['free_delivery_bearer']).')': '' )}}
                                     </dt>
                                     <dd class="col-6 title-color">
-                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $shipping), currencyCode: getCurrencyCode())}}</strong>
+                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $orderTotalPriceSummary['shippingTotal']), currencyCode: getCurrencyCode())}}</strong>
                                     </dd>
 
-                                    @php($delivery_fee_discount = 0)
-                                    @if ($order['is_shipping_free'])
-                                        @php($delivery_fee_discount = $shipping)
-                                    @endif
                                     <dt class="col-5"><strong>{{translate('total')}}</strong></dt>
                                     <dd class="col-6 title-color">
-                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $total+$shipping-$coupon_discount -$delivery_fee_discount), currencyCode: getCurrencyCode())}}</strong>
+                                        <strong>{{ setCurrencySymbol(amount: usdToDefaultCurrency(amount: $orderTotalPriceSummary['totalAmount']), currencyCode: getCurrencyCode())}}</strong>
                                     </dd>
                                 </dl>
                             </div>
@@ -471,7 +478,7 @@
                                         <div class="p-2 bg-light rounded mt-4">
                                             <div class="media m-1 gap-3">
                                                 <img class="avatar rounded-circle"
-                                                     src="{{ getValidImage(path: 'storage/app/public/delivery-man/'.$order->deliveryMan?->image, type: 'backend-profile') }}"
+                                                     src="{{ getStorageImages(path: $order->deliveryMan?->image_full_url, type: 'backend-profile') }}"
                                                      alt="{{translate('Image')}}">
                                                 <div class="media-body">
                                                     <h5 class="mb-1">{{ $order->deliveryMan?->f_name.' '.$order->deliveryMan?->l_name}}</h5>
@@ -557,7 +564,7 @@
                             <div class="media flex-wrap gap-3">
                                 <div class="">
                                     <img class="avatar rounded-circle avatar-70"
-                                         src="{{ getValidImage(path: 'storage/app/public/profile/'.$order->customer->image , type: 'backend-basic') }}"
+                                         src="{{ getStorageImages(path: $order->customer->image_full_url , type: 'backend-basic') }}"
                                          alt="{{translate('Image')}}">
                                 </div>
                                 <div class="media-body d-flex flex-column gap-1">
@@ -704,7 +711,7 @@
                             @if($order->seller_is == 'admin')
                                 <div class="mr-3">
                                     <img class="avatar rounded avatar-70 img-fit-contain "
-                                         src="{{ getValidImage(path: 'storage/app/public/company/'.$companyWebLogo , type: 'backend-basic') }}"
+                                         src="{{ getStorageImages(path: $companyWebLogo, type: 'shop') }}"
                                          alt="">
                                 </div>
                                 <div class="media-body d-flex flex-column gap-2">
@@ -715,7 +722,7 @@
                                 @if(!empty($order->seller->shop))
                                     <div class="mr-3">
                                         <img class="avatar rounded avatar-70 img-fit"
-                                             src="{{ getValidImage(path: 'storage/app/public/shop/'.$order->seller->shop->image , type: 'backend-basic') }}"
+                                             src="{{ getStorageImages(path:$order->seller->shop->image_full_url , type: 'backend-basic') }}"
                                              alt="">
                                     </div>
                                     <div class="media-body d-flex flex-column gap-2">
@@ -742,7 +749,7 @@
             </div>
         </div>
     </div>
-    @if ($order->verification_images && count($order->verification_images)>0)
+    @if ($order->verificationImages && count($order->verificationImages)>0)
         <div class="modal fade" id="order_verification_modal" tabindex="-1" aria-labelledby="order_verification_modal"
              aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -755,11 +762,11 @@
                     <div class="modal-body px-4 px-sm-5 pt-0">
                         <div class="d-flex flex-column align-items-center gap-2">
                             <div class="row gx-2">
-                                @foreach ($order->verification_images as $image)
+                                @foreach ($order->verificationImages as $image)
                                     <div class="col-lg-4 col-sm-6 ">
                                         <div class="mb-2 mt-2 border-1">
                                             <img
-                                                src="{{ getValidImage(path: 'storage/app/public/delivery-man/verification-image/'.$image->image , type: 'backend-basic') }}"
+                                                src="{{ getStorageImages(path: $image->image_full_url , type: 'backend-basic') }}"
                                                 class="w-100" alt="">
                                         </div>
                                     </div>

@@ -71,13 +71,13 @@
                                         <div class="mb-30 mx-auto ratio-6:1 overflow-hidden d-flex justify-content-center align-items-center">
                                             <img
                                                 class="ratio-6:1" id="banner-image-view"
-                                                src="{{ getValidImage(path:'storage/app/public/banner/'.json_decode($banner['value'])->image,type: 'backend-basic')}}"
+                                                src="{{ getStorageImages(path:imagePathProcessing(imageData: json_decode($banner['value'])->image,path: 'banner'),type: 'backend-basic')}}"
                                                 alt=""/>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-12 d-flex justify-content-end flex-wrap gap-10">
-                                    <button class="btn btn-secondary cancel px-4" type="reset">{{ translate('reset')}}</button>
+                                    <button class="btn btn-secondary px-4" type="reset">{{ translate('reset')}}</button>
                                     <button id="update" type="submit" class="btn btn--primary text-white">{{ translate('update')}}</button>
                                 </div>
                             </div>

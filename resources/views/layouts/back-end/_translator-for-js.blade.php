@@ -1,9 +1,10 @@
-<span id="call-demo-message" data-text="{{translate("update_option_is_disabled_for_demo").'!'}}"></span>
+<span id="call-demo-message" data-text="{{translate("this_option_is_disabled_for_demo").'!'}}"></span>
 <span id="get-update-status-message"
       data-text="{{translate("status_updated_successfully")}}"
       data-error="{{translate("status_update_failed")}}">
 </span>
 <span id="get-update-success-message" data-text="{{translate("updated_successfully")}}"></span>
+<span id="get-extension-text-message" data-text="{{translate("extension")}}"></span>
 <span id="get-deleted-message" data-text="{{translate("deleted_successfully")}}"></span>
 <span id="get-confirm-and-cancel-button-text" data-sure ="{{translate('are_you_sure').'?'}}"
       data-delete-text="{{translate('once_deleted_you_will_not_be_able_to_recover_this').'!'}}"

@@ -15,14 +15,7 @@ function digitalProductDownloadFormTrackOrder(link) {
         },
         success: function (data) {
             if (data.status == 1 && data.file_path) {
-                const a = document.createElement('a');
-                a.href = data.file_path;
-                a.download = data.file_name;
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(data.file_path);
-
+                downloadFileUsingFileUrl(data.file_path);
             } else if (data.status == 2) {
                 $('#order-details').modal('hide');
                 $('#digital_product_order_otp_verify .modal-body').empty().html(data.view);
@@ -124,13 +117,7 @@ function downloadProductOtpVerify() {
             if (data.status == 1) {
                 $('.verify-message').addClass('text-success').removeClass('text-danger');
                 if (data.file_path) {
-                    const a = document.createElement('a');
-                    a.href = data.file_path;
-                    a.download = data.file_name;
-                    a.style.display = 'none';
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(data.file_path);
+                    downloadFileUsingFileUrl(data.file_path);
                 }
                 $('#digital_product_order_otp_verify').modal('hide');
             } else {

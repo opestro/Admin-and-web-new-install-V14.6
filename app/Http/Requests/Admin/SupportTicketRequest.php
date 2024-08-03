@@ -22,7 +22,7 @@ class SupportTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image.*' => 'image|mimes:jpeg,png,jpg,gif|max:6000'
+            'image.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:6000'
         ];
     }
 

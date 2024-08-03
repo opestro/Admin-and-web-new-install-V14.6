@@ -68,7 +68,7 @@
                                 </div>
                             @else
                                 <div class="text-start">
-                                    <img src="{{getValidImage(path:'storage/app/public/shop/'.$shop->image,type: 'backend-basic')}}"
+                                    <img src="{{getStorageImages(path:$shop->image_full_url,type: 'backend-basic')}}"
                                          class="rounded-circle border"
                                          height="200" width="200" alt="">
                                 </div>

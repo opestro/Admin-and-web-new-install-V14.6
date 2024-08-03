@@ -114,7 +114,7 @@
                 </div>
                 <div class="modal-body px-4 px-sm-5 pt-0">
                     <div class="d-flex flex-column align-items-center text-center gap-2 mb-2">
-                        <img src="{{dynamicAsset(path: 'public/assets/front-end/img/congratulations.png')}}" width="70" class="mb-3 mb-20" alt="">
+                        <img src="{{theme_asset(path: 'public/assets/front-end/img/congratulations.png')}}" width="70" class="mb-3 mb-20" alt="">
                         <h5 class="modal-title">{{translate('congratulations')}}</h5>
                         <div class="text-center">{{translate('your_registration_is_successful').', '.translate('please-wait_for_admin_approval').'.'.translate(' you’ll_get_a_mail_soon')}}</div>
                     </div>
@@ -138,14 +138,13 @@
 
 @push('script')
 
-@if(isset($recaptcha) && $recaptcha['status'] == 1)
+@if($web_config['recaptcha']['status'] == '1')
     <script type="text/javascript">
         "use strict";
             var onloadCallback = function () {
-            grecaptcha.render('recaptcha_element', {
-                'sitekey': '{{ getWebConfig(name: 'recaptcha')['site_key'] }}'
-            });
-        };
+                let reg_id = grecaptcha.render('recaptcha-element-vendor-register', {'sitekey': '{{ $web_config['recaptcha']['site_key'] }}'});
+                $('#recaptcha-element-vendor-register').attr('data-reg-id', reg_id);
+            };
     </script>
     <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script>
 @endif

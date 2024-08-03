@@ -63,12 +63,7 @@ $("#message-send-button").click(function (e) {
     submitMessage.find('#write-message').val('');
     messageHistory.stop().animate({scrollTop: messageHistory[0].scrollHeight}, 1000);
 });
-$("#search-value").on("keyup", function () {
-    let value = $(this).val().toLowerCase();
-    $(".chat-list").filter(function () {
-        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-    });
-});
+
 $('.remove-mask-img').on('click', function(){
     $('.show-more--content').removeClass('active')
 })

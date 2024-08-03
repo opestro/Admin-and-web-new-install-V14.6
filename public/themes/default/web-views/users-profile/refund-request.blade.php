@@ -35,7 +35,7 @@
                                 <div class="row">
                                     <div class="col-3 col-sm-2">
                                         <img class="d-block"
-                                             src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'product') }}"
+                                             src="{{ getStorageImages(path: $product->thumbnail_full_url, type: 'product') }}"
                                              alt="{{ translate('product') }}" width="60">
                                     </div>
                                     <div class="col-9 col-sm-7 text-left">

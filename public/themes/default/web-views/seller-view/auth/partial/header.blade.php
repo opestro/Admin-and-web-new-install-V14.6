@@ -7,7 +7,7 @@
                     <a class="text-primary fw-bold" href="{{route('vendor.auth.login')}}">{{translate('login')}}</a>
                 </p>
                 <div class="my-4 text-center">
-                    <img width="308" src="{{ !empty($vendorRegistrationHeader?->image)  ? getValidImage(path:'storage/app/public/vendor-registration-setting/'.$vendorRegistrationHeader?->image,type: 'product') : theme_asset('public/assets/front-end/img/media/seller-registration.png')}}" alt="" class="dark-support">
+                    <img width="308" src="{{ !empty($vendorRegistrationHeader?->image)  ? getStorageImages(path:imagePathProcessing(imageData: $vendorRegistrationHeader?->image, path: 'vendor-registration-setting'),type: 'product') : theme_asset('public/assets/front-end/img/media/seller-registration.png')}}" alt="" class="dark-support">
                 </div>
             </div>
         </div>

@@ -124,7 +124,7 @@
                                     </td>
                                     <td>
                                         <img class="min-w-75" width="75" height="75"
-                                             src="{{ getValidImage(path: 'storage/app/public/notification/'.$notification['image']?? '', type: 'backend-basic') }}" alt="">
+                                             src="{{ getStorageImages(path: $notification->image_full_url, type: 'backend-basic') }}" alt="">
                                     </td>
                                     <td id="count-{{$notification->id}}">{{ $notification['notification_count'] }}</td>
                                     <td>

@@ -134,7 +134,7 @@
                                                                     @php( $payment_method_img = !empty($gateway->additional_data) ? json_decode($gateway->additional_data)->gateway_image : '' )
                                                                     <div class="form-check-label d-flex align-items-center">
                                                                         <img width="60" alt="{{ translate('payment') }}"
-                                                                             src="{{ getValidImage(path: 'storage/app/public/payment_modules/gateway_image/'.$payment_method_img, type: 'banner') }}">
+                                                                             src="{{ getValidImage(path: 'storage/app/public/payment_modules/gateway_image/'.$payment_method_img, type:'banner') }}">
                                                                         <span class="ml-3">{{ $payment_method_title }}</span>
                                                                     </div>
                                                                 </label>
@@ -207,7 +207,7 @@
                                                         <div class="">
                                                             <h6 class="mb-2 d-flex align-items-center gap-8">
                                                                 <img src="{{ theme_asset(path: 'public/assets/front-end/img/icons/coin-success.png') }}" width="25" alt="">
-                                                                <span>+ {{ webCurrencyConverter(amount: $item['admin_bonus']) }}</span>
+                                                                <span class="absolute-ltr font-bold fs-18">+ {{ webCurrencyConverter(amount: $item['admin_bonus']) }}</span>
                                                             </h6>
                                                             <h6 class="text-muted mb-0 small text-capitalize fs-13 font-semibold">
                                                                 {{ucwords(str_replace('_', ' ', translate('admin_bonus')))}}
@@ -234,7 +234,9 @@
                                                                 <img src="{{ theme_asset(path: 'public/assets/front-end/img/icons/coin-success.png') }}" width="25" alt="">
                                                             @endif
 
-                                                            {{ $item['debit'] != 0 ? ' - '.webCurrencyConverter(amount: $item['debit']) : ' + '.webCurrencyConverter(amount: $item['credit']) }}
+                                                            <span class="absolute-ltr font-bold fs-18">
+                                                                {{ $item['debit'] != 0 ? ' - '.webCurrencyConverter(amount: $item['debit']): ' + '.webCurrencyConverter(amount: $item['credit']) }}
+                                                            </span>
 
                                                         </h6>
                                                         <h6 class="text-muted mb-0 small text-capitalize fs-13 font-semibold">

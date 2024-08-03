@@ -3,13 +3,13 @@
 @section('title', translate('track_Order'))
 
 @push('css_or_js')
-    <meta property="og:image" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']->value}}"/>
+    <meta property="og:image" content="{{$web_config['web_logo']['path']}}"/>
     <meta property="og:title" content="{{$web_config['name']->value}} "/>
     <meta property="og:url" content="{{env('APP_URL')}}">
     <meta property="og:description"
           content="{{ substr(strip_tags(str_replace('&nbsp;', ' ', $web_config['about']->value)),0,160) }}">
 
-    <meta property="twitter:card" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']->value}}"/>
+    <meta property="twitter:card" content="{{$web_config['web_logo']['path']}}"/>
     <meta property="twitter:title" content="{{$web_config['name']->value}}"/>
     <meta property="twitter:url" content="{{env('APP_URL')}}">
     <meta property="twitter:description"
@@ -64,12 +64,13 @@
                                 @php($extra_discount=0)
                                 @php($coupon_discount=0)
                                 @foreach($order as $key=>$order_details)
-                                    @php($productDetails = $orderDetails?->product ?? json_decode($order_details->product_details) )
+                                    @php($productDetails = $order_details?->product ?? json_decode($order_details->product_details) )
+
                                     <tr>
                                         <td class="pt-1 px-0">
                                             <div class="media align-items-center gap-3 p-0">
                                                 <img class="rounded border"
-                                                     src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$productDetails->thumbnail, type: 'product') }}"
+                                                     src="{{ getStorageImages(path: $order_details?->product?->thumbnail_full_url, type: 'product') }}"
                                                      width="100px" alt="{{ translate('product') }}">
                                                 <div>
                                                     <h6 class="title-color mb-2 fs-14 font-semi-bold">{{Str::limit($productDetails->name, 50)}}</h6>

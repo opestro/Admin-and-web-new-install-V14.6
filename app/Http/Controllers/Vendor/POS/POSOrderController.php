@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Vendor\POS;
 
 use App\Contracts\Repositories\CustomerRepositoryInterface;
+use App\Contracts\Repositories\DigitalProductVariationRepositoryInterface;
 use App\Contracts\Repositories\OrderDetailRepositoryInterface;
 use App\Contracts\Repositories\OrderRepositoryInterface;
 use App\Contracts\Repositories\ProductRepositoryInterface;
+use App\Contracts\Repositories\StorageRepositoryInterface;
 use App\Contracts\Repositories\VendorRepositoryInterface;
 use App\Enums\SessionKey;
 use App\Enums\ViewPaths\Vendor\POSOrder;
@@ -38,21 +40,25 @@ class POSOrderController extends BaseController
      * @param OrderRepositoryInterface $orderRepo
      * @param OrderDetailRepositoryInterface $orderDetailRepo
      * @param VendorRepositoryInterface $vendorRepo
+     * @param DigitalProductVariationRepositoryInterface $digitalProductVariationRepo
+     * @param StorageRepositoryInterface $storageRepo
      * @param POSService $POSService
      * @param CartService $cartService
      * @param OrderDetailsService $orderDetailsService
      * @param OrderService $orderService
      */
     public function __construct(
-        private readonly ProductRepositoryInterface $productRepo,
-        private readonly CustomerRepositoryInterface $customerRepo,
-        private readonly OrderRepositoryInterface $orderRepo,
-        private readonly OrderDetailRepositoryInterface $orderDetailRepo,
-        private readonly VendorRepositoryInterface $vendorRepo,
-        private readonly POSService $POSService,
-        private readonly CartService $cartService,
-        private readonly OrderDetailsService $orderDetailsService,
-        private readonly OrderService $orderService,
+        private readonly ProductRepositoryInterface                 $productRepo,
+        private readonly CustomerRepositoryInterface                $customerRepo,
+        private readonly OrderRepositoryInterface                   $orderRepo,
+        private readonly OrderDetailRepositoryInterface             $orderDetailRepo,
+        private readonly VendorRepositoryInterface                  $vendorRepo,
+        private readonly DigitalProductVariationRepositoryInterface $digitalProductVariationRepo,
+        private readonly StorageRepositoryInterface                 $storageRepo,
+        private readonly POSService                                 $POSService,
+        private readonly CartService                                $cartService,
+        private readonly OrderDetailsService                        $orderDetailsService,
+        private readonly OrderService                               $orderService,
     )
     {
     }
@@ -88,65 +94,77 @@ class POSOrderController extends BaseController
      * @param Request $request
      * @return JsonResponse
      */
-    public function placeOrder(Request $request):JsonResponse
+    public function placeOrder(Request $request): JsonResponse
     {
         $amount = $request['amount'];
-        $cartId =session(SessionKey::CURRENT_USER);
+        $cartId = session(SessionKey::CURRENT_USER);
         $condition = $this->POSService->checkConditions(amount: $amount);
-        if ($condition == 'true'){
+        if ($condition == 'true') {
             return response()->json();
         }
         $userId = $this->cartService->getUserId();
-        if($request['type'] == 'wallet' && $userId != 0)
-        {
-            $customerBalance = $this->customerRepo->getFirstWhere(params:['id' => $userId]) ?? 0;
-            if($customerBalance['wallet_balance'] >= $amount)
-            {
+        if ($request['type'] == 'wallet' && $userId != 0) {
+            $customerBalance = $this->customerRepo->getFirstWhere(params: ['id' => $userId]) ?? 0;
+            if ($customerBalance['wallet_balance'] >= $amount) {
                 $this->createWalletTransaction(user_id: $userId, amount: floatval($amount), transaction_type: 'order_place', reference: 'order_place_in_pos');
-            }else{
+            } else {
                 Toastr::error(translate('need_Sufficient_Amount_Balance'));
                 return response()->json();
             }
         }
         $checkProductTypeDigital = $this->cartService->checkProductTypeDigital(cartId: $cartId);
-        if($userId == 0 && $checkProductTypeDigital){
-            return response()->json(['checkProductTypeForWalkingCustomer' =>true,'message'=> translate('To_order_digital_product').','.translate('_kindly_fill_up_the_“Add_New_Customer”_form').'.']);
+        if ($userId == 0 && $checkProductTypeDigital) {
+            return response()->json(['checkProductTypeForWalkingCustomer' => true, 'message' => translate('To_order_digital_product') . ',' . translate('_kindly_fill_up_the_“Add_New_Customer”_form') . '.']);
         }
 
         $cart = session($cartId);
         $orderId = 100000 + $this->orderRepo->getList()->count() + 1;
-        $order = $this->orderRepo->getFirstWhere(params:['id'=>$orderId]);
+        $order = $this->orderRepo->getFirstWhere(params: ['id' => $orderId]);
         if ($order) {
-            $orderId =$this->orderRepo->getList(orderBy:['id'=>'DESC'])->first()->id + 1;
+            $orderId = $this->orderRepo->getList(orderBy: ['id' => 'DESC'])->first()->id + 1;
         }
-        foreach($cart as $item)
-        {
-            if(is_array($item))
-            {
-                $product = $this->productRepo->getFirstWhere(params:['id'=>$item['id']]);
-                if($product)
-                {
+        foreach ($cart as $item) {
+            if (is_array($item)) {
+                $product = $this->productRepo->getFirstWhere(params: ['id' => $item['id']]);
+                if ($product) {
                     $tax = $this->getTaxAmount($item['price'], $product['tax']);
-                    $price = $product['tax_model'] == 'include' ? $item['price']-$tax : $item['price'];
+                    $price = $product['tax_model'] == 'include' ? $item['price'] - $tax : $item['price'];
+
+                    $digitalProductVariation = $this->digitalProductVariationRepo->getFirstWhere(params: ['product_id' => $item['id'], 'variant_key' => $item['variant']], relations: ['storage']);
+                    if ($product['product_type'] == 'digital' && $digitalProductVariation) {
+                        $price = $product['tax_model'] == 'include' ? $digitalProductVariation['price'] - $tax : $digitalProductVariation['price'];
+
+                        if ($product['digital_product_type'] == 'ready_product') {
+                            $getStoragePath = $this->storageRepo->getFirstWhere(params: [
+                                'data_id' => $digitalProductVariation['id'],
+                                "data_type" => "App\Models\DigitalProductVariation",
+                            ]);
+                            $product['digital_file_ready'] = $digitalProductVariation['file'];
+                            $product['storage_path'] = $getStoragePath ? $getStoragePath['value'] : 'public';
+                        }
+                    }elseif ($product['digital_product_type'] == 'ready_product' && !empty($product['digital_file_ready'])) {
+                        $product['storage_path'] = $product['digital_file_ready_storage_type'] ??  'public';
+                    }
+
                     $orderDetail = $this->orderDetailsService->getPOSOrderDetailsData(
-                      orderId:$orderId, item: $item,
-                      product: $product,price:$price,tax: $tax
+                        orderId: $orderId, item: $item,
+                        product: $product, price: $price, tax: $tax
                     );
                     if ($item['variant'] != null) {
                         $type = $item['variant'];
                         $variantStore = [];
-                        foreach (json_decode($product['variation'],true) as $variant) {
+                        foreach (json_decode($product['variation'], true) as $variant) {
                             if ($type == $variant['type']) {
                                 $variant['qty'] -= $item['quantity'];
                             }
                             $variantStore[] = $variant;
                         }
-                        $this->productRepo->update(id: $product['id'],data: ['variation' => json_encode($variantStore)]);
+                        $this->productRepo->update(id: $product['id'], data: ['variation' => json_encode($variantStore)]);
                     }
 
-                    if($product['product_type'] == 'physical') {
+                    if ($product['product_type'] == 'physical') {
                         $currentStock = $product['current_stock'] - $item['quantity'];
-                        $this->productRepo->update(id: $product['id'],data: ['current_stock' =>$currentStock]);
+                        $this->productRepo->update(id: $product['id'], data: ['current_stock' => $currentStock]);
                     }
                     $this->orderDetailRepo->add(data: $orderDetail);
                 }
@@ -162,19 +180,19 @@ class POSOrderController extends BaseController
             userId: $userId
         );
         $this->orderRepo->add(data: $order);
-        if ($checkProductTypeDigital){
-            $order = $this->orderRepo->getFirstWhere(params:['id'=>$orderId],relations: ['details.productAllStatus']);
+        if ($checkProductTypeDigital) {
+            $order = $this->orderRepo->getFirstWhere(params: ['id' => $orderId], relations: ['details.productAllStatus']);
             $data = [
-                'userName'=>$order->customer->f_name,
-                'userType' =>'customer',
-                'templateName' =>'digital-product-download',
+                'userName' => $order->customer->f_name,
+                'userType' => 'customer',
+                'templateName' => 'digital-product-download',
                 'order' => $order,
                 'subject' => translate('download_Digital_Product'),
-                'title' => translate('Congratulations').'!',
+                'title' => translate('Congratulations') . '!',
                 'emailId' => $order->customer['email'],
 
             ];
-            event(new DigitalProductDownloadEvent(email: $order->customer['email'],data: $data));
+            event(new DigitalProductDownloadEvent(email: $order->customer['email'], data: $data));
         }
         session()->forget($cartId);
         session(['last_order' => $orderId]);
@@ -182,6 +200,7 @@ class POSOrderController extends BaseController
         Toastr::success(translate('order_placed_successfully'));
         return response()->json();
     }
+
     public function cancelOrder(Request $request):JsonResponse
     {
         session()->remove($request['cart_id']);
@@ -196,6 +215,7 @@ class POSOrderController extends BaseController
     }
 
     /**
+     * @param Request $request
      * @return JsonResponse
      */
     public function getAllHoldOrdersView(Request $request):JsonResponse
@@ -236,62 +256,61 @@ class POSOrderController extends BaseController
      * @param string $cartName
      * @return array
      */
-    protected function getCustomerCartData(string $cartName):array
+    protected function getCustomerCartData(string $cartName): array
     {
         $customerCartData = [];
         if (Str::contains($cartName, 'walking-customer')) {
-            $currentCustomerInfo =  [
-                'customerName'=>'Walking Customer',
-                'customerPhone'=>"",
+            $currentCustomerInfo = [
+                'customerName' => 'Walking Customer',
+                'customerPhone' => "",
             ];
-            $customerId = 0 ;
+            $customerId = 0;
         } else {
             $customerId = explode('-', $cartName)[2];
             $currentCustomerData = $this->customerRepo->getFirstWhere(params: ['id' => $customerId]);
-            $currentCustomerInfo = $this->cartService->getCustomerInfo(currentCustomerData:$currentCustomerData, customerId: $customerId);
-
+            $currentCustomerInfo = $this->cartService->getCustomerInfo(currentCustomerData: $currentCustomerData, customerId: $customerId);
         }
         $customerCartData[$cartName] = [
             'customerName' => $currentCustomerInfo['customerName'],
             'customerPhone' => $currentCustomerInfo['customerPhone'],
-            'customerId'=> $customerId,
+            'customerId' => $customerId,
         ];
         return $customerCartData;
     }
 
-    protected function calculateCartItemsData(string $cartName, array $customerCartData):array
+    protected function calculateCartItemsData(string $cartName, array $customerCartData): array
     {
         $cartItemValue = [];
         $subTotalCalculation = [
             'countItem' => 0,
-            'taxCalculate' => 0 ,
+            'taxCalculate' => 0,
             'totalTaxShow' => 0,
             'totalTax' => 0,
             'subtotal' => 0,
             'discountOnProduct' => 0,
             'productSubtotal' => 0,
         ];
-        if(session()->get($cartName)) {
+        if (session()->get($cartName)) {
             foreach (session()->get($cartName) as $cartItem) {
                 if (is_array($cartItem)) {
                     $product = $this->productRepo->getFirstWhere(params: ['id' => $cartItem['id']]);
                     $subTotalCalculation = $this->cartService->getCartSubtotalCalculation(
                         product: $product,
                         cartItem: $cartItem,
-                        calculation : $subTotalCalculation
+                        calculation: $subTotalCalculation
                     );
                     if ($cartItem['customerId'] == $customerCartData[$cartName]['customerId']) {
                         $cartItem['productSubtotal'] = $subTotalCalculation['productSubtotal'];
-                        $subTotalCalculation['customerOnHold']=$cartItem['customerOnHold'];
+                        $subTotalCalculation['customerOnHold'] = $cartItem['customerOnHold'];
                         $cartItemValue[] = $cartItem;
                     }
                 }
             }
         }
         $totalCalculation = $this->cartService->getTotalCalculation(
-            subTotalCalculation:$subTotalCalculation,cartName: $cartName
+            subTotalCalculation: $subTotalCalculation, cartName: $cartName
         );
-        return  [
+        return [
             'countItem' => $subTotalCalculation['countItem'],
             'total' => $totalCalculation['total'],
             'subtotal' => $subTotalCalculation['subtotal'],
@@ -303,7 +322,7 @@ class POSOrderController extends BaseController
             'cartItemValue' => $cartItemValue,
             'couponDiscount' => $totalCalculation['couponDiscount'],
             'extraDiscount' => $totalCalculation['extraDiscount'],
-            'customerOnHold' => $subTotalCalculation['customerOnHold']??false,
+            'customerOnHold' => $subTotalCalculation['customerOnHold'] ?? false,
         ];
     }
 

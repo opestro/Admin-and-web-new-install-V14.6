@@ -49,32 +49,37 @@ if (!function_exists('digital_payment_success')) {
                 }
             }
 
-            $data = [];
-            if (isset($additionalData['payment_request_from']) && in_array($additionalData['payment_request_from'], ['app'])) {
-                $isGuestUserInOrder = $additionalData['is_guest_in_order'];
-                $data += [
-                    'request' => [
-                        'customer_id' => $additionalData['customer_id'],
-                        'is_guest' => $isGuestUserInOrder ?? 0,
-                        'guest_id' => $isGuestUserInOrder ? $additionalData['customer_id'] : null,
-                        'order_note' => $additionalData['order_note'],
-                        'coupon_code' => $additionalData['coupon_code'] ?? null,
-                        'coupon_discount' => $additionalData['coupon_discount'] ?? null,
-                        'address_id' => $additionalData['address_id'] ?? null,
-                        'billing_address_id' => $additionalData['billing_address_id'] ?? null,
-                        'payment_request_from' => $additionalData['payment_request_from'],
-                    ],
-                ];
+            $isGuestUserInOrder = $additionalData['is_guest_in_order'];
+            $data = [
+                'request' => [
+                    'customer_id' => $additionalData['customer_id'],
+                    'is_guest' => $isGuestUserInOrder ?? 0,
+                    'guest_id' => $isGuestUserInOrder ? $additionalData['customer_id'] : null,
+                    'order_note' => $additionalData['order_note'],
+                    'coupon_code' => $additionalData['coupon_code'] ?? null,
+                    'coupon_discount' => $additionalData['coupon_discount'] ?? null,
+                    'address_id' => $additionalData['address_id'] ?? null,
+                    'billing_address_id' => $additionalData['billing_address_id'] ?? null,
+                    'payment_request_from' => $additionalData['payment_request_from'],
+                ],
+            ];
 
+            if (isset($additionalData['payment_request_from']) && in_array($additionalData['payment_request_from'], ['app'])) {
                 if ($additionalData['is_guest']) {
                     $cartGroupIds = Cart::where(['customer_id' => $additionalData['customer_id'], 'is_guest' => 1, 'is_checked' => 1])->groupBy('cart_group_id')->pluck('cart_group_id')->toArray();
                 } else {
                     $cartGroupIds = Cart::where(['customer_id' => $additionalData['customer_id'], 'is_guest' => '0', 'is_checked' => 1])->groupBy('cart_group_id')->pluck('cart_group_id')->toArray();
                 }
-
+            } elseif (isset($additionalData['customer_id']) && isset($additionalData['is_guest'])) {
+                if ($additionalData['is_guest']) {
+                    $cartGroupIds = Cart::where(['customer_id' => $additionalData['customer_id'], 'is_guest' => 1, 'is_checked' => 1])->groupBy('cart_group_id')->pluck('cart_group_id')->toArray();
+                } else {
+                    $cartGroupIds = Cart::where(['customer_id' => $additionalData['customer_id'], 'is_guest' => '0', 'is_checked' => 1])->groupBy('cart_group_id')->pluck('cart_group_id')->toArray();
+                }
             } else {
                 $cartGroupIds = CartManager::get_cart_group_ids(type: 'checked');
             }
+
             session()->put('payment_mode', isset($additionalData['payment_mode']) ? $additionalData['payment_mode'] : 'web');
 
             foreach ($cartGroupIds as $cartGroupId) {
@@ -97,7 +102,7 @@ if (!function_exists('digital_payment_success')) {
             if (isset($additionalData['payment_request_from']) && in_array($additionalData['payment_request_from'], ['app'])) {
                 CartManager::cart_clean_for_api_digital_payment($data);
             } else {
-                CartManager::cart_clean();
+                count($cartGroupIds) > 0 ? CartManager::cartCleanByCartGroupIds(cartGroupIDs: $cartGroupIds) : CartManager::cart_clean();
             }
         }
     }

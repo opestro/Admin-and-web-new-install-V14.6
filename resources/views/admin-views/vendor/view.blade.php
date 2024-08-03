@@ -47,7 +47,7 @@
                 <div class="d-flex flex-wrap gap-3 justify-content-between">
                     <div class="media flex-column flex-sm-row gap-3">
                         <img class="avatar avatar-170 rounded-0"
-                             src="{{ getValidImage(path: 'storage/app/public/shop/'.$seller?->shop->image, type: 'backend-basic') }}"
+                             src="{{ getStorageImages(path: $seller?->shop->image_full_url, type: 'backend-basic') }}"
                              alt="{{translate('image')}}">
                         <div class="media-body">
                             @if($seller?->shop->temporary_close || ($seller?->shop->vacation_status && $current_date >= date('Y-m-d', strtotime($seller?->shop->vacation_start_date)) && $current_date <= date('Y-m-d', strtotime($seller?->shop->vacation_end_date))))

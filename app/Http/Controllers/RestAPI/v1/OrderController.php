@@ -14,8 +14,9 @@ use App\Models\RefundRequest;
 use App\Models\Setting;
 use App\Models\ShippingAddress;
 use App\Traits\CommonTrait;
+use App\Traits\FileManagerTrait;
 use App\Traits\SmsGateway;
-use App\User;
+use App\Models\User;
 use App\Utils\CartManager;
 use App\Utils\Convert;
 use App\Utils\CustomerManager;
@@ -32,7 +33,7 @@ use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
-    use CommonTrait;
+    use CommonTrait, FileManagerTrait;
     public function track_by_order_id(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -490,9 +491,13 @@ class OrderController extends Controller
 
             if ($request->file('images')) {
                 foreach ($request->file('images') as $img) {
-                    $product_images[] = ImageManager::upload('refund/', 'webp', $img);
+                    $images[] = [
+                        'image_name' => $this->upload('refund/', 'webp', $img),
+                        'storage' => getWebConfig(name: 'storage_connection_type') ?? 'public',
+                    ];
+
                 }
-                $refund_request->images = json_encode($product_images);
+                $refund_request->images = $images;
             }
             $refund_request->save();
 
@@ -513,10 +518,6 @@ class OrderController extends Controller
         $order_details = OrderDetail::find($request->id);
         $refund = RefundRequest::where('customer_id',$request->user()->id)
                                 ->where('order_details_id',$order_details->id )->get();
-        $refund = $refund->map(function($query){
-            $query['images'] = json_decode($query['images']);
-            return $query;
-        });
 
         $order = Order::find($order_details->order_id);
 
@@ -853,72 +854,77 @@ class OrderController extends Controller
         }
     }
 
-    public function offline_payment_method_list(Request $request)
+    public function offline_payment_method_list(Request $request): JsonResponse
     {
         $data = OfflinePaymentMethod::where('status', 1)->get();
         return response()->json(['offline_methods'=>$data], 200);
     }
 
-    public function track_order(Request $request)
+    public function track_order(Request $request): JsonResponse
     {
-
         $user = Helpers::get_customer($request);
 
         if ($user != 'offline') {
-            $order = Order::where(['id'=> $request['order_id'], 'order_type'=>'default_type'])->first();
-            if($order && $order->is_guest){
-                $orderDetails = Order::where(['id'=> $request['order_id'], 'order_type'=>'default_type'])->whereHas('shippingAddress', function ($query) use ($request) {
-                    $query->where('phone', $request->phone_number);
+            $order = Order::where(['id' => $request['order_id'], 'order_type' => 'default_type'])->first();
+            if ($order && $order->is_guest) {
+                $orderDetails = Order::where(['id' => $request['order_id'], 'order_type' => 'default_type'])->whereHas('shippingAddress', function ($query) use ($request) {
+                    $query->where('phone', $request['phone_number']);
                 })->first();
 
-                if(!$orderDetails){
-                    $orderDetails = Order::where(['id'=> $request['order_id'], 'order_type'=>'default_type'])->whereHas('billingAddress', function ($query) use ($request) {
-                            $query->where('phone', $request->phone_number);
-                        })->first();
+                if (!$orderDetails) {
+                    $orderDetails = Order::where(['id' => $request['order_id'], 'order_type' => 'default_type'])->whereHas('billingAddress', function ($query) use ($request) {
+                        $query->where('phone', $request['phone_number']);
+                    })->first();
                 }
-            }elseif ($user->phone == $request->phone_number) {
-                $orderDetails = Order::where(['id'=> $request['order_id'], 'order_type'=>'default_type', 'customer_id'=> auth('customer')->id()])
+            } elseif ($user->phone == $request['phone_number']) {
+                $orderDetails = Order::where(['id' => $request['order_id'], 'order_type' => 'default_type', 'customer_id' => auth('customer')->id()])
                     ->whereHas('details', function ($query) {
-                       return $query;
+                        return $query;
                     })->first();
             }
 
-            if ($request->from_order_details == 1) {
-                $orderDetails = Order::where(['id'=> $request['order_id'], 'order_type'=>'default_type'])->whereHas('details', function ($query) {
+            if ($request['from_order_details'] == 1) {
+                $orderDetails = Order::where(['id' => $request['order_id'], 'order_type' => 'default_type'])->whereHas('details', function ($query) {
                     $query->where('customer_id', auth('customer')->id());
                 })->first();
             }
 
         } else {
-            $user_id = User::where('phone', $request->phone_number)->first();
+            $user_id = User::where('phone', $request['phone_number'])->first();
             $order = Order::where('id', $request['order_id'])->first();
 
-            if($order && $order->is_guest){
-                $orderDetails = Order::where(['id'=> $request['order_id'], 'order_type'=>'default_type'])->whereHas('shippingAddress', function ($query) use ($request) {
-                    $query->where('phone', $request->phone_number);
+            if ($order && $order->is_guest) {
+                $orderDetails = Order::where(['id' => $request['order_id'], 'order_type' => 'default_type'])->whereHas('shippingAddress', function ($query) use ($request) {
+                    $query->where('phone', $request['phone_number']);
                 })->first();
 
-                if(!$orderDetails){
-                    $orderDetails = Order::where(['id'=> $request['order_id'], 'order_type'=>'default_type'])->whereHas('billingAddress', function ($query) use ($request) {
-                            $query->where('phone', $request->phone_number);
-                        })->first();
+                if (!$orderDetails) {
+                    $orderDetails = Order::where(['id' => $request['order_id'], 'order_type' => 'default_type'])->whereHas('billingAddress', function ($query) use ($request) {
+                        $query->where('phone', $request['phone_number']);
+                    })->first();
                 }
-            }elseif($user_id){
-                $orderDetails = Order::where(['customer_id'=> $user_id->id, 'id'=> $request['order_id'], 'order_type'=>'default_type'])->whereHas('details', function ($query) {
+            } elseif ($user_id) {
+                $orderDetails = Order::where(['customer_id' => $user_id->id, 'id' => $request['order_id'], 'order_type' => 'default_type'])->whereHas('details', function ($query) {
                     return $query;
                 })->first();
-            }else{
+            } else {
                 return response()->json(['message' => 'Invalid Phone Number'], 403);
             }
         }
 
         if (isset($orderDetails)) {
-            $details = OrderDetail::with(['order.deliveryMan','verificationImages','seller.shop'])
+            $details = OrderDetail::with(['order.deliveryMan', 'verificationImages', 'seller.shop'])
                 ->where(['order_id' => $orderDetails['id']])
                 ->get();
+
             $details->map(function ($query) {
                 $query['variation'] = json_decode($query['variation'], true);
-                $query['product_details'] = Helpers::product_data_formatting(json_decode($query['product_details'], true));
+                $product = json_decode($query['product_details'], true);
+                if ($product['product_type'] == 'digital' && $product['digital_product_type'] == 'ready_product' && $product['digital_file_ready']) {
+                    $checkFilePath = storageLink('product/digital-product', $product['digital_file_ready'], ($product['storage_path'] ?? 'public'));
+                    $product['digital_file_ready_full_url'] = $checkFilePath;
+                }
+                $query['product_details'] = Helpers::product_data_formatting($product);
                 return $query;
             });
 

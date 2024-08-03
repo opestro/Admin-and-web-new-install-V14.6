@@ -10,24 +10,61 @@
             <div class="modal-body px-sm-5">
                 <div class="form-group mb-4">
                     <label for="rating">{{translate('rating')}}</label>
-                    <select name="rating" id="rating" class="form-select">
-                        <option value="1">{{translate('1')}}</option>
-                        <option value="2">{{translate('2')}}</option>
-                        <option value="3">{{translate('3')}}</option>
-                        <option value="4">{{translate('4')}}</option>
-                        <option value="5">{{translate('5')}}</option>
-                    </select>
+                    @if ($order_details->reviewData)
+                        <select name="rating" id="rating" class="form-select">
+                            <option value="1" {{ $order_details?->reviewData?->rating == 1 ? 'selected' : '' }}>
+                                {{ translate('1') }}
+                            </option>
+                            <option value="2" {{ $order_details?->reviewData?->rating == 2 ? 'selected' : '' }}>
+                                {{ translate('2') }}
+                            </option>
+                            <option value="3" {{ $order_details?->reviewData?->rating == 3 ? 'selected' : '' }}>
+                                {{ translate('3') }}
+                            </option>
+                            <option value="4" {{ $order_details?->reviewData?->rating == 4 ? 'selected' : '' }}>
+                                {{ translate('4') }}
+                            </option>
+                            <option value="5" {{ $order_details?->reviewData?->rating == 5 ? 'selected' : '' }}>
+                                {{ translate('5') }}
+                            </option>
+                        </select>
+                    @else
+                        <select name="rating" id="rating" class="form-select">
+                            <option value="1">{{translate('1')}}</option>
+                            <option value="2">{{translate('2')}}</option>
+                            <option value="3">{{translate('3')}}</option>
+                            <option value="4">{{translate('4')}}</option>
+                            <option value="5">{{translate('5')}}</option>
+                        </select>
+                    @endif
                 </div>
                 <div class="form-group mb-4">
                     <label for="comment">{{translate('comment')}}</label>
                     <input name="product_id" value="{{$order_details->product_id}}" hidden>
                     <input name="order_id" value="{{$order_details->order_id}}" hidden>
                     <input name="review_id" value="{{ $order_details->reviewData?->id ?? '' }}" hidden>
-                    <textarea name="comment" id="comment" class="form-control" rows="4" placeholder="{{ translate('Leave_a_comment') }}"></textarea>
+                    <textarea name="comment" id="comment" class="form-control" rows="4"
+                              placeholder="{{ translate('Leave_a_comment') }}">{{ $order_details->reviewData?->comment ?? '' }}</textarea>
                 </div>
                 <div class="form-group">
                     <label>{{translate('attachment')}}</label>
                     <div class="d-flex flex-column gap-3">
+                        @if ($order_details?->reviewData && isset($order_details?->reviewData?->attachment_full_url))
+                            <div class="d-flex flex-wrap gap-3">
+                                @foreach ($order_details?->reviewData?->attachment_full_url as $key => $attachmentItem)
+                                    <div class="review-exist-images img-container-{{$key}}">
+                                        <span class="img-remove-icon-2 remove-img-row-by-key cursor-pointer"
+                                              data-key="{{$key}}"
+                                              data-review-id="{{ $order_details?->reviewData?->id }}"
+                                              data-photo="{{ $attachmentItem['key'] }}"
+                                              data-route="{{ route('delete-review-image') }}">
+                                              <i class="bi bi-x"></i>
+                                          </span>
+                                        <img src="{{ getStorageImages(path: $attachmentItem, type: 'product') }}" alt="">
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                         <div class="row coba"></div>
                         <div class="text-muted">{{translate('file_type').':'.'.jpg,.jpeg,.png'.translate('maximum_size').':'.'2MB'}}</div>
                     </div>

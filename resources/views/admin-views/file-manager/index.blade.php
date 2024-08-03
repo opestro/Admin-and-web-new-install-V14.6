@@ -17,6 +17,18 @@
                 <span class="text text-capitalize">{{translate('add_new')}}</span>
             </button>
         </div>
+        <div class="inline-page-menu my-4">
+            <ul class="list-unstyled">
+                <li class="{{$storage == 'public' ? 'active' : ''}}">
+                    <a href="{{ route('admin.file-manager.index',['storage'=>'public']) }}">{{translate('local_storage')}}</a>
+                </li>
+                @if($storageConnectionType == 's3')
+                    <li class="{{$storage == 's3' ? 'active' : ''}}">
+                        <a href="{{ route('admin.file-manager.index',['storage'=>'s3']) }}">{{translate('s3_storage')}}</a>
+                    </li>
+                @endif
+            </ul>
+        </div>
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
@@ -25,8 +37,13 @@
                             {{translate(end($currentFolder))}}
                             <span class="badge badge-soft-dark radius-50" id="itemCount">{{count($data)}}</span>
                         </h5>
-                        @if(end($currentFolder) != 'public')
+                        @if(end($currentFolder) != 'public' && $storage == 'public')
                             <a class="btn btn--primary btn-sm" href="{{ route('admin.file-manager.index', base64_encode($previousFolder)) }}">
+                                <i class="tio-chevron-left"></i>
+                                {{translate('back')}}
+                            </a>
+                        @elseif($storage == 's3' && end($currentFolder) != '')
+                            <a class="btn btn--primary btn-sm" href="{{url()->previous()}}">
                                 <i class="tio-chevron-left"></i>
                                 {{translate('back')}}
                             </a>
@@ -47,7 +64,7 @@
                                         <button class="btn p-0 w-100" data-toggle="modal"
                                                 data-target="#imagemodal{{$key}}" title="{{$file['name']}}">
                                             <span class="d-flex flex-column justify-content-center gallary-card aspect-1 overflow-hidden border rounded">
-                                                <img src="{{dynamicStorage(path: 'storage/app/'.$file['path'])}}"
+                                               <img src="{{storageLinkForGallery(path: str_replace('public/','',$file['path']),type: $storage )}}"
                                                      alt="{{$file['name']}}" class="h-auto w-100">
                                             </span>
                                             <span class="overflow-hidden pt-2 m-0">{{Str::limit($file['name'],10)}}</span>
@@ -69,10 +86,9 @@
                                                     </div>
                                                     <div class="modal-footer">
                                                         <a class="btn btn--primary"
-                                                           href="{{route('admin.file-manager.download', base64_encode($file['path']))}}"><i
+                                                           href="{{route('admin.file-manager.download',['file_name' => base64_encode($file['path']), 'storage' => $storage])}}"><i
                                                                 class="tio-download"></i> {{translate('download')}}
                                                         </a>
-
                                                         <button class="btn btn-info copy-path"
                                                                 data-path="{{ $file['db_path'] }}"><i
                                                                 class="tio-copy"></i> {{translate('copy_path')}}
@@ -106,6 +122,7 @@
                               enctype="multipart/form-data">
                             @csrf
                             <input type="text" name="path" value="{{base64_decode($folderPath)}}" hidden>
+                            <input type="text" name="storage" value="{{$storage}}" hidden>
                             <div class="form-group">
                                 <div class="custom-file">
                                     <input type="file" name="images[]" id="customFileUpload" class="custom-file-input"

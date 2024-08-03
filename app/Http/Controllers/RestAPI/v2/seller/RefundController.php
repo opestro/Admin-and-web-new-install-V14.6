@@ -9,7 +9,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\RefundRequest;
 use App\Models\RefundStatus;
-use App\User;
+use App\Models\User;
 use App\Utils\CustomerManager;
 use App\Utils\Helpers;
 use Illuminate\Http\Request;

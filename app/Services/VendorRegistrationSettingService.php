@@ -35,14 +35,20 @@ class VendorRegistrationSettingService
         }
         return $array;
     }
-    protected function getImageDataProcess($request ,$image,$requestImageName):string|null
+    protected function getImageDataProcess($request ,$image,$requestImageName):array
     {
-        if ($image) {
-            $imageName = $request->file($requestImageName) ? $this->update(dir:'vendor-registration-setting/', oldImage:$image, format: 'webp', image: $request->file($requestImageName)) : $image;
+        $storage = config('filesystems.disks.default') ?? 'public';
+        $imageData = is_string($image) ? $image: $image?->image_name;
+        if ($imageData) {
+            $imageName = $request->file($requestImageName) ? $this->update(dir:'vendor-registration-setting/', oldImage: $imageData, format: 'webp', image: $request->file($requestImageName)) : $imageData;
+            $storage = $request->file($requestImageName) ? $storage : ($image?->storage ?? $storage) ;
         }else {
             $imageName = $request->file($requestImageName) ? $this->upload(dir:'vendor-registration-setting/', format: 'webp', image: $request->file($requestImageName)) :null;
         }
-        return $imageName;
+        return [
+            'image_name' => $imageName,
+            'storage' =>  $storage
+        ];
     }
 
     public function getVendorRegistrationReasonData(object $request):array

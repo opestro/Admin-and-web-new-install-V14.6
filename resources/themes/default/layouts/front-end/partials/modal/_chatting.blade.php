@@ -14,17 +14,10 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="{{route('messages_store')}}" method="post" id="seller-chat-form">
+                <form action="{{route('messages')}}" method="post" id="seller-chat-form">
                     @csrf
 
-                    @if(isset($seller) && isset($user_type) && $user_type == 'admin')
-                        <input value="{{ 0 }}" name="shop_id" hidden>
-                        <input value="{{ 0 }}" name="admin_id" hidden>
-                    @elseif(isset($seller) && isset($user_type) && $user_type == 'seller')
-                        <input value="{{ $seller->shop['id'] }}" name="shop_id" hidden>
-                        <input value="{{ $seller['id'] }}" name="seller_id" hidden>
-                    @endif
-
+                    <input value="{{ isset($user_type) && $user_type == 'admin' ? 0 : $seller->id}}" name="vendor_id" hidden>
                     <textarea name="message" class="form-control min-height-100px max-height-200px" required placeholder="{{ translate('Write_here') }}..."></textarea>
                     <br>
                     <div class="justify-content-end gap-2 d-flex flex-wrap">

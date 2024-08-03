@@ -218,17 +218,8 @@
                                 </td>
                                 <td>
                                     <div>
-                                        @php($discount = 0)
-                                        @if($order->coupon_discount_bearer == 'inhouse' && !in_array($order['coupon_code'], [0, NULL]))
-                                            @php($discount = $order->discount_amount)
-                                        @endif
-
-                                        @php($free_shipping = 0)
-                                        @if($order->is_shipping_free)
-                                            @php($free_shipping = $order->shipping_cost)
-                                        @endif
-
-                                        {{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $order->order_amount+$discount+$free_shipping), currencyCode: getCurrencyCode())}}
+                                        @php($orderTotalPriceSummary = \App\Utils\OrderManager::getOrderTotalPriceSummary(order: $order))
+                                        {{ setCurrencySymbol(amount: usdToDefaultCurrency(amount:  $orderTotalPriceSummary['totalAmount']), currencyCode: getCurrencyCode()) }}
                                     </div>
 
                                     @if($order->payment_status=='paid')

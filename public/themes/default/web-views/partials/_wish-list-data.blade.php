@@ -9,7 +9,7 @@
                     <div class="wishlist-img position-relative">
                         <a href="{{route('product',$product->slug)}}" class="d-block h-100">
                             <img class="__img-full"
-                                 src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'product') }}"
+                                 src="{{ getStorageImages(path: $product->thumbnail_full_url, type: 'product') }}"
                                  alt="{{ translate('wishlist') }}">
                         </a>
 
@@ -38,8 +38,7 @@
                                 <span class="font-weight-bold amount text-dark price-range d-flex align-items-center gap-2">{!! getPriceRangeWithDiscount(product: $product) !!}</span>
                             </div>
                         </div>
-                        <a href="javascript:" class="remove--icon function-remove-wishList" data-id="{{ $product['id'] }}"
-                           data-modal="remove-wishlist-modal">
+                        <a href="javascript:" class="remove--icon function-remove-wishList" data-id="{{ $product['id'] }}">
                             <i class="fa fa-heart web-text-primary"></i>
                         </a>
 

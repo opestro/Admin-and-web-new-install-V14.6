@@ -65,7 +65,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function update(string $id, array $data): bool
     {
-        return $this->user->where('id', $id)->update($data);
+        return $this->user->find($id)->update($data);
     }
 
     public function delete(array $params): bool

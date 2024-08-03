@@ -5,7 +5,7 @@ namespace App\Http\Controllers\RestAPI\v1\auth;
 use App\Events\PasswordResetEvent;
 use App\Http\Controllers\Controller;
 use App\Models\PasswordReset;
-use App\User;
+use App\Models\User;
 use App\Utils\Helpers;
 use App\Utils\SMS_module;
 use Carbon\Carbon;

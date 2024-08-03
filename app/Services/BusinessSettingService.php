@@ -32,13 +32,13 @@ class BusinessSettingService
         }
         return $languageArray;
     }
-    public function getInvoiceSettingsData(object|null $request,string|null $image):array
+    public function getInvoiceSettingsData(object|null $request,array|null $imageArray):array
     {
         return [
             'terms_and_condition' => $request['terms_and_condition'] ?? null,
             'business_identity' => $request['business_identity']?? null,
             'business_identity_value' => $request['business_identity_value'] ?? null,
-            'image' => $image ?? null,
+            'image' => $imageArray,
         ];
     }
 }

@@ -23,7 +23,7 @@
                                             <a href="{{route('products',['id'=> $category['id'],'data_from'=>'category','page'=>1])}}">
                                                 <div class="__img">
                                                     <img alt="{{ $category->name }}"
-                                                         src="{{ getValidImage(path: 'storage/app/public/category/'.$category->icon, type: 'category') }}">
+                                                         src="{{ getStorageImages(path:$category->icon_full_url, type: 'category') }}">
                                                 </div>
                                                 <p class="text-center fs-13 font-semibold mt-2">{{Str::limit($category->name, 12)}}</p>
                                             </a>
@@ -40,7 +40,7 @@
                                             <a href="{{route('products',['id'=> $category['id'],'data_from'=>'category','page'=>1])}}">
                                                 <div class="__img mw-100 h-auto">
                                                     <img alt="{{ $category->name }}"
-                                                         src="{{ getValidImage(path: 'storage/app/public/category/'.$category->icon, type: 'category') }}">
+                                                         src="{{ getStorageImages(path: $category->icon_full_url, type: 'category') }}">
                                                 </div>
                                                 <p class="text-center small mt-2">{{Str::limit($category->name, 12)}}</p>
                                             </a>

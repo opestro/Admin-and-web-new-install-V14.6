@@ -148,7 +148,7 @@
                                             </td>
                                             <td>
                                                 <img class="rounded" width="64"
-                                                     src="{{ getValidImage(path: 'storage/app/public/category/'.$item->category['icon'], type: 'backend-category') }}" alt="">
+                                                     src="{{ getStorageImages(path: $item->category->icon_full_url, type: 'backend-category') }}" alt="">
                                             </td>
                                             <td>
                                                 {{$item->category->name}}

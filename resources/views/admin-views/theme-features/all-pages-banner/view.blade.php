@@ -149,7 +149,7 @@
                                     <td class="pl-xl-5">{{ $pageBanners->firstItem()+$key}}</td>
                                     <td>
                                         <img class="ratio-4:1" width="80" alt=""
-                                             src="{{ getValidImage(path:'storage/app/public/banner/'.json_decode($banner['value'])->image,type: 'backend-banner')}}">
+                                             src="{{ getStorageImages(path:imagePathProcessing(imageData: json_decode($banner['value'])->image ,path: 'banner'),type: 'backend-banner')}}">
                                     </td>
                                     <td>{{ translate(ucwords(str_replace('_',' ',$banner->type))) }}</td>
                                     <td>

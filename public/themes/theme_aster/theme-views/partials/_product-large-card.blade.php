@@ -48,7 +48,7 @@
 
         <div class="product__thumbnail align-items-center d-flex h-100 justify-content-center">
             <img class="dark-support rounded" alt=""
-                 src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'product') }}">
+                 src="{{ getStorageImages(path: $product->thumbnail_full_url, type: 'product') }}">
         </div>
         @if(($product['product_type'] == 'physical') && ($product['current_stock'] < 1))
             <div class="product__notify">

@@ -140,7 +140,7 @@
                                 @foreach($order->details as $key=>$detail)
                                     <?php
                                         if($detail->product) {
-                                            $productDetails = $detail->product;
+                                            $productDetails = $detail?->productAllStatus;
                                         }else {
                                             $productDetails = json_decode($detail->product_details);
                                         }
@@ -150,15 +150,15 @@
                                             <td>{{ ++$row }}</td>
                                             <td>
                                                 <div class="media align-items-center gap-10">
-                                                    <img class="avatar avatar-60 rounded" alt=""
-                                                         src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'. $productDetails->thumbnail, type: 'backend-product') }}">
+                                                    <img class="avatar avatar-60 rounded img-fit" alt=""
+                                                         src="{{ getStorageImages(path:$detail?->productAllStatus?->thumbnail_full_url, type: 'backend-product') }}">
                                                     <div>
                                                         <h6 class="title-color">{{substr($productDetails->name, 0, 30)}}{{strlen($productDetails->name)>10?'...':''}}</h6>
                                                         <div><strong>{{translate('qty')}} :</strong> {{$detail['qty']}}
                                                         </div>
                                                         <div>
                                                             <strong>{{translate('unit_price')}} :</strong>
-                                                            {{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $detail->price+( $detail->tax_model =='include' ? $detail->tax : 0)), currencyCode: getCurrencyCode())}}
+                                                            {{ setCurrencySymbol(amount: usdToDefaultCurrency(amount: $detail['price'] + ($detail->tax_model =='include' ? ($detail['tax'] / $detail['qty']) :0))) }}
                                                             @if ($detail->tax_model =='include')
                                                                 ({{translate('tax_incl.')}})
                                                             @else
@@ -205,7 +205,15 @@
                                                         method="post" enctype="multipart/form-data">
                                                         @csrf
                                                         <div class="modal-body">
-                                                            @if($detail->digital_file_after_sell)
+                                                            @if($detail?->digital_file_after_sell_full_url && isset($detail->digital_file_after_sell_full_url['key']))
+                                                                <div class="mb-4">
+                                                                    {{translate('uploaded_file').' : '}}
+                                                                    @php($downloadPathExist = $detail->digital_file_after_sell_full_url['status'])
+                                                                    <span data-file-path="{{ $downloadPathExist ? $detail->digital_file_after_sell_full_url['path'] : 'javascript:' }}" class="getDownloadFileUsingFileUrl btn btn-success btn-sm {{ $downloadPathExist ?  '' : 'download-path-not-found' }}" title="{{translate('download')}}">
+                                                                        {{translate('download')}} <i class="tio-download"></i>
+                                                                    </span>
+                                                                </div>
+                                                            @elseif($detail->digital_file_after_sell)
                                                                 <div class="mb-4">
                                                                     {{translate('uploaded_file').' : '}}
                                                                     @php($downloadPath =dynamicStorage(path: 'storage/app/public/product/digital-product/'.$detail->digital_file_after_sell))
@@ -245,24 +253,23 @@
                             </table>
                         </div>
 
-                        @php($shipping=$order['shipping_cost'])
-                        @php($coupon_discount=$order['discount_amount'])
+                        @php($orderTotalPriceSummary = \App\Utils\OrderManager::getOrderTotalPriceSummary(order: $order))
                         <hr/>
                         <div class="row justify-content-md-end mb-3">
                             <div class="col-md-9 col-lg-8">
                                 <dl class="row gy-1 text-sm-right">
                                     <dt class="col-5">{{translate('item_price')}}</dt>
                                     <dd class="col-6 title-color">
-                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $item_price), currencyCode: getCurrencyCode())}}</strong>
+                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $orderTotalPriceSummary['itemPrice']), currencyCode: getCurrencyCode())}}</strong>
                                     </dd>
                                     <dt class="col-5 text-capitalize">{{translate('item_discount')}}</dt>
                                     <dd class="col-6 title-color">
                                         -
-                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $discount), currencyCode: getCurrencyCode())}}</strong>
+                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $orderTotalPriceSummary['itemDiscount']), currencyCode: getCurrencyCode())}}</strong>
                                     </dd>
                                     <dt class="col-5 text-capitalize">{{translate('sub_total')}}</dt>
                                     <dd class="col-6 title-color">
-                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $item_price-$discount), currencyCode: getCurrencyCode())}}</strong>
+                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $orderTotalPriceSummary['subTotal']), currencyCode: getCurrencyCode())}}</strong>
                                     </dd>
                                     <dt class="col-5">
                                         {{translate('coupon_discount')}}
@@ -271,11 +278,11 @@
                                     </dt>
                                     <dd class="col-6 title-color">
                                         -
-                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $coupon_discount), currencyCode: getCurrencyCode())}}</strong>
+                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $orderTotalPriceSummary['couponDiscount']), currencyCode: getCurrencyCode())}}</strong>
                                     </dd>
                                     <dt class="col-5 text-uppercase">{{translate('vat')}}/{{translate('tax')}}</dt>
                                     <dd class="col-6 title-color">
-                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $tax), currencyCode: getCurrencyCode())}}</strong>
+                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $orderTotalPriceSummary['taxTotal']), currencyCode: getCurrencyCode())}}</strong>
                                     </dd>
                                     <dt class="col-5 text-capitalize">
                                         {{translate('delivery_fee')}}
@@ -283,16 +290,12 @@
                                         {{($order['is_shipping_free'] ? '('.translate('expense_bearer_').($order['free_delivery_bearer'] == 'seller' ? 'vendor' : $order['free_delivery_bearer']).')': '' )}}
                                     </dt>
                                     <dd class="col-6 title-color">
-                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $shipping), currencyCode: getCurrencyCode())}}</strong>
+                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $orderTotalPriceSummary['shippingTotal']), currencyCode: getCurrencyCode())}}</strong>
                                     </dd>
 
-                                    @php($delivery_fee_discount = 0)
-                                    @if ($order['is_shipping_free'])
-                                        @php($delivery_fee_discount = $shipping)
-                                    @endif
                                     <dt class="col-5"><strong>{{translate('total')}}</strong></dt>
                                     <dd class="col-6 title-color">
-                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $total+$shipping-$coupon_discount -$delivery_fee_discount), currencyCode: getCurrencyCode())}}</strong>
+                                        <strong>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $orderTotalPriceSummary['totalAmount']), currencyCode: getCurrencyCode())}}</strong>
                                     </dd>
                                 </dl>
                             </div>
@@ -442,7 +445,7 @@
                                             <div class="p-2 bg-light rounded mt-4">
                                                 <div class="media m-1 gap-3">
                                                     <img class="avatar rounded-circle"
-                                                         src="{{getvalidImage(path:'storage/app/public/delivery-man/'.$order?->deliveryMan->image ?? '',type: 'backend-profile')}}"
+                                                         src="{{getStorageImages(path:$order?->deliveryMan->image_full_url,type: 'backend-profile')}}"
                                                          alt="Image">
                                                     <div class="media-body">
                                                         <h5 class="mb-1">{{  $order->deliveryMan?->f_name.' '.$order->deliveryMan?->l_name}}</h5>
@@ -520,7 +523,7 @@
                             <div class="media">
                                 <div class="mr-3">
                                     <img class="avatar rounded-circle avatar-70"
-                                         src="{{getValidImage(path: 'storage/app/public/profile/'.$order->customer->image,type: 'backend-profile')}}"
+                                         src="{{getStorageImages(path: $order->customer->image_full_url,type: 'backend-profile')}}"
                                          alt="{{translate('image')}}">
                                 </div>
                                 <div class="media-body d-flex flex-column gap-1">
@@ -662,7 +665,7 @@
                             @if(!empty($order->seller->shop))
                                 <div class="mr-3">
                                     <img class="avatar rounded avatar-70"
-                                         src="{{getValidImage(path: 'storage/app/public/shop/'.$order->seller->shop['image'],type: 'backend-basic')}}"
+                                         src="{{getStorageImages(path: $order?->seller?->shop->image_full_url,type: 'backend-basic')}}"
                                          alt="">
                                 </div>
                                 <div class="media-body d-flex flex-column gap-2">

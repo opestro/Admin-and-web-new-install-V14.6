@@ -16,7 +16,7 @@
                                  data-link="{{ route('admin.products.view',['addedBy'=>($product['added_by']=='seller'?'vendor' : 'in-house'),'id'=>$product['id']]) }}">
                                 <div>
                                     <img class="avatar avatar-bordered border-gold avatar-60 rounded"
-                                         src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'backend-product') }}"
+                                         src="{{ getStorageImages(path: $product->thumbnail_full_url, type: 'backend-product') }}"
                                          alt="{{$product->name}}{{translate('image')}}">
                                 </div>
                                 <div class="fz-12 title-color text-center line--limit-1">

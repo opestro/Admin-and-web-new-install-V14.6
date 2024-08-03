@@ -71,7 +71,7 @@
                                     <div class="media gap-3">
                                         @if($ticket->customer)
                                         <img class="avatar avatar-lg"
-                                             src="{{ getValidImage(path: 'storage/app/public/profile/'.$ticket->customer->image??"", type: 'backend-profile') }}"
+                                             src="{{ getStorageImages(path: $ticket->customer->image_full_url??"", type: 'backend-profile') }}"
                                              alt="">
                                         <div class="media-body">
                                             <h6 class="mb-0 {{Session::get('direction') === "rtl" ? 'text-right' : 'text-left'}}">{{$ticket->customer->f_name??""}} {{$ticket->customer->l_name??""}}</h6>

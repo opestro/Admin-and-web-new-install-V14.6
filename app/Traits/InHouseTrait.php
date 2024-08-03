@@ -24,23 +24,22 @@ trait InHouseTrait
         $start_date = date('Y-m-d', strtotime($inhouseVacation['vacation_start_date']));
         $end_date = date('Y-m-d', strtotime($inhouseVacation['vacation_end_date']));
         $is_vacation_mode_now = $inhouseVacation['status'] && ($current_date >= $inhouseVacation['vacation_start_date']) && ($current_date <= $inhouseVacation['vacation_end_date']) ? 1 : 0;
-
         $inhouseShop = new Shop([
             'seller_id' => 0,
             'name' => getWebConfig(name: 'company_name'),
             'slug' => Str::slug(getWebConfig(name: 'company_name')),
             'address' => getWebConfig(name: 'shop_address'),
             'contact' => getWebConfig(name: 'company_phone'),
-            'image' => getWebConfig(name: 'company_fav_icon'),
-            'bottom_banner' => getWebConfig(name: 'bottom_banner'),
-            'offer_banner' => getWebConfig(name: 'offer_banner'),
+            'image' => getWebConfig(name: 'company_fav_icon')['key'] ?? null,
+            'bottom_banner' => getWebConfig(name: 'bottom_banner')['key'] ?? null,
+            'offer_banner' => getWebConfig(name: 'offer_banner')['key'] ?? null,
             'vacation_start_date' => $inhouseVacation['vacation_start_date'] ?? null,
             'vacation_end_date' => $inhouseVacation['vacation_end_date'] ?? null,
             'is_vacation_mode_now' => $is_vacation_mode_now,
             'vacation_note' => $inhouseVacation['vacation_note'],
             'vacation_status' => $inhouseVacation['status'] ?? false,
             'temporary_close' => getWebConfig(name: 'temporary_close') ? getWebConfig(name: 'temporary_close')['status'] : 0,
-            'banner' => getWebConfig(name: 'shop_banner'),
+            'banner' => getWebConfig(name: 'shop_banner')['key'] ?? null,
             'created_at' => isset(Admin::where(['id' => 1])->first()->created_at) ? Admin::where(['id' => 1])->first()->created_at : null,
         ]);
         $inhouseShop->id = 0;
@@ -53,7 +52,7 @@ trait InHouseTrait
             "f_name" => getWebConfig(name: 'company_name'),
             "l_name" => getWebConfig(name: 'company_name'),
             "phone" => getWebConfig(name: 'company_phone'),
-            "image" => getWebConfig(name: 'company_fav_icon'),
+            "image" => getWebConfig(name: 'company_fav_icon')['key'] ?? null,
             "email" => getWebConfig(name: 'company_email'),
             "status" => "approved",
             "pos_status" => 1,

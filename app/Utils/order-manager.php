@@ -2,6 +2,9 @@
 
 namespace App\Utils;
 
+use App\Models\DigitalProductVariation;
+use App\Traits\PdfGenerator;
+use App\Models\Storage;
 use App\Utils\Helpers;
 use App\Events\OrderPlacedEvent;
 use App\Events\OrderStatusEvent;
@@ -23,7 +26,7 @@ use App\Models\ShippingType;
 use App\Models\Shop;
 use App\Models\Transaction;
 use App\Traits\CommonTrait;
-use App\User;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -31,7 +34,7 @@ use Illuminate\Support\Str;
 
 class OrderManager
 {
-    use CommonTrait;
+    use CommonTrait, PdfGenerator;
 
     public static function track_order($order_id)
     {
@@ -444,6 +447,11 @@ class OrderManager
         $req = array_key_exists('request', $data) ? $data['request'] : null;
         $user = Helpers::get_customer($req);
 
+        if ($user == 'offline' && isset($req['customer_id']) && isset($req['is_guest']) && $req['is_guest'] == 0) {
+            $userCheck = User::where(['id' => $req['customer_id']])->first();
+            $user = $userCheck ?? $user;
+        }
+
         $isGuestUser = ($user == 'offline') ? 1 : 0;
         if ($req) {
             $isGuestUser = isset($req['is_guest']) && $req['is_guest']  ? 1 : 0;
@@ -600,13 +608,34 @@ class OrderManager
         self::add_order_status_history($order_id, $getCustomerID, $data['payment_status'] == 'paid' ? 'confirmed' : 'pending', 'customer');
 
         foreach (CartManager::get_cart(groupId: $data['cart_group_id'], type: 'checked') as $cartSingleItem) {
-            $product = Product::where(['id' => $cartSingleItem['product_id']])->first();
+            $product = Product::where(['id' => $cartSingleItem['product_id']])->with('digitalVariation')->first()->toArray();
+            unset($product['is_shop_temporary_close']);
+            unset($product['thumbnail_full_url']);
+            unset($product['color_images_full_url']);
+            unset($product['meta_image_full_url']);
+            unset($product['images_full_url']);
+            unset($product['reviews']);
+            unset($product['translations']);
+
+            $digitalProductVariation = DigitalProductVariation::with(['storage'])->where(['product_id' => $cartSingleItem['product_id'], 'variant_key' => $cartSingleItem['variant']])->first();
+            if ($product['digital_product_type'] == 'ready_product' && $digitalProductVariation) {
+                $getStoragePath = Storage::where([
+                    'data_id' => $digitalProductVariation['id'],
+                    "data_type" => "App\Models\DigitalProductVariation",
+                ])->first();
+
+                $product['digital_file_ready'] = $digitalProductVariation['file'];
+                $product['storage_path'] = $getStoragePath ? $getStoragePath['value'] : 'public';
+            } elseif ($product['digital_product_type'] == 'ready_product' && !empty($product['digital_file_ready'])) {
+                $product['storage_path'] = $product['digital_file_ready_storage_type'] ??  'public';
+            }
+
             $price = $cartSingleItem['tax_model'] == 'include' ? $cartSingleItem['price'] - $cartSingleItem['tax'] : $cartSingleItem['price'];
-            $or_d = [
+            $orderDetails = [
                 'order_id' => $order_id,
                 'product_id' => $cartSingleItem['product_id'],
                 'seller_id' => $cartSingleItem['seller_id'],
-                'product_details' => $product,
+                'product_details' => json_encode($product),
                 'qty' => $cartSingleItem['quantity'],
                 'price' => $price,
                 'tax' => $cartSingleItem['tax'] * $cartSingleItem['quantity'],
@@ -640,7 +669,7 @@ class OrderManager
                 'current_stock' => $product['current_stock'] - $cartSingleItem['quantity']
             ]);
 
-            DB::table('order_details')->insert($or_d);
+            DB::table('order_details')->insert($orderDetails);
 
         }
 
@@ -748,6 +777,7 @@ class OrderManager
                     'orderId' => $order_id,
                     'shopName' => $seller?->shop?->name ?? getWebConfig('company_name'),
                     'shopId' => $seller?->shop?->id ?? 0,
+                    'attachmentPath' =>self::storeInvoice($order_id),
                 ];
                 event(new OrderPlacedEvent(email: $email, data: $data));
                 $dataForVendor = [
@@ -869,6 +899,7 @@ class OrderManager
                     'orderId'=>$order_id,
                     'shopName' => $seller?->shop?->name ?? getWebConfig('company_name'),
                     'shopId' => $seller?->shop?->id ?? 0,
+                    'attachmentPath' =>self::storeInvoice($order_id),
                 ];
                 event(new OrderPlacedEvent(email: $user['email'],data: $data));
                 $dataForVendor = [
@@ -940,7 +971,7 @@ class OrderManager
         foreach (CartManager::get_cart(groupId: $order_data['data']['cart_group_id']) as $c) {
             $product = Product::where(['id' => $c['product_id']])->first();
             $price = $c['tax_model'] == 'include' ? $c['price'] - $c['tax'] : $c['price'];
-            $or_d = [
+            $orderDetails = [
                 'order_id' => $order_data['order_id'],
                 'product_id' => $c['product_id'],
                 'seller_id' => $c['seller_id'],
@@ -979,7 +1010,7 @@ class OrderManager
                 'current_stock' => $product['current_stock'] - $c['quantity']
             ]);
 
-            DB::table('order_details')->insert($or_d);
+            DB::table('order_details')->insert($orderDetails);
         }
         //order products info insert into order_details table end
 
@@ -1040,7 +1071,7 @@ class OrderManager
         $failedAddToCartCount = 0;
 
         foreach ($orderProducts as $key => $orderProduct) {
-            $product = Product::active()->find($orderProduct->product_id);
+            $product = Product::active()->where(['id' => $orderProduct->product_id])->with(['digitalVariation'])->first();
 
             if ($product) {
                 $productValid = true;
@@ -1066,7 +1097,9 @@ class OrderManager
                         } else {
                             $i = 1;
                             foreach ($variation as $index => $var) {
-                                $choices['choice_' . $i] = $var;
+                                if ($var) {
+                                    $choices['choice_' . $i] = $var;
+                                }
                                 $i++;
                             }
                         }
@@ -1101,6 +1134,22 @@ class OrderManager
                         $price = $product->unit_price;
                     }
 
+                    if ($product->product_type == 'digital') {
+                        if ($product->digital_product_type == "ready_after_sell") {
+                            $price = $product->unit_price;
+                        } elseif ($product->digital_product_type == "ready_product" && !empty($product->digital_file_ready)) {
+                            $price = $product->unit_price;
+                        } elseif ($product->digital_product_type == "ready_product" && empty($product->digital_file_ready) && $product->digitalVariation) {
+                            $productValid = false;
+                            foreach ($product->digitalVariation as $digitalVariation) {
+                                if ($digitalVariation['variant_key'] == $orderProduct['variant']) {
+                                    $price = $digitalVariation['price'];
+                                    $productValid = true;
+                                }
+                            }
+                        }
+                    }
+
                     $tax = Helpers::tax_calculation(product: $product, price: $price, tax: $product['tax'], tax_type: 'percent');
                     if ($productValid && $price != 0) {
                         $cartExist = Cart::where(['customer_id' => $user->id, 'variations' => $orderProduct->variation, 'product_id' => $orderProduct->product_id])->first();
@@ -1113,7 +1162,7 @@ class OrderManager
                             $cart['product_id'] = $orderProduct->product_id;
                             $cart['product_type'] = $product->product_type;
                             $cart['choices'] = json_encode($choices);
-                            $cart['variations'] = $orderProduct->variation;
+                            $cart['variations'] = !is_null($color) || !empty($choices) ? $orderProduct->variation : json_encode([]);
                             $cart['variant'] = $orderProduct->variant;
                             $cart['customer_id'] = $user->id ?? 0;
                             $cart['quantity'] = $orderProductQuantity;
@@ -1122,6 +1171,7 @@ class OrderManager
                             $cart['tax_model'] = $product->tax_model;
                             $cart['slug'] = $product->slug;
                             $cart['name'] = $product->name;
+                            $cart['is_checked'] = 1;
                             $cart['discount'] = Helpers::get_product_discount($product, $price);
                             $cart['thumbnail'] = $product->thumbnail;
                             $cart['seller_id'] = ($product->added_by == 'admin') ? 1 : $product->user_id;
@@ -1152,14 +1202,15 @@ class OrderManager
                             $cart['shipping_type'] = $shippingType;
                             $cart->save();
                         } else {
+                            $cart['is_checked'] = 1;
                             $cartExist->quantity = $orderProductQuantity;
                             $cartExist->save();
                         }
                         $addToCartCount++;
-                    }else {
+                    } else {
                         $failedAddToCartCount++;
                     }
-                }else {
+                } else {
                     $failedAddToCartCount++;
                 }
             }
@@ -1323,4 +1374,61 @@ class OrderManager
         return $freeDeliveryData;
     }
 
+
+    public static function storeInvoice($id):string
+    {
+        $order = Order::with('seller')->with('shipping')->where('id', $id)->first();
+        $invoiceSettings =  getWebConfig('invoice_settings');
+        $mpdf_view = \View::make(VIEW_FILE_NAMES['order_invoice'], compact('order','invoiceSettings'));
+        return self::storePdf(view: $mpdf_view, filePrefix: 'order_invoice_', filePostfix: $order['id'], pdfType: 'invoice', requestFrom: 'web');
+    }
+
+    public static function getOrderTotalPriceSummary($order): array
+    {
+        $itemPrice = 0;
+        $subTotal = 0;
+        $total = 0;
+        $taxTotal = 0;
+        $itemDiscount = 0;
+        $totalProductPrice = 0;
+        $couponDiscount = 0;
+        $deliveryFeeDiscount = 0;
+        $totalItemQuantity = 0;
+
+        foreach ($order->details as $detailKey => $detail) {
+            $itemPrice += $detail['price'] * $detail['qty'];
+            $subTotal += $detail['price'] * $detail['qty'];
+            $productPrice = $detail['price'] * $detail['qty'];
+            $totalProductPrice += $productPrice;
+            $itemDiscount += $detail['discount'];
+            $taxTotal += $detail['tax'];
+            $totalItemQuantity += $detail['qty'];
+        }
+        $total = $itemPrice + $taxTotal - $itemDiscount;
+        $shipping = $order['shipping_cost'];
+
+        if ($order['extra_discount_type'] == 'percent') {
+            $extraDiscount = (($totalProductPrice) / 100) * $order['extra_discount'];
+        } else {
+            $extraDiscount = $order['extra_discount'];
+        }
+        if (isset($order['discount_amount'])) {
+            $couponDiscount = $order['discount_amount'];
+        }
+        if ($order['is_shipping_free'] == 1) {
+            $deliveryFeeDiscount = $shipping;
+        }
+
+        return [
+            'itemPrice' => $itemPrice,
+            'subTotal' => $subTotal - $itemDiscount,
+            'itemDiscount' => $itemDiscount,
+            'extraDiscount' => $extraDiscount,
+            'couponDiscount' => $couponDiscount,
+            'taxTotal' => $taxTotal,
+            'shippingTotal' => $shipping,
+            'totalItemQuantity' => $totalItemQuantity,
+            'totalAmount' => ($total + $shipping - $extraDiscount - $couponDiscount),
+        ];
+    }
 }

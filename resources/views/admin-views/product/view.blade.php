@@ -15,30 +15,36 @@
         <div class="card card-top-bg-element">
             <div class="card-body">
                 <div>
-                    <div class="media flex-nowrap flex-column flex-sm-row gap-3 flex-grow-1">
+                    <div class="media flex-nowrap flex-column flex-sm-row gap-3 flex-grow-1 align-items-center align-items-md-start">
                         <div class="d-flex flex-column align-items-center __min-w-165px">
                             <a class="aspect-1 float-left overflow-hidden"
-                               href="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'. $product['thumbnail'],type: 'backend-product') }}"
+                               href="{{ getStorageImages(path: $product->thumbnail_full_url,type: 'backend-product') }}"
                                data-lightbox="product-gallery-{{ $product['id'] }}">
                                 <img class="avatar avatar-170 rounded-0"
-                                     src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'. $product['thumbnail'],type: 'backend-product') }}"
+                                     src="{{ getStorageImages(path: $product->thumbnail_full_url,type: 'backend-product') }}"
                                      alt="">
                             </a>
-                            @if ($productActive)
-                                <a href="{{ route('product', $product['slug']) }}"
-                                   class="btn btn-outline--primary mr-1 mt-2" target="_blank">
-                                    <i class="tio-globe"></i>
-                                    {{ translate('view_live') }}
-                                </a>
-                            @endif
+                            <div class="d-flex gap-1 flex-wrap justify-content-center">
+                                @if ($productActive)
+                                    <a href="{{ route('product', $product['slug']) }}"
+                                       class="btn btn-outline--primary mr-1 mt-2" target="_blank">
+                                        <i class="tio-globe"></i>
+                                        {{ translate('view_live') }}
+                                    </a>
+                                @endif
+
+                                @if ($product->digital_file_ready_full_url['path'])
+                                    <span data-file-path="{{ $product->digital_file_ready_full_url['path'] }}"
+                                          class="btn btn-outline--primary mr-1 mt-2 text-nowrap d-flex align-items-center justify-content-center gap-1 getDownloadFileUsingFileUrl" data-toggle="tooltip" data-placement="top" data-title="{{translate('Download')}}">
+                                        <i class="tio-download"></i>
+                                        <span class="d-block d-md-none">
+                                        {{ translate('download') }}
+                                        </span>
+                                    </span>
+                                @endif
+                            </div>
                         </div>
-                        @if($product->digital_file_ready && file_exists(base_path('storage/app/public/product/digital-product/'.$product->digital_file_ready)))
-                            <a href="{{ dynamicAsset(path: 'storage/app/public/product/digital-product/'.$product->digital_file_ready) }}"
-                               class="btn btn-outline--primary mr-1" title="{{translate('Download')}}">
-                                <i class="tio-download"></i>
-                                {{ translate('download') }}
-                            </a>
-                        @endif
+
                         <div class="d-block flex-grow-1 w-max-md-100">
                             @php($languages = getWebConfig(name:'pnc_language'))
                             @php($defaultLanguage = 'en')
@@ -85,65 +91,41 @@
                             <div class="d-flex flex-wrap align-items-center flex-sm-nowrap justify-content-between gap-3 min-h-50">
                                 <div class="d-flex flex-wrap gap-2 align-items-center">
 
-                                    @if ($product->product_type == 'physical' && !empty($product->color_image) && count(json_decode($product->color_image))>0)
-                                        @foreach (json_decode($product->color_image) as $colorImageKey => $photo)
-                                            @if( $colorImageKey < 3 || count(json_decode($product->color_image, true)) < 5)
-                                                <a class="aspect-1 float-left overflow-hidden img_row{{$colorImageKey}}"
-                                                   href="{{ getValidImage(path: 'storage/app/public/product/'.$photo->image_name, type: 'backend-product') }}"
-                                                   data-lightbox="product-gallery-{{ $product['id'] }}">
-                                                    <img width="50" class="img-fit max-50" alt=""
-                                                         src="{{ getValidImage(path: 'storage/app/public/product/'.$photo->image_name, type: 'backend-product') }}">
+                                    @if ($product->product_type == 'physical' && !empty($product->color_image) && count($product->color_images_full_url)>0)
+                                        @foreach ($product->color_images_full_url as $colorImageKey => $photo)
+                                            <div class="{{$colorImageKey > 4 ? 'd-none' : ''}}">
+                                                <a class="aspect-1 float-left overflow-hidden d-block border rounded-lg position-relative"
+                                                       href="{{ getStorageImages(path: $photo['image_name'], type: 'backend-product') }}"
+                                                       data-lightbox="product-gallery-{{ $product['id'] }}">
+                                                    <img width="50"  class="img-fit max-50" alt=""
+                                                         src="{{ getStorageImages(path: $photo['image_name'], type: 'backend-product') }}">
+                                                    @if($colorImageKey > 3)
+                                                        <div class="extra-images">
+                                                            <span class="extra-image-count">
+                                                                +{{ (count($product->color_images_full_url) - $colorImageKey) }}
+                                                            </span>
+                                                        </div>
+                                                    @endif
                                                 </a>
-                                            @elseif($colorImageKey == 3)
-                                                <a class="aspect-1 float-left overflow-hidden d-block border rounded-lg position-relative img_row{{$colorImageKey}}"
-                                                   href="{{ getValidImage(path: 'storage/app/public/product/'.$photo->image_name, type: 'backend-product') }}"
-                                                   data-lightbox="product-gallery-{{ $product['id'] }}">
-                                                    <img width="50" class="img-fit max-50" alt=""
-                                                         src="{{ getValidImage(path: 'storage/app/public/product/'.$photo->image_name, type: 'backend-product') }}">
-                                                    <div class="extra-images">
-                                                        <span class="extra-image-count">
-                                                            +{{ (count(json_decode($product->color_image, true)) - $colorImageKey) + 1 }}
-                                                        </span>
-                                                    </div>
-                                                </a>
-                                            @else
-                                                <a class="aspect-1 float-left overflow-hidden d-none img_row{{$colorImageKey}}"
-                                                   href="{{ getValidImage(path: 'storage/app/public/product/'.$photo->image_name, type: 'backend-product') }}"
-                                                   data-lightbox="product-gallery-{{ $product['id'] }}">
-                                                    <img width="50" class="img-fit max-50" alt=""
-                                                         src="{{ getValidImage(path: 'storage/app/public/product/'.$photo->image_name, type: 'backend-product') }}">
-                                                </a>
-                                            @endif
+                                            </div>
                                         @endforeach
                                     @else
-                                        @foreach (json_decode($product->images) as $imageKey => $photo)
-                                            @if($imageKey < 3 || count(json_decode($product->images, true)) < 5)
-                                                <a class="aspect-1 float-left overflow-hidden"
-                                                   href="{{ getValidImage(path: 'storage/app/public/product/'.$photo, type: 'backend-product') }}"
+                                        @foreach ($product->images_full_url as $imageKey => $photo)
+                                            <div class="{{$imageKey > 4 ? 'd-none' : ''}}">
+                                                <a class="aspect-1 float-left overflow-hidden d-block border rounded-lg position-relative {{$imageKey > 4 ? 'd-none' : ''}}"
+                                                   href="{{ getStorageImages(path: $photo, type: 'backend-product') }}"
                                                    data-lightbox="product-gallery-{{ $product['id'] }}">
                                                     <img width="50"  class="img-fit max-50" alt=""
-                                                         src="{{ getValidImage(path: 'storage/app/public/product/'.$photo, type: 'backend-product') }}">
+                                                         src="{{ getStorageImages(path: $photo, type: 'backend-product') }}">
+                                                    @if($imageKey > 4)
+                                                        <div class="extra-images">
+                                                            <span class="extra-image-count">
+                                                                +{{ (count($product->images_full_url) - $imageKey) }}
+                                                            </span>
+                                                        </div>
+                                                    @endif
                                                 </a>
-                                            @elseif($imageKey == 3)
-                                                <a class="aspect-1 float-left overflow-hidden d-block border rounded-lg position-relative"
-                                                   href="{{ getValidImage(path: 'storage/app/public/product/'.$photo, type: 'backend-product') }}"
-                                                   data-lightbox="product-gallery-{{ $product['id'] }}">
-                                                    <img width="50"  class="img-fit max-50" alt=""
-                                                         src="{{ getValidImage(path: 'storage/app/public/product/'.$photo, type: 'backend-product') }}">
-                                                    <div class="extra-images">
-                                                        <span class="extra-image-count">
-                                                            +{{ (count(json_decode($product->images, true)) - $imageKey) + 1 }}
-                                                        </span>
-                                                    </div>
-                                                </a>
-                                            @else
-                                                <a class="aspect-1 float-left overflow-hidden d-none"
-                                                   href="{{ getValidImage(path: 'storage/app/public/product/'.$photo, type: 'backend-product') }}"
-                                                   data-lightbox="product-gallery-{{ $product['id'] }}">
-                                                    <img width="50"  class="img-fit max-50" alt=""
-                                                         src="{{ getValidImage(path: 'storage/app/public/product/'.$photo, type: 'backend-product') }}">
-                                                </a>
-                                            @endif
+                                            </div>
                                         @endforeach
                                     @endif
 
@@ -262,7 +244,7 @@
                                         ?>
                                     <div class="{{ $language != 'en'? 'd-none':''}} lang-form" id="{{ $language}}-form">
                                         <div class="d-flex">
-                                            <h2 class="mb-2 pb-1 text-gulf-blue">{{ $translate[$language]['name']??$product['name']}}</h2>
+                                            <h2 class="mb-2 pb-1 text-gulf-blue">{{ $translate[$language]['name'] ?? $product['name'] }}</h2>
                                             <a class="btn btn-outline--primary btn-sm square-btn mx-2 w-auto h-25"
                                                title="{{ translate('edit') }}"
                                                href="{{ route('admin.products.update', [$product['id']]) }}">
@@ -358,7 +340,7 @@
                                 <div>
                                     <span class="key text-nowrap">{{ translate('tax') }}</span>
                                     <span>:</span>
-                                    @if ($product->tax_type =='percent')
+                                    @if ($product->tax_type == 'percent')
                                         <span class="value">
                                             {{ $product->tax}}% ({{ $product->tax_model}})
                                         </span>
@@ -454,7 +436,62 @@
                 </div>
             </div>
             @endif
-            <div class="col-md-6">
+
+            @if(!empty($product->digitalVariation) && count($product->digitalVariation) > 0)
+                <div class="col-md-12">
+                    <div class="card border-0">
+                        <div class="card-body p-0">
+                            <div class="table-responsive datatable-custom">
+                                <table
+                                    class="table table-borderless table-nowrap table-align-middle card-table w-100 text-start">
+                                    <thead class="thead-light thead-50 text-capitalize">
+                                    <tr>
+                                        <th class="text-center">{{ translate('SL') }}</th>
+                                        <th class="text-center">{{ translate('Variation_Name') }}</th>
+                                        <th class="text-center">{{ translate('SKU') }}</th>
+                                        <th class="text-center">{{ translate('price') }}</th>
+                                        @if($product->digital_product_type == 'ready_product')
+                                            <th class="text-center">{{ translate('Action') }}</th>
+                                        @endif
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach($product->digitalVariation as $key => $variation)
+                                        <tr>
+                                            <td class="text-center">
+                                                {{ $key+1 }}
+                                            </td>
+                                            <td class="text-center text-capitalize">
+                                                <span class="py-1">{{ $variation->variant_key ?? '-' }}</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="py-1">{{$variation->sku}}</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="py-1">
+                                                    {{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $variation->price), currencyCode: getCurrencyCode())}}
+                                                </span>
+                                            </td>
+
+                                            @if($product->digital_product_type == 'ready_product')
+                                            <td class="text-center">
+                                                <span class="btn p-0 getDownloadFileUsingFileUrl" data-toggle="tooltip" title="{{ !is_null($variation->file_full_url['path']) ? translate('download') : translate('File_not_found') }}" data-file-path="{{ $variation->file_full_url['path'] }}">
+                                                    <img src="{{ asset(path: 'public/assets/back-end/img/icons/download-green.svg') }}" alt="">
+                                                </span>
+                                            </td>
+                                            @endif
+
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+                <div class="col-md-6">
                 <div class="card h-100">
                     <div class="card-header bg--primary--light">
                         <h5 class="card-title text-capitalize">{{translate('product_SEO_&_meta_data')}}</h5>
@@ -462,19 +499,19 @@
                     <div class="card-body">
                         <div>
                             <h6 class="mb-3 text-capitalize">
-                                {{$product['meta_title'] ?? translate('meta_title_not_found').' '.'!'}}
+                                {{ $product?->seoInfo?->title ?? ( $product->meta_title ?? translate('meta_title_not_found').' '.'!')}}
                             </h6>
                         </div>
                         <p class="text-capitalize">
-                            {{$product['meta_description'] ?? translate('meta_description_not_found').' '.'!'}}
+                            {{ $product?->seoInfo?->description ?? ($product->meta_description ?? translate('meta_description_not_found').' '.'!')}}
                         </p>
-                        @if($product['meta_image'])
+                        @if($product?->seoInfo?->image_full_url['path'] || $product->meta_image_full_url['path'])
                             <div class="d-flex flex-wrap gap-2">
                                 <a class="aspect-1 float-left overflow-hidden"
-                                   href="{{ getValidImage(path: 'storage/app/public/product/meta/'.$product['meta_image'],type: 'backend-basic') }}"
+                                   href="{{ getStorageImages(path: $product?->seoInfo?->image_full_url['path'] ? $product?->seoInfo?->image_full_url : $product->meta_image_full_url,type: 'backend-basic') }}"
                                    data-lightbox="meta-thumbnail">
                                     <img class="max-width-100px"
-                                         src="{{ getValidImage(path: 'storage/app/public/product/meta/'.$product['meta_image'],type: 'backend-basic') }}" alt="{{translate('meta_image')}}">
+                                         src="{{ getStorageImages(path: $product?->seoInfo?->image_full_url['path'] ? $product?->seoInfo?->image_full_url : $product->meta_image_full_url,type: 'backend-basic') }}" alt="{{translate('meta_image')}}">
                                 </a>
                             </div>
                         @endif
@@ -518,32 +555,38 @@
                 </div>
             @endif
         </div>
+
         <div class="card mt-3">
             <div class="table-responsive datatable-custom">
                 <table
                     class="table table-hover table-borderless table-thead-bordered table-nowrap table-align-middle card-table w-100 text-start">
                     <thead class="thead-light thead-50 text-capitalize">
-                    <tr>
-                        <th>{{ translate('SL') }}</th>
-                        <th>{{ translate('reviewer') }}</th>
-                        <th>{{ translate('rating') }}</th>
-                        <th>{{ translate('review') }}</th>
-                        <th>{{ translate('date') }}</th>
-                        <th class="text-center">{{ translate('action') }}</th>
-                    </tr>
+                        <tr>
+                            <th>{{ translate('SL') }}</th>
+                            <th>{{ translate('Review_ID') }}</th>
+                            <th>{{ translate('reviewer') }}</th>
+                            <th>{{ translate('rating') }}</th>
+                            <th>{{ translate('review') }}</th>
+                            <th>{{ translate('Reply') }}</th>
+                            <th class="text-center">{{ translate('date') }}</th>
+                            <th class="text-center">{{ translate('Status') }}</th>
+                            <th class="text-center">{{ translate('action') }}</th>
+                        </tr>
                     </thead>
-
                     <tbody>
-                    @foreach($reviews as $key=>$review)
+                    @foreach($reviews as $key => $review)
                         @if(isset($review->customer))
                             <tr>
                                 <td>{{ $reviews->firstItem()+$key}}</td>
+                                <td class="text-center">
+                                    {{ $review->id }}
+                                </td>
                                 <td>
                                     <a class="d-flex align-items-center"
                                        href="{{ route('admin.customer.view',[$review['customer_id']]) }}">
                                         <div class="avatar rounded">
                                             <img class="avatar-img"
-                                                 src="{{ getValidImage(path: 'storage/app/public/profile/'.$review->customer->image,type: 'backend-profile') }}"
+                                                 src="{{ getStorageImages(path: $review->customer->image_full_url,type: 'backend-profile') }}"
                                                  alt="">
                                         </div>
                                         <div class="{{ Session::get('direction') === "rtl" ? 'mr-3' : 'ml-3'}}">
@@ -566,23 +609,28 @@
                                 </td>
                                 <td>
                                     <div class="text-wrap max-w-400 min-w-200">
-                                        <p>
+                                        <p class="line--limit-2 max-w-250 word-break">
                                             {{ $review['comment']}}
                                         </p>
-                                        @if(json_decode($review->attachment))
-                                            @foreach (json_decode($review->attachment) as $img)
+                                        @if(count($review->attachment_full_url) > 0)
+                                            @foreach ($review->attachment_full_url as $img)
                                                 <a class="aspect-1 float-left overflow-hidden"
-                                                   href="{{ getValidImage(path: 'storage/app/public/review/'.$img,type: 'backend-basic') }}"
+                                                   href="{{ getStorageImages(path: $img,type: 'backend-basic') }}"
                                                    data-lightbox="review-gallery{{ $review['id'] }}" >
                                                     <img class="p-2" width="60" height="60"
-                                                         src="{{ getValidImage(path: 'storage/app/public/review/'.$img,type: 'backend-basic') }}" alt="{{translate('review_image')}}">
+                                                         src="{{ getStorageImages(path: $img,type: 'backend-basic') }}" alt="{{translate('review_image')}}">
                                                 </a>
                                             @endforeach
                                         @endif
                                     </div>
                                 </td>
                                 <td>
-                                    {{date('d M Y H:i:s',strtotime($review['updated_at'])) }}
+                                    <div class="line--limit-2 max-w-250 word-break">
+                                        {{ $review?->reply?->reply_text ?? '-' }}
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    {{ date('d M Y H:i:s', strtotime($review['created_at'])) }}
                                 </td>
                                 <td>
                                     <form
@@ -605,12 +653,191 @@
                                         </label>
                                     </form>
                                 </td>
+                                <td>
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <div data-toggle="modal" data-target="#review-view-for-{{ $review['id'] }}">
+                                            <a class="btn btn-outline-info btn-sm square-btn" title="{{ translate('View') }}" data-toggle="tooltip">
+                                                <i class="tio-invisible"></i>
+                                            </a>
+                                        </div>
+
+                                        @if(isset($review->product) && $review?->product?->added_by == 'admin')
+                                            <div data-toggle="modal" data-target="#review-update-for-{{ $review['id'] }}">
+                                                @if($review?->reply)
+                                                    <a class="btn btn-outline-primary btn-sm square-btn" title="{{ translate('Update_Review') }}" data-toggle="tooltip">
+                                                        <i class="tio-edit"></i>
+                                                    </a>
+                                                @else
+                                                    <div class="btn btn-outline--primary btn-sm square-btn" title="{{ translate('Review_Reply') }}" data-toggle="tooltip">
+                                                        <i class="tio-reply-all"></i>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @elseif($review?->product?->added_by == 'seller')
+                                            <div>
+                                                <a class="btn btn-outline-primary btn-sm square-btn" title="{{ translate('Admin_can_not_reply_to_vendor_product_review') }}" data-toggle="tooltip">
+                                                    @if($review?->reply)
+                                                        <i class="tio-edit"></i>
+                                                    @else
+                                                        <i class="tio-reply-all"></i>
+                                                    @endif
+                                                </a>
+                                            </div>
+                                        @else
+                                            <div>
+                                                <a class="btn btn-outline-primary btn-sm square-btn" title="{{ translate('product_not_found') }}" data-toggle="tooltip">
+                                                    @if($review?->reply)
+                                                        <i class="tio-edit"></i>
+                                                    @else
+                                                        <i class="tio-reply-all"></i>
+                                                    @endif
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </td>
                             </tr>
                         @endif
                     @endforeach
                     </tbody>
                 </table>
             </div>
+
+            @foreach($reviews as $key => $review)
+                @if(isset($review->customer))
+                <div class="modal fade" id="review-update-for-{{ $review['id'] }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                 aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close text-BFBFBF" data-dismiss="modal" aria-label="Close">
+                                    <i class="tio-clear-circle"></i>
+                                </button>
+                            </div>
+                            <form method="POST" action="{{ route('admin.reviews.add-review-reply') }}">
+                                @csrf
+                                <div class="modal-body pt-0">
+                                    <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+                                        <img src="{{ getStorageImages(path: $product->thumbnail_full_url, type: 'backend-product') }}" width="100" class="rounded aspect-1 border" alt="">
+                                        <div class="w-0 flex-grow-1 font-weight-semibold">
+                                            @if($review['order_id'])
+                                                <div class="mb-2">
+                                                    {{ translate('Order_ID') }} # {{ $review['order_id'] }}
+                                                </div>
+                                            @endif
+                                            <h4>{{ $translate[$language]['name'] ?? $product['name'] }}</h4>
+                                        </div>
+                                    </div>
+                                    <label class="input-label text--title font-weight-bold">
+                                        {{ translate('Review') }}
+                                    </label>
+                                    <div class="__bg-F3F5F9 p-3 rounded border mb-2">
+                                        {{ $review['comment'] }}
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @if(count($review->attachment_full_url) > 0)
+                                            @foreach ($review->attachment_full_url as $img)
+                                                <a class="aspect-1 float-left overflow-hidden"
+                                                   href="{{ getStorageImages(path: $img,type: 'backend-basic') }}"
+                                                   data-lightbox="review-gallery-modal{{ $review['id'] }}" >
+                                                    <img width="45" class="rounded aspect-1 border"
+                                                         src="{{ getStorageImages(path: $img,type: 'backend-basic') }}"
+                                                         alt="{{translate('review_image')}}">
+                                                </a>
+                                            @endforeach
+                                        @endif
+                                    </div>
+                                    <label class="input-label text--title font-weight-bold pt-4">
+                                        {{ translate('Reply') }}
+                                    </label>
+                                    <input type="hidden" name="review_id" value="{{ $review['id'] }}">
+                                    <textarea class="form-control text-area-max-min" rows="3" name="reply_text"
+                                      placeholder="{{ translate('Write_the_reply_of_the_product_review') }}...">{{ $review?->reply?->reply_text ?? '' }}</textarea>
+                                    <div class="text-right mt-4">
+                                        <button type="submit" class="btn btn--primary">
+                                            @if($review?->reply?->reply_text)
+                                                {{ translate('Update') }}
+                                            @else
+                                                {{ translate('submit') }}
+                                            @endif
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                <div class="modal fade" id="review-view-for-{{ $review['id'] }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close text-BFBFBF" data-dismiss="modal" aria-label="Close">
+                                    <i class="tio-clear-circle"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body pt-0">
+                                <div class="d-flex flex-wrap align-items-center gap-3 mb-3 text-center border-bottom">
+                                    <div class="w-0 flex-grow-1 font-weight-semibold">
+                                        <div class="mb-2">
+                                            {{ translate('Review_ID') }} # {{ $review['id'] }}
+                                        </div>
+
+                                        @if($review['order_id'])
+                                            <div class="mb-2">
+                                                {{ translate('Order_ID') }} # {{ $review['order_id'] }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+
+                               <h2 class="text-center">
+                                   <span class="text-primary">{{ $review['rating'].'.0' }}</span><span class="fz-16 text-muted">{{ '/5' }}</span>
+                               </h2>
+                                <div class="d-flex align-items-center gap-1 text-primary justify-content-center fz-14 mb-4">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        @if($i <= $review['rating'])
+                                            <i class="tio-star"></i>
+                                        @else
+                                            <i class="tio-star-outlined"></i>
+                                        @endif
+                                    @endfor
+                                </div>
+
+                                <label class="input-label text--title font-weight-bold">
+                                    {{ translate('Review') }}
+                                </label>
+                                <div class="__bg-F3F5F9 p-3 rounded border mb-2">
+                                    {{ $review['comment'] }}
+                                </div>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @if(count($review->attachment_full_url) > 0)
+                                        @foreach ($review->attachment_full_url as $img)
+                                            <a class="aspect-1 float-left overflow-hidden"
+                                               href="{{ getStorageImages(path: $img,type: 'backend-basic') }}"
+                                               data-lightbox="review-gallery-modal{{ $review['id'] }}" >
+                                                <img width="45" class="rounded aspect-1 border"
+                                                     src="{{ getStorageImages(path: $img,type: 'backend-basic') }}"
+                                                     alt="{{translate('review_image')}}">
+                                            </a>
+                                        @endforeach
+                                    @endif
+                                </div>
+                                @if($review?->reply?->reply_text)
+                                    <label class="input-label text--title font-weight-bold pt-4">
+                                        {{ translate('Reply') }}
+                                    </label>
+                                    <div class="__bg-F3F5F9 p-3 rounded border mb-2">
+                                        {{ $review?->reply?->reply_text ?? '' }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
 
             <div class="table-responsive mt-4">
                 <div class="px-4 d-flex justify-content-lg-end">

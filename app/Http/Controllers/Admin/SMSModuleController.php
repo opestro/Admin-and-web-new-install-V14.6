@@ -28,7 +28,7 @@ class SMSModuleController extends Controller
     public function sms_index()
     {
         $payment_published_status = config('get_payment_publish_status') ?? 0;
-        $payment_gateway_published_status = isset($payment_published_status[0]['is_published']) ? $payment_published_status[0]['is_published'] : 0;
+        $paymentGatewayPublishedStatus = isset($payment_published_status[0]['is_published']) ? $payment_published_status[0]['is_published'] : 0;
 
         $sms_gateways = Setting::whereIn('settings_type', ['sms_config'])->whereIn('key_name', Helpers::default_sms_gateways())->get();
 
@@ -36,7 +36,7 @@ class SMSModuleController extends Controller
             return count($item['live_values']);
         })->values()->all();
 
-        return view('admin-views.business-settings.sms-index', compact('sms_gateways','payment_gateway_published_status'));
+        return view('admin-views.business-settings.sms-index', compact('sms_gateways','paymentGatewayPublishedStatus'));
     }
 
     public function sms_update(Request $request, $module)

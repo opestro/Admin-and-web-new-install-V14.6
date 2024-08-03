@@ -19,7 +19,7 @@
                             <div class="delivery-man-info-box bg-white media gap-2 gap-sm-3 shadow-sm rounded p-3">
                                 <div class="img-avatar-parent-element">
                                     <img class="rounded-circle" width="77" alt=""
-                                         src="{{ getValidImage(path: 'storage/app/public/delivery-man/'.$order->deliveryMan->image, type: 'avatar') }}">
+                                         src="{{ getStorageImages(path: $order->deliveryMan->image_full_url, type: 'avatar') }}">
                                 </div>
                                 <div class="media-body">
                                     <div
@@ -92,7 +92,7 @@
                                         &nbsp{{$order->deliveryMan->l_name}}
                                     </h6>
                                     @foreach ($order->verificationImages as $image)
-                                        <img class="rounded" width="100" src="{{ getValidImage(path: "storage/app/public/delivery-man/verification-image/".$image->image, type: 'product') }}" alt="">
+                                        <img class="rounded" width="100" src="{{ getStorageImages(path: $image->image_full_url, type: 'product') }}" alt="">
                                     @endforeach
                                 </div>
                             @endif
@@ -107,7 +107,7 @@
                                     <div class="col-sm-6 col-xl-4">
                                         <div class="media gap-3">
                                             <img alt="{{ translate('deliveryman') }}" width="20"
-                                                 src="{{ getValidImage(path: 'public/assets/front-end/img/icons/van.png', type: 'avatar') }}">
+                                                 src="{{ theme_asset(path: 'public/assets/front-end/img/icons/van.png') }}">
                                             <div class="media-body">
                                                 <div class="text-muted text-capitalize">
                                                     {{translate('delivery_service_name')}}
@@ -119,7 +119,7 @@
                                     <div class="col-sm-6 col-xl-4">
                                         <div class="media gap-3">
                                             <img alt="{{ translate('deliveryman') }}" width="20"
-                                                 src="{{ getValidImage(path:'public/assets/front-end/img/icons/track_order.png', type: 'product') }}">
+                                                 src="{{ theme_asset(path:'public/assets/front-end/img/icons/track_order.png') }}">
                                             <div class="media-body">
                                                 <div class="text-muted">{{translate('tracking_ID')}} </div>
                                                 <div class="font-weight-bold">
@@ -265,7 +265,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{route('messages_store')}}" method="post" id="deliveryman-chat-form">
+                        <form action="{{route('messages')}}" method="post" id="deliveryman-chat-form">
                             @csrf
                             @if($order->deliveryMan->id != 0)
                                 <input value="{{$order->deliveryMan->id}}" name="delivery_man_id" hidden>

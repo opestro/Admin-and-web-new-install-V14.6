@@ -11,10 +11,13 @@ class CategoryService
 
     public function getAddData(object $request): array
     {
+        $storage = config('filesystems.disks.default') ?? 'public';
+
         return [
             'name' => $request['name'][array_search('en', $request['lang'])],
             'slug' => Str::slug($request['name'][array_search('en', $request['lang'])]),
             'icon' => $this->upload('category/', 'webp', $request->file('image')),
+            'icon_storage_type' => $request->has('image') ? $storage : null,
             'parent_id' => $request->get('parent_id', 0),
             'position' => $request['position'],
             'priority' => $request['priority'],
@@ -23,11 +26,13 @@ class CategoryService
 
     public function getUpdateData(object $request, object $data): array
     {
+        $storage = config('filesystems.disks.default') ?? 'public';
         $image = $request->file('image') ? $this->update('category/', $data['image'], 'webp', $request->file('image')) : $data['icon'];
         return [
             'name' => $request['name'][array_search('en', $request['lang'])],
             'slug' => Str::slug($request['name'][array_search('en', $request['lang'])]),
             'icon' => $image,
+            'icon_storage_type' => $request->has('image') ? $storage : $data['icon_storage_type'],
             'priority' => $request['priority'],
         ];
     }

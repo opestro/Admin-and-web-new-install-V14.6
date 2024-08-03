@@ -13,26 +13,26 @@
                 <div class="border rounded bg-white">
                     <div class="p-3">
                         <div class="media gap-3">
-                            @if (isset($order_details->product))
+                            @if (isset($order_details?->productAllStatus))
                                 <div class="position-relative">
                                     <img class="d-block get-view-by-onclick"
-                                         data-link="{{ route('product',$order_details->product['slug'])}}"
-                                         src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$order_details->product['thumbnail'], type: 'product') }}"
+                                         data-link="{{ route('product',$order_details?->productAllStatus->slug)}}"
+                                         src="{{ getStorageImages(path: $order_details?->productAllStatus->thumbnail_full_url, type: 'product') }}"
                                          alt="{{ translate('product') }}" width="100">
 
-                                    @if($order_details->product->discount > 0)
+                                    @if($order_details?->productAllStatus->discount > 0)
                                         <span class="price-discount badge badge-primary position-absolute top-1 left-1">
-                                            @if ($order_details->product->discount_type == 'percent')
-                                                -{{round($order_details->product->discount)}}%
-                                            @elseif($order_details->product->discount_type =='flat')
-                                                -{{ webCurrencyConverter(amount: $order_details->product->discount) }}
+                                            @if ($order_details?->productAllStatus->discount_type == 'percent')
+                                                -{{round($order_details?->productAllStatus->discount)}}%
+                                            @elseif($order_details?->productAllStatus->discount_type =='flat')
+                                                -{{ webCurrencyConverter(amount: $order_details?->productAllStatus->discount) }}
                                             @endif
                                         </span>
                                     @endif
                                 </div>
                                 <div class="media-body">
 
-                                    <a href="{{route('product',[$order_details->product['slug']])}}">
+                                    <a href="{{route('product',[$order_details?->productAllStatus->slug])}}">
                                         <h6 class="mb-1">
                                             {{Str::limit($product['name'],40)}}
                                         </h6>
@@ -40,13 +40,13 @@
                                     @if($order_details->variant)
                                         <div>
                                             <small class="text-muted">
-                                                {{translate('variant')}} : {{$detail->variant}}
+                                                {{translate('variant')}} : {{$order_details->variant}}
                                             </small>
                                         </div>
                                     @endif
 
                                     <div>
-                                        <small class="text-muted">{{translate('qty')}} : {{$detail->qty}}</small>
+                                        <small class="text-muted">{{translate('qty')}} : {{$order_details->qty}}</small>
                                     </div>
                                     <div>
                                         <small class="text-muted">{{translate('price')}} :
@@ -136,7 +136,7 @@
                                     <label class="py-0 d-flex align-items-center m-0 cursor-pointer">
                                         <span class="position-relative">
                                             <img class="border rounded border-primary-light h-70px"
-                                                 src="{{ getValidImage(path: 'public/assets/front-end/img/image-place-holder.png', type: 'logo') }}"
+                                                 src="{{ getStorageImages(path: null, type: 'logo',source: 'public/assets/front-end/img/image-place-holder.png') }}"
                                                  alt="">
                                         </span>
                                         <input type="file" class="msgfilesValue h-100 position-absolute w-100 " hidden

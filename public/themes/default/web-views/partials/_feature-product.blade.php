@@ -16,7 +16,7 @@
                 <span class="for-discount-value-null"></span>
             @endif
             <a href="{{route('product',$product->slug)}}">
-                <img src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'product') }}" alt="">
+                <img src="{{ getStorageImages(path: $product->thumbnail_full_url, type: 'product') }}" alt="">
             </a>
 
             <div class="quick-view">

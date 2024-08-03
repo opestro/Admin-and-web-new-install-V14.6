@@ -9,7 +9,7 @@
 <div class="modal-body px-4 px-sm-5">
     <div class="mb-4 text-center">
         <img width="200"
-             src="{{ getValidImage(path: $path.'/public/addon.png', type: 'backend-basic') }}" alt=""/>
+             src="{{ getStorageImages(path: null, type: 'backend-basic',source: $path.'/public/addon.png')}}" alt=""/>
     </div>
     <h2 class="text-center mb-4">{{$addonName}}</h2>
 

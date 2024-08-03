@@ -85,13 +85,13 @@
                 <a class="navbar-brand d-none d-sm-block mr-3 flex-shrink-0 __min-w-7rem"
                    href="{{route('home')}}">
                     <img class="__inline-11"
-                         src="{{ getValidImage(path: 'storage/app/public/company/'.$web_config['web_logo']->value, type: 'logo') }}"
+                         src="{{ getStorageImages(path: $web_config['web_logo'], type: 'logo') }}"
                          alt="{{$web_config['name']->value}}">
                 </a>
                 <a class="navbar-brand d-sm-none"
                    href="{{route('home')}}">
                     <img class="mobile-logo-img __inline-12"
-                         src="{{ getValidImage(path: 'storage/app/public/company/'.$web_config['mob_logo']->value, type: 'logo') }}"
+                         src="{{ getStorageImages(path: $web_config['mob_logo'], type: 'logo') }}"
                          alt="{{$web_config['name']->value}}"/>
                 </a>
 
@@ -154,7 +154,7 @@
                                 <div class="navbar-tool-icon-box bg-secondary">
                                     <div class="navbar-tool-icon-box bg-secondary">
                                         <img class="img-profile rounded-circle __inline-14" alt=""
-                                             src="{{ getValidImage(path: 'storage/app/public/profile/'.auth('customer')->user()->image, type: 'avatar') }}">
+                                             src="{{ getStorageImages(path: auth('customer')->user()->image_full_url, type: 'avatar') }}">
                                     </div>
                                 </div>
                                 <div class="navbar-tool-text">
@@ -217,6 +217,12 @@
                         </button>
                     </div>
 
+                    <ul class="navbar-nav d-block d-md-none">
+                        <li class="nav-item dropdown {{request()->is('/')?'active':''}}">
+                            <a class="nav-link" href="{{route('home')}}">{{ translate('home')}}</a>
+                        </li>
+                    </ul>
+
                     @php($categories = \App\Utils\CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting(dataLimit: 11))
 
                     <ul class="navbar-nav mega-nav pr-lg-2 pl-lg-2 mr-2 d-none d-md-block __mega-nav">
@@ -247,54 +253,65 @@
                                 </span>
                             </a>
                             <ul class="dropdown-menu __dropdown-menu-2 text-align-direction">
+                                @php($categoryIndex=0)
                                 @foreach($categories as $category)
-                                    <li class="dropdown">
+                                    @php($categoryIndex++)
+                                    @if($categoryIndex < 10)
+                                        <li class="dropdown">
 
-                                        <a <?php if ($category->childes->count() > 0) echo "" ?>
-                                           href="{{route('products',['id'=> $category['id'],'data_from'=>'category','page'=>1])}}">
-                                            <span>{{$category['name']}}</span>
+                                            <a <?php if ($category->childes->count() > 0) echo "" ?>
+                                               href="{{route('products',['id'=> $category['id'],'data_from'=>'category','page'=>1])}}">
+                                                <span>{{$category['name']}}</span>
 
-                                        </a>
-                                        @if ($category->childes->count() > 0)
-                                            <a data-toggle='dropdown' class='__ml-50px'>
-                                                <i class="czi-arrow-{{Session::get('direction') === "rtl" ? 'left' : 'right'}} __inline-16"></i>
                                             </a>
-                                        @endif
+                                            @if ($category->childes->count() > 0)
+                                                <a data-toggle='dropdown' class='__ml-50px'>
+                                                    <i class="czi-arrow-{{Session::get('direction') === "rtl" ? 'left' : 'right'}} __inline-16"></i>
+                                                </a>
+                                            @endif
 
-                                        @if($category->childes->count()>0)
-                                            <ul class="dropdown-menu text-align-direction">
-                                                @foreach($category['childes'] as $subCategory)
-                                                    <li class="dropdown">
-                                                        <a href="{{route('products',['id'=> $subCategory['id'],'data_from'=>'category','page'=>1])}}">
-                                                            <span>{{$subCategory['name']}}</span>
-                                                        </a>
-
-                                                        @if($subCategory->childes->count()>0)
-                                                            <a class="header-subcategories-links"
-                                                               data-toggle='dropdown'>
-                                                                <i class="czi-arrow-{{Session::get('direction') === "rtl" ? 'left' : 'right'}} __inline-16"></i>
+                                            @if($category->childes->count()>0)
+                                                <ul class="dropdown-menu text-align-direction">
+                                                    @foreach($category['childes'] as $subCategory)
+                                                        <li class="dropdown">
+                                                            <a href="{{route('products',['id'=> $subCategory['id'],'data_from'=>'category','page'=>1])}}">
+                                                                <span>{{$subCategory['name']}}</span>
                                                             </a>
-                                                            <ul class="dropdown-menu">
-                                                                @foreach($subCategory['childes'] as $subSubCategory)
-                                                                    <li>
-                                                                        <a class="dropdown-item"
-                                                                           href="{{route('products',['id'=> $subSubCategory['id'],'data_from'=>'category','page'=>1])}}">{{$subSubCategory['name']}}</a>
-                                                                    </li>
-                                                                @endforeach
-                                                            </ul>
-                                                        @endif
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        @endif
-                                    </li>
+
+                                                            @if($subCategory->childes->count()>0)
+                                                                <a class="header-subcategories-links"
+                                                                   data-toggle='dropdown'>
+                                                                    <i class="czi-arrow-{{Session::get('direction') === "rtl" ? 'left' : 'right'}} __inline-16"></i>
+                                                                </a>
+                                                                <ul class="dropdown-menu">
+                                                                    @foreach($subCategory['childes'] as $subSubCategory)
+                                                                        <li>
+                                                                            <a class="dropdown-item"
+                                                                               href="{{route('products',['id'=> $subSubCategory['id'],'data_from'=>'category','page'=>1])}}">{{$subSubCategory['name']}}</a>
+                                                                        </li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            @endif
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            @endif
+                                        </li>
+                                    @endif
                                 @endforeach
+                                <li class="__inline-17">
+                                    <div>
+                                        <a class="dropdown-item web-text-primary" href="{{ route('categories') }}">
+                                            {{ translate('view_more') }}
+                                        </a>
+                                    </div>
+                                </li>
                             </ul>
                         </li>
                     </ul>
 
                     <ul class="navbar-nav">
-                        <li class="nav-item dropdown {{request()->is('/')?'active':''}}">
+                        <li class="nav-item dropdown d-none d-md-block {{request()->is('/')?'active':''}}">
                             <a class="nav-link" href="{{route('home')}}">{{ translate('home')}}</a>
                         </li>
 
@@ -303,20 +320,24 @@
                                 <a class="nav-link dropdown-toggle" href="#"
                                    data-toggle="dropdown">{{ translate('brand') }}</a>
                                 <ul class="text-align-direction dropdown-menu __dropdown-menu-sizing dropdown-menu-{{Session::get('direction') === "rtl" ? 'right' : 'left'}} scroll-bar">
+                                    @php($brandIndex=0)
                                     @foreach(\App\Utils\BrandManager::getActiveBrandWithCountingAndPriorityWiseSorting() as $brand)
-                                        <li class="__inline-17">
-                                            <div>
-                                                <a class="dropdown-item"
-                                                   href="{{route('products',['id'=> $brand['id'],'data_from'=>'brand','page'=>1])}}">
-                                                    {{$brand['name']}}
-                                                </a>
-                                            </div>
-                                            <div class="align-baseline">
-                                                @if($brand['brand_products_count'] > 0 )
-                                                    <span class="count-value px-2">( {{ $brand['brand_products_count'] }} )</span>
-                                                @endif
-                                            </div>
-                                        </li>
+                                        @php($brandIndex++)
+                                        @if($brandIndex < 10)
+                                            <li class="__inline-17">
+                                                <div>
+                                                    <a class="dropdown-item"
+                                                       href="{{route('products',['id'=> $brand['id'],'data_from'=>'brand','page'=>1])}}">
+                                                        {{$brand['name']}}
+                                                    </a>
+                                                </div>
+                                                <div class="align-baseline">
+                                                    @if($brand['brand_products_count'] > 0 )
+                                                        <span class="count-value px-2">( {{ $brand['brand_products_count'] }} )</span>
+                                                    @endif
+                                                </div>
+                                            </li>
+                                        @endif
                                     @endforeach
                                     <li class="__inline-17">
                                         <div>

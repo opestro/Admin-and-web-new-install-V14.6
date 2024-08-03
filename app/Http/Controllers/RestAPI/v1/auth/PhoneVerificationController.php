@@ -4,7 +4,7 @@ namespace App\Http\Controllers\RestAPI\v1\auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\PhoneOrEmailVerification;
-use App\User;
+use App\Models\User;
 use App\Utils\Helpers;
 use App\Utils\SMS_module;
 use Carbon\Carbon;

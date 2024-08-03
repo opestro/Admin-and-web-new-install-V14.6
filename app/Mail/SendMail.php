@@ -54,6 +54,13 @@ class SendMail extends Mailable
      */
     public function attachments(): array
     {
+        if (isset($this->data['attachmentPath'])) {
+            return [
+                Attachment::fromPath($this->data['attachmentPath'])
+                    ->as('invoice.pdf')
+                    ->withMime('application/pdf')
+            ];
+        }
         return [];
     }
 }

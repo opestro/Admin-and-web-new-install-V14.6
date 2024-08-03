@@ -15,14 +15,14 @@
                             {{ translate('email') }} / {{ translate('phone')}}
                         </label>
                         <input class="form-control text-align-direction" type="text" name="user_id" id="si-email"
-                                value="{{old('user_id')}}" placeholder="{{ translate('enter_email_address_or_phone_number') }}"
+                                value="{{old('user_id')}}" placeholder="{{ translate('enter_email_or_phone') }}"
                                 required>
                         <div class="invalid-feedback">{{ translate('please_provide_valid_email_or_phone_number') }} .</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label font-semibold">{{ translate('password') }}</label>
                         <div class="password-toggle rtl">
-                            <input class="form-control text-align-direction" name="password" type="password" id="si-password" placeholder="{{ translate('password_must_be_7+_Character')}}" required>
+                            <input class="form-control text-align-direction" name="password" type="password" id="si-password" placeholder="{{ translate('enter_password')}}" required>
                             <label class="password-toggle-btn">
                                 <input class="custom-control-input" type="checkbox">
                                     <i class="tio-hidden password-toggle-indicator"></i>

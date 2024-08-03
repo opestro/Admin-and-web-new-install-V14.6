@@ -3,13 +3,13 @@
 @section('title',translate($data['data_from']).' '.translate('products'))
 
 @push('css_or_js')
-    <meta property="og:image" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']}}"/>
+    <meta property="og:image" content="{{$web_config['web_logo']['path']}}"/>
     <meta property="og:title" content="Products of {{$web_config['name']}} "/>
     <meta property="og:url" content="{{env('APP_URL')}}">
     <meta property="og:description"
           content="{{ substr(strip_tags(str_replace('&nbsp;', ' ', $web_config['about']->value)),0,160) }}">
 
-    <meta property="twitter:card" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']}}"/>
+    <meta property="twitter:card" content="{{$web_config['web_logo']['path']}}"/>
     <meta property="twitter:title" content="Products of {{$web_config['name']}}"/>
     <meta property="twitter:url" content="{{env('APP_URL')}}">
     <meta property="twitter:description"
@@ -79,7 +79,7 @@
         <div class="search-page-header">
             <div>
                 <h5 class="font-semibold mb-1">{{translate(str_replace('_',' ',$data['data_from']))}} {{translate('products')}} {{ isset($data['brand_name']) ? '('.$data['brand_name'].')' : ''}}</h5>
-                <div><span class="view-page-item-count">{{$products->total()}}</span> {{translate('items_found')}}</div>
+                <div><span>{{$products->total()}}</span> {{translate('items_found')}}</div>
             </div>
             <form id="search-form" class="d-none d-lg-block" action="{{ route('products') }}" method="GET">
                 <input hidden name="data_from" value="{{$data['data_from']}}">
@@ -317,7 +317,7 @@
                         </div>
                     </div>
                 </div>
-
+                <div class="sidebar-overlay"></div>
             </aside>
 
             <section class="col-lg-9">

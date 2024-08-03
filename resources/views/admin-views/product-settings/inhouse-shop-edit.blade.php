@@ -86,7 +86,7 @@
                             <div class="col-md-6">
                                 <div class="text-center">
                                     <img class="upload-img-view upload-img-view__banner" id="viewerBanner"
-                                         src="{{getValidImage(path: 'storage/app/public/shop/'.getWebConfig(name: 'shop_banner')??'',type:'backend-banner')}}"
+                                         src="{{getStorageImages(path: getWebConfig(name: 'shop_banner'),type:'backend-banner')}}"
                                          alt="">
                                 </div>
                                 <div class="position-relative mt-4">
@@ -110,7 +110,7 @@
                                 <div class="col-lg-6 form-group">
                                     <div class="text-center">
                                         <img class="upload-img-view upload-img-view__banner" id="viewerBottomBanner"
-                                             src="{{getValidImage(path: 'storage/app/public/shop/'.getWebConfig(name: 'bottom_banner')??'',type:'backend-banner')}}"
+                                             src="{{getStorageImages(path: getWebConfig(name: 'bottom_banner'),type:'backend-banner')}}"
                                              alt="{{translate('banner_image')}}"/>
                                     </div>
                                     <div class="mt-4">
@@ -133,7 +133,7 @@
                                 <div class="col-lg-6 form-group">
                                     <div class="text-center mx-auto">
                                         <img class="upload-img-view upload-img-view__banner" id="viewerOfferBanner"
-                                             src="{{ getValidImage(path: 'storage/app/public/shop/'.getWebConfig(name: 'offer_banner') ?? '',type: 'backend-banner') }}"
+                                             src="{{ getStorageImages(path:getWebConfig(name: 'offer_banner'),type: 'backend-banner') }}"
                                              alt="">
                                     </div>
 

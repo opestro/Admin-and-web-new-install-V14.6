@@ -51,17 +51,16 @@
                                             $link = url('/');
                                         @endphp
                                         <a href="https://api.whatsapp.com/send?text={{$text}}.{{$link}}" target="_blank">
-                                            <img alt=""
-                                                 src="{{ getValidImage(path: 'public/assets/front-end/img/icons/whatsapp.png', type: 'product') }}">
+                                            <img alt="" src="{{ theme_asset('public/assets/front-end/img/icons/whatsapp.png')}}">
                                         </a>
                                         <a href="mailto:recipient@example.com?subject=Referral%20Code%20Text&body={{$text}}%20Link:%20{{$link}}" target="_blank">
                                             <img alt=""
-                                                 src="{{ getValidImage(path: 'public/assets/front-end/img/icons/gmail.png', type: 'product') }}">
+                                                 src="{{ theme_asset('public/assets/front-end/img/icons/gmail.png') }}">
                                         </a>
 
                                         <span data-target="#social-share-modal" data-toggle="modal">
                                             <img alt=""
-                                                 src="{{ getValidImage(path: 'public/assets/front-end/img/icons/share.png', type: 'product') }}">
+                                                 src="{{ theme_asset(path: 'public/assets/front-end/img/icons/share.png') }}">
                                         </span>
                                     </div>
                                 </div>

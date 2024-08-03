@@ -25,7 +25,7 @@
                         <div class="d-flex align-items-center">
                             <img
                                 class="avatar avatar-xxl avatar-4by3 {{Session::get('direction') === "rtl" ? 'ml-4' : 'mr-4'}}"
-                                src="{{ getValidImage(path: 'storage/app/public/delivery-man/'.$deliveryMan['image'] , type: 'backend-basic') }}"
+                                src="{{ getStorageImages(path:$deliveryMan->image_full_url , type: 'backend-basic') }}"
                                 alt="{{translate('image_description')}}">
                             <div class="d-block">
                                 <h4 class="display-2 text-dark mb-0">
@@ -206,7 +206,7 @@
                                     <div class="avatar avatar-circle">
                                         <img
                                             class="avatar-img"
-                                            src="{{ getValidImage(path: 'storage/app/public/profile/'.$review?->customer->image??'' , type: 'backend-basic') }}"
+                                            src="{{ getStorageImages(path:$review?->customer->image_full_url, type: 'backend-basic') }}"
                                             alt="{{('image_description')}}">
                                     </div>
                                     <div class="{{Session::get('direction') === "rtl" ? 'mr-3' : 'ml-3'}}">

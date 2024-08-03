@@ -24,10 +24,24 @@ enum Product
         VIEW => 'admin-views.product.view',
         ROUTE => 'admin.products.view'
     ];
-
     const SKU_COMBINATION = [
         URI => 'sku-combination',
         VIEW => 'admin-views.product.partials._sku_combinations'
+    ];
+
+    const SKU_EDIT_COMBINATION = [
+        URI => 'sku-combination',
+        VIEW => 'admin-views.product.partials._edit_sku_combinations'
+    ];
+
+    const DIGITAL_VARIATION_COMBINATION = [
+        URI => 'digital-variation-combination',
+        VIEW => 'admin-views.product.partials._digital-variation-combination'
+    ];
+
+    const DIGITAL_VARIATION_FILE_DELETE = [
+        URI => 'digital-variation-file-delete',
+        VIEW => ''
     ];
 
     const FEATURED_STATUS = [
@@ -116,6 +130,11 @@ enum Product
     const SEARCH = [
         URI => 'search',
         VIEW => 'admin-views.partials._search-product'
+
+    ];
+    const MULTIPLE_PRODUCT_DETAILS = [
+        URI => 'multiple-product-details',
+        VIEW => 'admin-views.partials._select-product'
 
     ];
     const PRODUCT_GALLERY = [

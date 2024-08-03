@@ -83,7 +83,7 @@ class BannerRepository implements BannerRepositoryInterface
 
     public function update(string $id, array $data): bool
     {
-        $this->banner->where('id', $id)->update($data);
+        $this->banner->find($id)->update($data);
         return true;
     }
 

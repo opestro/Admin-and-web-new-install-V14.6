@@ -45,8 +45,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function map()
     {
-        $this->mapInstallRoutes();
-        //$this->mapUpdateRoutes();
+        $this->mapUpdateRoutes();
     }
 
     /**

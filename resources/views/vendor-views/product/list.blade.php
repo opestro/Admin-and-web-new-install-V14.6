@@ -122,7 +122,7 @@
                             </div>
                             <div class="col-lg-8 mt-3 mt-lg-0 d-flex flex-wrap gap-3 justify-content-lg-end">
 
-                                <div>
+                                <div class="dropdown">
                                     <button type="button" class="btn btn-outline--primary" data-toggle="dropdown">
                                         <i class="tio-download-to"></i>
                                         {{ translate('export') }}
@@ -176,7 +176,7 @@
                                     <td>
                                         <a href="{{ route('vendor.products.view', [$product['id']]) }}"
                                            class="media align-items-center gap-2">
-                                            <img src="{{ getValidImage(path:'storage/app/public/product/thumbnail/'.$product['thumbnail'],type:'backend-product')}}"
+                                            <img src="{{ getStorageImages(path:$product->thumbnail_full_url,type:'backend-product')}}"
                                                  class="avatar border onerror-image" alt="">
                                             <span class="media-body title-color hover-c1">
                                             {{ Str::limit($product['name'], 20) }}

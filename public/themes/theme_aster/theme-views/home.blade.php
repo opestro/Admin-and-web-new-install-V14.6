@@ -2,12 +2,12 @@
 
 @section('title', $web_config['name']->value.' '.translate('Online_Shopping').' | '.$web_config['name']->value.' '.translate('ecommerce'))
 @push('css_or_js')
-    <meta property="og:image" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']->value}}"/>
+    <meta property="og:image" content="{{$web_config['web_logo']['path']}}"/>
     <meta property="og:title" content="Welcome To {{$web_config['name']->value}} Home"/>
     <meta property="og:url" content="{{env('APP_URL')}}">
     <meta property="og:description" content="{{ substr(strip_tags(str_replace('&nbsp;', ' ', $web_config['about']->value)),0,160) }}">
 
-    <meta property="twitter:card" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']->value}}"/>
+    <meta property="twitter:card" content="{{$web_config['web_logo']['path']}}"/>
     <meta property="twitter:title" content="Welcome To {{$web_config['name']->value}} Home"/>
     <meta property="twitter:url" content="{{env('APP_URL')}}">
     <meta property="twitter:description" content="{{ substr(strip_tags(str_replace('&nbsp;', ' ', $web_config['about']->value)),0,160) }}">
@@ -23,7 +23,7 @@
 
         @include('theme-views.partials._find-what-you-need')
 
-        @if ($web_config['business_mode'] == 'multi' && count($topVendorsList) > 0)
+        @if ($web_config['business_mode'] == 'multi' && count($topVendorsList) > 0 && $topVendorsListSectionShowingStatus)
             @include('theme-views.partials._top-stores')
         @endif
 
@@ -45,7 +45,7 @@
         <section class="">
             <div class="container">
                 <div class="py-5 rounded position-relative">
-                    <img src="{{ getValidImage(path: 'storage/app/public/banner/'.($main_section_banner ? $main_section_banner['photo'] : ''), type:'banner') }}"
+                    <img src="{{ getStorageImages(path: $main_section_banner->photo_full_url??null, type:'banner') }}"
                          alt="" class="rounded position-absolute dark-support img-fit start-0 top-0 index-n1 flipX-in-rtl">
                     <div class="row justify-content-center">
                         <div class="col-10 py-4">

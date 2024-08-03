@@ -9,6 +9,7 @@ use App\Models\Setting;
 use App\Models\BusinessSetting;
 use App\Traits\Processor;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,12 +19,10 @@ class PaymentMethodController extends Controller
 {
     use Processor;
 
-    public function index()
+    public function index(): View
     {
-
-        $payment_published_status = config('get_payment_publish_status') ?? 0;
-        $payment_gateway_published_status = isset($payment_published_status[0]['is_published']) ? $payment_published_status[0]['is_published'] : 0;
-
+        $paymentPublishedStatus = config('get_payment_publish_status') ?? 0;
+        $paymentGatewayPublishedStatus = isset($paymentPublishedStatus[0]['is_published']) ? $paymentPublishedStatus[0]['is_published'] : 0;
         $payment_gateways = Setting::whereIn('settings_type', ['payment_config'])->whereIn('key_name', GlobalConstant::DEFAULT_PAYMENT_GATEWAYS)->get();
 
         $payment_gateways = $payment_gateways->sortBy(function ($item) {
@@ -44,7 +43,7 @@ class PaymentMethodController extends Controller
         }
 
         return view('admin-views.business-settings.payment-method.index',
-            compact('payment_gateways', 'payment_gateway_published_status','payment_url'));
+            compact('payment_gateways', 'paymentGatewayPublishedStatus', 'payment_url'));
     }
 
     public function update(Request $request)

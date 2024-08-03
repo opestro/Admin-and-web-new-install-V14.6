@@ -4,7 +4,7 @@
     use App\Utils\Helpers;
 @endphp
 @if (isset($web_config['announcement']) && $web_config['announcement']['status']==1)
-    <div class="offer-bar py-3 announcement-color" data-bg-img="{{theme_asset('assets/img/media/top-offer-bg.png')}}">
+    <div class="offer-bar py-2 py-sm-3 announcement-color" data-bg-img="{{theme_asset('assets/img/media/top-offer-bg.png')}}">
         <div class="d-flex gap-2 align-items-center">
             <div class="offer-bar-close">
                 <i class="bi bi-x-lg"></i>
@@ -99,7 +99,7 @@
             <div class="d-flex align-items-center justify-content-between gap-3">
                 <a class="logo" href="{{route('home')}}">
                     <img class="dark-support svg h-45" alt="{{ translate('Logo') }}"
-                         src="{{ getValidImage(path: 'storage/app/public/company/'.($web_config['web_logo']->value), type:'logo') }}">
+                         src="{{ getStorageImages(path: $web_config['web_logo'], type:'logo') }}">
                 </a>
                 <div class="search-box position-relative">
                     <form action="{{route('products')}}" type="submit">
@@ -155,7 +155,7 @@
                     @if($web_config['header_banner'])
                         <a href="{{ $web_config['header_banner']['url'] }}">
                             <img width="180" loading="lazy" class="dark-support" alt="{{ translate('image') }}"
-                                src="{{ getValidImage(path: 'storage/app/public/banner/'.($web_config['header_banner']['photo']), type:'wide-banner') }}">
+                                src="{{ getStorageImages(path: $web_config['header_banner']['photo_full_url'], type:'wide-banner') }}">
                         </a>
                     @endif
                 </div>
@@ -185,43 +185,53 @@
                         </form>
                         <ul class="main-nav nav">
                             <li>
-                                <a href="{{route('categories')}}">{{ translate('categories') }}</a>
-                                <ul class="sub_menu">
-                                    @foreach($categories as $key=>$category)
-                                        <li>
-                                            <a href="javascript:">
-                                                <span class="get-view-by-onclick"
-                                                      data-link="{{route('products',['id'=> $category['id'],'data_from'=>'category','page'=>1])}}">{{ $category['name'] }}</span>
-                                            </a>
-                                            @if ($category->childes->count() > 0)
-                                                <ul class="sub_menu">
-                                                    @foreach($category['childes'] as $subCategory)
-                                                        <li>
-                                                            <a href="javascript:">
-                                                                <span class="get-view-by-onclick" data-link="{{route('products',['id'=> $subCategory['id'],'data_from'=>'category','page'=>1])}}">{{$subCategory['name']}}</span>
-                                                            </a>
-                                                            @if($subCategory->childes->count()>0)
-                                                                <ul class="sub_menu">
-                                                                    @foreach($subCategory['childes'] as $subSubCategory)
-                                                                        <li>
-                                                                            <a href="{{route('products',['id'=> $subSubCategory['id'],'data_from'=>'category','page'=>1])}}">
-                                                                                {{$subSubCategory['name']}}
-                                                                            </a>
-                                                                        </li>
-                                                                    @endforeach
-                                                                </ul>
-                                                            @endif
-                                                        </li>
-                                                    @endforeach
-                                                </ul>
-                                            @endif
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </li>
-                            <li>
                                 <a href="{{route('home')}}">{{ translate('home') }}</a>
                             </li>
+                            <li>
+                                <a href="{{route('categories')}}">{{ translate('categories') }}</a>
+                                <ul class="sub_menu">
+                                    @php($categoryIndex=0)
+                                    @foreach($categories as $category)
+                                        @php($categoryIndex++)
+                                        @if($categoryIndex < 10)
+                                            <li>
+                                                <a href="javascript:">
+                                                    <span class="get-view-by-onclick"
+                                                        data-link="{{route('products',['id'=> $category['id'],'data_from'=>'category','page'=>1])}}">{{ $category['name'] }}</span>
+                                                </a>
+                                                @if ($category->childes->count() > 0)
+                                                    <ul class="sub_menu">
+                                                        @foreach($category['childes'] as $subCategory)
+                                                            <li>
+                                                                <a href="javascript:">
+                                                                    <span class="get-view-by-onclick" data-link="{{route('products',['id'=> $subCategory['id'],'data_from'=>'category','page'=>1])}}">{{$subCategory['name']}}</span>
+                                                                </a>
+                                                                @if($subCategory->childes->count()>0)
+                                                                    <ul class="sub_menu">
+                                                                        @foreach($subCategory['childes'] as $subSubCategory)
+                                                                            <li>
+                                                                                <a href="{{route('products',['id'=> $subSubCategory['id'],'data_from'=>'category','page'=>1])}}">
+                                                                                    {{$subSubCategory['name']}}
+                                                                                </a>
+                                                                            </li>
+                                                                        @endforeach
+                                                                    </ul>
+                                                                @endif
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                @endif
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                    <li>
+                                        <a href="{{route('products', ['data_from'=>'latest'])}}" class="btn-link text-primary">
+                                            {{ translate('view_all') }}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
                             @if($web_config['featured_deals']->count()>0 || $web_config['flash_deals'])
                                 <li>
                                     <a href="javascript:">{{ translate('offers')}}</a>
@@ -253,6 +263,11 @@
                                                 <a href="{{route('shopView',['id'=>$shop['seller_id']])}}">{{Str::limit($shop->name, 14)}}</a>
                                             </li>
                                         @endforeach
+                                        <li>
+                                            <a href="{{route('vendors')}}" class="btn-link text-primary">
+                                                {{ translate('view_all') }}
+                                            </a>
+                                        </li>
                                     </ul>
                                 </li>
                             @endif
@@ -260,11 +275,20 @@
                                 <li>
                                     <a href="javascript:">{{ translate('brands') }}</a>
                                     <ul class="sub_menu">
+                                        @php($brandIndex=0)
                                         @foreach($brands as $brand)
-                                            <li>
-                                                <a href="{{ route('products',['id'=> $brand['id'],'data_from'=>'brand','page'=>1]) }}">{{ $brand->name }}</a>
-                                            </li>
+                                            @php($brandIndex++)
+                                            @if($brandIndex < 10)
+                                                <li>
+                                                    <a href="{{ route('products',['id'=> $brand['id'],'data_from'=>'brand','page'=>1]) }}">{{ $brand->name }}</a>
+                                                </li>
+                                            @endif
                                         @endforeach
+                                        <li>
+                                            <a href="{{route('brands')}}" class="btn-link text-primary">
+                                                {{ translate('view_all') }}
+                                            </a>
+                                        </li>
                                     </ul>
                                 </li>
                             @endif
@@ -315,6 +339,7 @@
                     </div>
                 @endif
             </aside>
+            <div class="aside-overlay"></div>
 
             <div class="d-flex justify-content-between gap-3 align-items-center position-relative">
                 <div class="d-flex align-items-center gap-3">
@@ -370,7 +395,7 @@
                         <div class="d-xl-none">
                             <a class="logo" href="{{route('home')}}">
                                 <img class="dark-support mobile-logo-cs" alt="{{ translate('logo') }}"
-                                     src="{{ getValidImage(path: 'storage/app/public/company/'.($web_config['mob_logo']->value), type:'logo') }}">
+                                     src="{{ getStorageImages(path: $web_config['mob_logo'], type:'logo') }}">
                             </a>
                         </div>
                         <ul class="nav main-menu align-items-center d-none d-xl-flex flex-nowrap">
@@ -409,25 +434,25 @@
                                                        class="media gap-3 align-items-center border-bottom">
                                                         <div class="avatar rounded size-2-5rem">
                                                             <img loading="lazy" alt="{{ translate('image') }}"
-                                                                 src="{{ getValidImage(path: 'storage/app/public/company/'.$web_config['fav_icon']->value, type:'shop') }}"
+                                                                 src="{{ getStorageImages(path: $web_config['fav_icon'], type:'shop') }}"
                                                                  class="img-fit rounded dark-support overflow-hidden">
                                                         </div>
                                                         <div class="media-body text-truncate width--7rem"
                                                              title="{{translate('morning_mart')}}">
-                                                            {{Str::limit($web_config['name']->value, 14)}}
+                                                            {{ Str::limit($web_config['name']->value, 14) }}
                                                         </div>
                                                     </a>
 
                                                     @foreach($web_config['shops'] as $shop)
-                                                        <a href="{{route('shopView',['id'=>$shop['id']])}}"
+                                                        <a href="{{route('shopView',['id' => $shop['id']])}}"
                                                            class="media gap-3 align-items-center border-bottom">
                                                             <div class="avatar rounded size-2-5rem">
                                                                 <img loading="lazy" alt="{{ translate('image') }}"
-                                                                    src="{{ getValidImage(path: 'storage/app/public/shop/'.($shop->image), type: 'shop') }}"
+                                                                    src="{{ getStorageImages(path: $shop->image_full_url, type: 'shop') }}"
                                                                     class="img-fit rounded dark-support overflow-hidden">
                                                             </div>
                                                             <div class="media-body text-truncate width--7rem"
-                                                                 title="{{translate('morning_mart')}}">
+                                                                 title="{{ $shop->name }}">
                                                                 {{Str::limit($shop->name, 14)}}
                                                             </div>
                                                         </a>
@@ -466,11 +491,10 @@
                                                        class="media gap-3 align-items-center border-bottom">
                                                         <div class="avatar rounded-circle size-1-25rem">
                                                             <img class="img-fit rounded-circle dark-support"
-                                                                src="{{ getValidImage(path: 'storage/app/public/brand/'.($brand->image), type: 'brand') }}"
-                                                                loading="lazy" alt="{{ translate('image') }}"/>
+                                                                src="{{ getStorageImages(path: $brand->image_full_url, type: 'brand') }}"
+                                                                loading="lazy" alt="{{ $brand->image_alt_text }}"/>
                                                         </div>
-                                                        <div class="media-body text-truncate width--7rem"
-                                                             title="{{translate('bata')}}">
+                                                        <div class="media-body text-truncate width--7rem">
                                                             {{ $brand->name }}
                                                         </div>
                                                     </a>
@@ -499,16 +523,19 @@
                 <ul class="list-unstyled list-separator mb-0 pe-2">
                     @if(auth('customer')->check())
                         <li class="login-register d-flex align-items-center gap-4">
+                            <div class="menu-btn d-xl-none search">
+                                <i class="bi bi-search fs-18"></i>
+                            </div>
                             <div class="profile-dropdown">
                                 <button
                                     type="button"
-                                    class="border-0 bg-transparent d-flex gap-2 align-items-center dropdown-toggle text-dark p-0 user"
+                                    class="border-0 bg-transparent d-flex gap-2 align-items-center text-dark p-0 user"
                                     data-bs-toggle="dropdown"
                                     aria-expanded="false"
                                 >
-                                    <span class="avatar overflow-hidden header-avatar rounded-circle size-1-5rem">
-                                      <img loading="lazy" class="img-fit" alt="{{ translate('image') }}"
-                                          src="{{ getValidImage(path: 'storage/app/public/profile/'.(auth('customer')->user()->image), type:'avatar') }}">
+                                    <span class="avatar overflow-hidden header-avatar rounded-circle size-1-5rem border border-primary p-2px">
+                                      <img loading="lazy" class="img-fit rounded-circle" alt="{{ translate('image') }}"
+                                          src="{{ getStorageImages(path: auth('customer')->user()->image_full_url, type:'avatar') }}">
                                     </span>
                                 </button>
                                 <ul class="dropdown-menu bs-dropdown-min-width--10rem">
@@ -522,7 +549,10 @@
                             </div>
                         </li>
                     @else
-                        <li class="login-register d-flex gap-4">
+                        <li class="login-register d-flex align-items-center gap-4">
+                            <div class="menu-btn d-xl-none search">
+                                <i class="bi bi-search fs-18"></i>
+                            </div>
                             <button
                                 class="media gap-2 align-items-center text-uppercase fs-12 bg-transparent border-0 p-0"
                                 data-bs-toggle="modal"

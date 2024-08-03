@@ -22,7 +22,7 @@
                                         <div class="media align-items-center gap-3">
                                             <div class="avatar avatar-xxl rounded border overflow-hidden">
                                                 <img class="dark-support img-fit rounded" alt=""
-                                                    src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'product') }}">
+                                                    src="{{ getStorageImages(path:$product->thumbnail_full_url, type: 'product') }}">
                                             </div>
                                             <div class="media-body d-flex gap-1 flex-column">
                                                 <h6 class="text-truncate width--20ch">
@@ -80,13 +80,13 @@
                                     <div class="form-group">
                                         <h6 class="mb-2">{{translate('attachment')}}</h6>
                                         <div class="d-flex flex-column gap-3">
-                                            @if ($refund['images'] !=null)
+                                            @if (count($refund->images_full_url)>0)
                                                 <div class="gallery custom-image-popup-init">
-                                                    @foreach (json_decode($refund['images']) as $key => $photo)
-                                                        <a href="{{ getValidimage(path: 'storage/app/public/refund/'.$photo, type:'product') }}"
+                                                    @foreach ($refund->images_full_url as $key => $photo)
+                                                        <a href="{{ getStorageImages(path: $photo, type:'product') }}"
                                                            class="custom-image-popup">
                                                             <img alt="" class="img-w-h-100"
-                                                                src="{{ getValidimage(path: 'storage/app/public/refund/'.$photo, type:'product') }}">
+                                                                src="{{ getStorageImages(path: $photo, type:'product') }}">
                                                         </a>
                                                     @endforeach
                                                 </div>

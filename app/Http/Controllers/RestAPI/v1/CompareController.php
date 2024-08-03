@@ -16,7 +16,13 @@ class CompareController extends Controller
     }
 
     public function list(Request $request){
-        $compare_lists = $this->product_compare->with(['product.rating', 'product.brand'])
+        $compare_lists = $this->product_compare
+            ->with(['product' => function ($query) {
+                return $query->with(['rating', 'brand', 'reviews'])
+                    ->withCount(['reviews' => function ($query) {
+                        return $query->where(['status' => 1]);
+                    }]);
+            }])
             ->whereHas('product')
             ->where('user_id', $request->user()->id)
             ->get();

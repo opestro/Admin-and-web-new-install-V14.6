@@ -35,30 +35,46 @@ class ReviewController extends Controller
         ]);
 
         $imageArray = [];
+        $review = $this->reviewRepo->getFirstWhere(params: ['customer_id' => auth('customer')->id(), 'id' => $request['review_id']]);
+        if ($review && $review['attachment']) {
+            foreach ($review['attachment'] as $image) {
+                $imageArray[] = $image;
+            }
+        }
+
         if ($request->has('fileUpload')) {
             foreach ($request->file('fileUpload') as $image) {
-                $imageArray[] = $this->upload(dir: 'review/', format: 'webp', image: $image);
+                $imageArray[] = [
+                    'file_name' => $this->upload(dir: 'review/', format: 'webp', image: $image),
+                    'storage' => getWebConfig(name: 'storage_connection_type') ?? 'public',
+                ];
             }
         }
-        $review = $this->reviewRepo->getFirstWhere(params: ['customer_id' => auth('customer')->id(),'id'=>$request['review_id']]);
-        if ($review && $review['attachment'] && $request->has('fileUpload')) {
-            foreach (json_decode($review['attachment']) as $image) {
-                $this->delete(filePath: '/review/' . $image);
+        if ($request['review_id']) {
+            $review_id = $request['review_id'];
+        } else {
+            $oldReview = $this->reviewRepo->getListWhere(orderBy: ['id' => 'desc'], filters: ['order_id' => $request['order_id']]);
+            if (count($oldReview) > 0) {
+                $review_id = $oldReview[0]['order_id'] . (count($oldReview) + 1);
+            } else {
+                $review_id = $request['order_id'] . '1';
             }
         }
+
         $dataArray = [
+            'id' => $review_id,
             'customer_id' => auth('customer')->id(),
             'product_id' => $request['product_id'],
             'order_id' => $request['order_id'],
             'comment' => $request['comment'],
             'rating' => $request['rating'],
-            'attachment' => $request->has('fileUpload') ? json_encode($imageArray) : ($review->attachment ?? null),
+            'attachment' => $request->has('fileUpload') ? $imageArray : ($review->attachment ?? null),
             'updated_at' => now(),
             'created_at' => $review->created_at ?? now()
         ];
 
         if ($request['review_id']) {
-            $this->reviewRepo->updateWhere(params: ['id' => $request['review_id']], data: $dataArray);
+            $this->reviewRepo->update(id: $request['review_id'], data: $dataArray);
         } else {
             $this->reviewRepo->add(data: $dataArray);
         }
@@ -113,17 +129,18 @@ class ReviewController extends Controller
     public function deleteReviewImage(Request $request): JsonResponse
     {
         $review = Review::find($request['id']);
-
         $array = [];
-        foreach (json_decode($review['attachment']) as $image) {
-            if ($image != $request['name']) {
+
+        foreach ($review['attachment'] as $image) {
+            $imageName = isset($image['file_name']) ? $image['file_name'] : $image;
+            if ($imageName != $request['name']) {
                 $array[] = $image;
             }else{
-                ImageManager::delete('review/' . $request['name']);
+                $this->delete('review/' . $request['name']);
             }
         }
 
-        $review->attachment = json_encode($array);
+        $review->attachment = $array;
         $review->save();
         return response()->json(['message' => translate('review_image_removed_successfully')], 200);
     }

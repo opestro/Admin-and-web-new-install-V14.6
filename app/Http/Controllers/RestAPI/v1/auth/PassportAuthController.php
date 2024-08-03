@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\RestAPI\v1\auth;
 
 use App\Http\Controllers\Controller;
-use App\User;
+use App\Models\User;
 use App\Utils\CartManager;
 use App\Utils\Helpers;
 use Carbon\Carbon;

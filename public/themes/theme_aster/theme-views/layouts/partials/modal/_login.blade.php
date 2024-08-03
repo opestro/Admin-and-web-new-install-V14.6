@@ -12,7 +12,7 @@
             <div class="modal-body px-4 px-sm-5">
                 <div class="mb-4 text-center">
                     <img alt="" class="dark-support"
-                        width="200" src="{{ getValidImage(path: 'storage/app/public/company/'.$web_config['web_logo']->value, type:'logo') }}">
+                        width="200" src="{{ getStorageImages(path: $web_config['web_logo'], type:'logo') }}">
                 </div>
                 <div class="mb-4">
                     <h2 class="mb-2">{{ translate('login') }}</h2>

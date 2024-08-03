@@ -16,7 +16,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
-                    <img  src="{{ getValidImage(path: 'storage/app/public/admin/'.$admin->image, type: 'backend-basic') }}"
+                    <img  src="{{ getStorageImages(path: $admin->image_full_url, type: 'backend-basic') }}"
                           class="rounded-circle border"
                          height="200" width="200" alt="">
                     <div class="p-4">

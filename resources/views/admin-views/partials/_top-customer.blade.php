@@ -15,7 +15,7 @@
                         <div class="grid-card basic-box-shadow">
                             <div class="text-center">
                                 <img class="avatar rounded-circle avatar-lg"
-                                     src="{{getValidImage(path: 'storage/app/public/profile/'.$item->customer->image,type:'backend-profile')}}"
+                                     src="{{ getStorageImages(path: $item->customer->image_full_url,type:'backend-profile')}}"
                                      alt="">
                             </div>
 

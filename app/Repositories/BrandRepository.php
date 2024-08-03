@@ -61,7 +61,7 @@ class BrandRepository implements BrandRepositoryInterface
 
     public function update(string $id, array $data): bool
     {
-        return $this->brand->where('id', $id)->update($data);
+        return $this->brand->find($id)->update($data);
     }
 
     public function delete(array $params): bool

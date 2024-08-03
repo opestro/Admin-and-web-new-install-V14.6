@@ -5,7 +5,7 @@ namespace App\Http\Controllers\RestAPI\v3\seller;
 use App\Http\Controllers\Controller;
 use App\Models\Coupon;
 use App\Models\Order;
-use App\User;
+use App\Models\User;
 use App\Utils\Convert;
 use App\Utils\Helpers;
 use Carbon\Carbon;

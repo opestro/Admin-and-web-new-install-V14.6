@@ -4,9 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{{ translate($role) }} | {{ translate('login')}}</title>
-
-    <link rel="shortcut icon" href="{{dynamicStorage(path: 'storage/app/public/company/'.getWebConfig(name: 'company_fav_icon'))}}">
-
+    <link rel="shortcut icon" href="{{getStorageImages(path: getWebConfig(name: 'company_fav_icon'), type:'backend-logo')}}">
     <link rel="stylesheet" href="{{ dynamicAsset(path: 'public/assets/back-end/css/google-fonts.css') }}">
     <link rel="stylesheet" href="{{ dynamicAsset(path: 'public/assets/back-end/css/vendor.min.css') }}">
     <link rel="stylesheet" href="{{ dynamicAsset(path: 'public/assets/back-end/css/bootstrap.min.css') }}">
@@ -28,9 +26,9 @@
     <div class="container py-5 py-sm-7">
         <label class="badge badge-soft-success float-right __inline-2">{{translate('software_version')}}
             : {{ env('SOFTWARE_VERSION') }}</label>
-        @php($e_commerce_logo = getWebConfig(name: 'company_web_logo'))
+        @php($eCommerceLogo = getWebConfig(name: 'company_web_logo'))
         <a class="d-flex justify-content-center mb-5" href="{{ route('home') }}">
-            <img class="z-index-2 onerror-logo" height="40" src="{{ getValidImage(path: "storage/app/public/company/".$e_commerce_logo, type:'backend-logo') }}" alt="Logo">
+            <img class="z-index-2 onerror-logo" height="40" src="{{ getStorageImages(path: $eCommerceLogo, type:'backend-logo') }}" alt="Logo">
         </a>
 
         <div class="row justify-content-center">

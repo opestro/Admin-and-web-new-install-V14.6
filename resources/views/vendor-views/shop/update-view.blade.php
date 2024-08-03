@@ -59,7 +59,7 @@
                                 </div>
                                 <div class="text-center">
                                     <img class="upload-img-view" id="viewer"
-                                    src="{{getValidImage(path: 'storage/app/public/shop/'.$shop->image,type: 'backend-basic')}}" alt="{{translate('image')}}"/>
+                                    src="{{getStorageImages(path: $shop->image_full_url,type: 'backend-basic')}}" alt="{{translate('image')}}"/>
                                 </div>
                             </div>
                             <div class="col-md-6 mb-4 mt-2">
@@ -80,7 +80,7 @@
                                 <div class="text-center">
                                     <div class="d-flex justify-content-center">
                                         <img class="upload-img-view upload-img-view__banner" id="viewer-banner"
-                                             src="{{getValidImage(path: 'storage/app/public/shop/banner/'.$shop->banner,type: 'backend-banner')}}" alt="{{translate('banner_image')}}"/>
+                                             src="{{getStorageImages(path:$shop->banner_full_url,type: 'backend-banner')}}" alt="{{translate('banner_image')}}"/>
                                     </div>
                                 </div>
                             </div>
@@ -102,7 +102,7 @@
                                 </div>
                                 <div class="text-center">
                                     <div class="d-flex justify-content-center">
-                                        <img class="upload-img-view upload-img-view__banner" id="viewer-bottom-banner" src="{{getValidImage(path: 'storage/app/public/shop/banner/'.$shop->bottom_banner, type: 'backend-banner')}}" alt="{{translate('banner_image')}}"/>
+                                        <img class="upload-img-view upload-img-view__banner" id="viewer-bottom-banner" src="{{getStorageImages(path:$shop->bottom_banner_full_url, type: 'backend-banner')}}" alt="{{translate('banner_image')}}"/>
                                     </div>
                                 </div>
                             </div>
@@ -126,7 +126,7 @@
                                     <div class="text-center">
                                         <div class="d-flex">
                                             <img class="upload-img-view upload-img-view__banner" id="viewer-offer-banner"
-                                                src="{{getValidImage(path: 'storage/app/public/shop/banner/'.$shop->offer_banner,type: 'backend-banner')}}" alt="{{translate('banner_image')}}"/>
+                                                src="{{getStorageImages(path: $shop->offer_banner_full_url,type: 'backend-banner')}}" alt="{{translate('banner_image')}}"/>
                                         </div>
                                     </div>
                                 </div>

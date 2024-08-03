@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\SettingsTrait;
+use App\Traits\StorageTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @property int $id
@@ -16,16 +19,20 @@ use Illuminate\Support\Facades\App;
  */
 class Brand extends Model
 {
-
+    use StorageTrait;
     protected $fillable = [
         'name',
         'image',
+        'image_storage_type',
+        'image_alt_text',
         'status'
     ];
 
     protected $casts = [
         'name' => 'string',
         'image' => 'string',
+        'image_storage_type' => 'string',
+        'image_alt_text' => 'string',
         'status' => 'integer',
         'brand_products_count' => 'integer',
         'created_at' => 'datetime',
@@ -65,7 +72,16 @@ class Brand extends Model
     {
         return $this->translations[0]->value ?? $this->name;
     }
-
+    public function storage():MorphMany
+    {
+        return $this->morphMany(Storage::class, 'data');
+    }
+    public function getImageFullUrlAttribute():array
+    {
+        $value = $this->image;
+        return $this->storageLink('brand',$value,$this->image_storage_type ??'public');
+    }
+    protected $appends = ['image_full_url'];
     protected static function boot(): void
     {
         parent::boot();

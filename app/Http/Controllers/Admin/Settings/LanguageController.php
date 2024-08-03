@@ -62,7 +62,7 @@ class LanguageController extends BaseController
         $language = $this->businessSettingRepo->getFirstWhere(params: ['type' => 'language']);
         $languageArray = $languageService->getDefaultData(request: $request, language: $language);
         $this->businessSettingRepo->updateOrInsert(type: 'language', value: $languageArray);
-        return response()->json(['message'=>translate('Default_Language_Changed')]);
+        return response()->json(['message' => translate('Default_Language_Changed')]);
     }
 
     public function update(LanguageRequest $request, LanguageService $languageService): RedirectResponse
@@ -76,26 +76,14 @@ class LanguageController extends BaseController
 
     public function getTranslateView($lang): View
     {
-        return view(Language::TRANSLATE_VIEW[VIEW], compact('lang'));
+        $totalMessages = count(include(base_path('resources/lang/' . $lang . '/new-messages.php')));
+        $messageGroup = 20;
+        return view(Language::TRANSLATE_VIEW[VIEW], compact('lang', 'totalMessages', 'messageGroup'));
     }
 
-    public function getTranslateList($lang): JsonResponse
+    public function getTranslateList($lang, LanguageService $languageService): JsonResponse
     {
-        $data = [];
-        $path = base_path('resources/lang/' . $lang . '/messages.php');
-        if (File::exists($path)) {
-            $languageData = include(base_path('resources/lang/' . $lang . '/messages.php'));
-            ksort($languageData);
-            $index = 1;
-            foreach ($languageData as $key => $value) {
-                $data[] = [
-                    'index' => $index++,
-                    'key' => $key,
-                    'value' => $value,
-                    'encode' => !empty($key) ? base64_encode($key) : '',
-                ];
-            };
-        }
+        $data = $languageService->getTranslateList(language: $lang);
         return response()->json($data);
     }
 
@@ -109,36 +97,79 @@ class LanguageController extends BaseController
 
     public function updateTranslate(Request $request, $lang): void
     {
-        $fullData = include(base_path('resources/lang/' . $lang . '/messages.php'));
+        $translatedMessagesArray = include(base_path('resources/lang/' . $lang . '/messages.php'));
+        $newMessagesArray = include(base_path('resources/lang/' . $lang . '/new-messages.php'));
+        $textKey = $request->has('key') && !empty($request['key']) ? base64_decode($request['key']) : '';
         $dataFiltered = [];
-        foreach ($fullData as $key => $data) {
-            $dataFiltered[removeSpecialCharacters(text: $key)] = $data;
+
+        if (array_key_exists($textKey, $translatedMessagesArray)) {
+            foreach ($translatedMessagesArray as $key => $data) {
+                $dataFiltered[removeSpecialCharacters(text: $key)] = $data;
+            }
+            $dataFiltered[base64_decode($request['key'])] = removeSpecialCharacters($request['value']);
+            $string = "<?php return " . var_export($dataFiltered, true) . ";";
+            file_put_contents(base_path('resources/lang/' . $lang . '/messages.php'), $string);
+        } elseif (array_key_exists($textKey, $newMessagesArray)) {
+            foreach ($newMessagesArray as $key => $data) {
+                $dataFiltered[removeSpecialCharacters(text: $key)] = $data;
+            }
+            $dataFiltered[base64_decode($request['key'])] = removeSpecialCharacters($request['value']);
+            $string = "<?php return " . var_export($dataFiltered, true) . ";";
+            file_put_contents(base_path('resources/lang/' . $lang . '/new-messages.php'), $string);
         }
-        $dataFiltered[base64_decode($request['key'])] = $request['value'];
-        $string = "<?php return " . var_export($dataFiltered, true) . ";";
-        file_put_contents(base_path('resources/lang/' . $lang . '/messages.php'), $string);
     }
 
     public function getAutoTranslate(Request $request, $lang): JsonResponse
     {
-        $getKey = $request->has('key') && !empty($request['key']) ? base64_decode($request['key']) : '';
-        if ($getKey) {
+        $translatedMessagesArray = include(base_path('resources/lang/' . $lang . '/messages.php'));
+        $newMessagesArray = include(base_path('resources/lang/' . $lang . '/new-messages.php'));
+        $textKey = $request->has('key') && !empty($request['key']) ? base64_decode($request['key']) : '';
+        $dataFiltered = [];
+
+        if ($textKey) {
             $langCode = getLanguageCode($lang);
-            $fullData = include(base_path('resources/lang/' . $lang . '/messages.php'));
-            $dataFiltered = [];
+            if (array_key_exists($textKey, $translatedMessagesArray)) {
 
-            foreach ($fullData as $key => $data) {
-                $dataFiltered[removeSpecialCharacters(text: $key)] = $data;
+                foreach ($translatedMessagesArray as $key => $data) {
+                    $dataFiltered[removeSpecialCharacters(text: $key)] = $data;
+                }
+
+                $translated = autoTranslator($textKey, 'en', $langCode);
+                $dataFiltered[$textKey] = removeSpecialCharacters($translated);
+
+                $string = "<?php return " . var_export($dataFiltered, true) . ";";
+                file_put_contents(base_path('resources/lang/' . $lang . '/messages.php'), $string);
+                return response()->json(['translated_data' => $translated]);
+            } elseif (array_key_exists($textKey, $newMessagesArray)) {
+                foreach ($newMessagesArray as $key => $data) {
+                    $dataFiltered[removeSpecialCharacters(text: $key)] = $data;
+                }
+
+                $translated = autoTranslator($textKey, 'en', $langCode);
+                $dataFiltered[$textKey] = removeSpecialCharacters($translated);
+
+                $string = "<?php return " . var_export($dataFiltered, true) . ";";
+                file_put_contents(base_path('resources/lang/' . $lang . '/new-messages.php'), $string);
+                return response()->json(['translated_data' => $translated]);
             }
-
-            $translated = autoTranslator($getKey, 'en', $langCode);
-            $dataFiltered[$getKey] = $translated;
-
-            $string = "<?php return " . var_export($dataFiltered, true) . ";";
-            file_put_contents(base_path('resources/lang/' . $lang . '/messages.php'), $string);
-            return response()->json(['translated_data' => $translated]);
         }
         return response()->json(['message' => 'empty_data']);
+    }
+
+    public function getAutoTranslateAllMessages(Request $request, $lang, LanguageService $languageService): JsonResponse|RedirectResponse
+    {
+        if (env('APP_MODE') == 'demo') {
+            Toastr::info(translate('This_option_is_disabled_for_demo'));
+            return back();
+        }
+
+        $response = $languageService->getAllMessagesTranslateProcess(language: $lang, count: 20);
+        return response()->json([
+            'status' => $response['status'],
+            'message' => $response['message'],
+            'due_message' => $response['due_message'],
+            'translate_success_message' => $response['translateCountSuccess'] > 0 ? translate('your') . ' ' . $response['translateCountSuccess'] . ' ' . translate('messages_successfully_translated') : translate('all_messages_are_in_translated'),
+        ]);
     }
 
     public function delete($lang, LanguageService $languageService): RedirectResponse
@@ -150,7 +181,9 @@ class LanguageController extends BaseController
         $languages = array();
         $pncLanguage = $this->businessSettingRepo->getFirstWhere(params: ['type' => 'pnc_language']);
         foreach (json_decode($pncLanguage['value'], true) as $key => $data) {
-            if ($data != $lang) {$languages[] = $data;}
+            if ($data != $lang) {
+                $languages[] = $data;
+            }
         }
         if (in_array('en', $languages)) {
             unset($languages[array_search('en', $languages)]);

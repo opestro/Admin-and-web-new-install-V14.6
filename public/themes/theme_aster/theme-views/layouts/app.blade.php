@@ -1,16 +1,23 @@
 @php
     use function App\Utils\hex_to_rgb;
+//    dd(session()->get('direction'));
 @endphp
     <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ session()->get('direction') }}">
 <head>
-    <title>@yield('title')</title>
+
     <meta name="base-url" content="{{ url('/') }}">
+    <meta name="google-site-verification" content="{{getWebConfig('google_search_console_code')}}">
+    <meta name="msvalidate.01" content="{{getWebConfig('bing_webmaster_code')}}">
+    <meta name="baidu-site-verification" content="{{getWebConfig('baidu_webmaster_code')}}">
+    <meta name="yandex-verification" content="{{getWebConfig('yandex_webmaster_code')}}">
+
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="_token" content="{{csrf_token()}}">
-    <link rel="shortcut icon" href="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['fav_icon']->value}}"/>
+    <link rel="shortcut icon" href="{{$web_config['fav_icon']['path']}}"/>
+
     <link rel="stylesheet" href="{{ theme_asset('assets/css/fonts-init.css') }}"/>
     <link rel="stylesheet" href="{{ theme_asset('assets/css/bootstrap.min.css') }}"/>
     <link rel="stylesheet" href="{{ theme_asset('assets/css/bootstrap-icons.min.css') }}"/>
@@ -22,7 +29,11 @@
     <link rel="stylesheet" href="{{ theme_asset('assets/plugins/select2/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ theme_asset('assets/plugins/intl-tel-input/css/intlTelInput.css') }}">
     <link rel="stylesheet" href="{{ theme_asset('assets/css/style.css') }}"/>
+
     @stack('css_or_js')
+    @include(VIEW_FILE_NAMES['robots_meta_content_partials'])
+    <title>@yield('title')</title>
+
     <link rel="stylesheet" href="{{ theme_asset('assets/css/custom.css') }}"/>
     <style>
         :root {
@@ -115,7 +126,7 @@
     </noscript>
 @endif
 <div class="preloader d--none" id="loading">
-    <img width="200" alt="" src="{{ getValidImage(path: 'storage/app/public/company/'.getWebConfig(name: 'loader_gif'), type: 'source', source: theme_asset('assets/img/loader.gif')) }}">
+    <img width="200" alt="" src="{{ getStorageImages(path: getWebConfig(name: 'loader_gif'), type: 'source', source: theme_asset('assets/img/loader.gif')) }}">
 </div>
 @include('theme-views.layouts.partials._alert-message')
 @include('theme-views.layouts.partials._header')

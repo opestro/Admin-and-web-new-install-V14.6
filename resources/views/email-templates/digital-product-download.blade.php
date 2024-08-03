@@ -222,7 +222,7 @@ $direction = Session::get('direction');
                 <tr>
                     <td style="text-align:center">
                         <img class="mail-img-2 mt-10"
-                             src="{{ getValidImage(path: "storage/app/public/company/".$companyLogo, type:'backend-logo') }}"
+                             src="{{ getStorageImages(path:$companyLogo, type:'backend-logo') }}"
                              id="logoViewer" alt="">
                         <br>
                         <h3 class="title text-capitalize">{{translate('order_info')}}</h3>
@@ -246,7 +246,7 @@ $direction = Session::get('direction');
                                         @if($product->product_type == 'digital')
                                             <div style="display: flex;align-items:center;margin-bottom: 10px">
                                                 <img class="product-image"
-                                                     src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product->thumbnail, type: 'backend-product') }}"
+                                                     src="{{ getStorageImages(path: $product->thumbnail_full_url, type: 'backend-product') }}"
                                                      style="" alt="">
                                                 <div class="product-title">{{substr($product->name, 0, 50)}}</div>
                                             </div>
@@ -289,7 +289,7 @@ $direction = Session::get('direction');
     <tr>
         <td>
             <img class="mail-img-2"
-                 src="{{ getValidImage(path: "storage/app/public/company/".$companyLogo, type:'backend-logo') }}"
+                 src="{{ getStorageImages(path: $companyLogo, type:'backend-logo') }}"
                  id="logoViewer" alt="">
             <span class="privacy">
                     <a href="{{route('privacy-policy') }}" target="_blank"

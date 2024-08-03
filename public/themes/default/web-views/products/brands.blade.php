@@ -3,13 +3,13 @@
 @section('title', translate('all_Brands'))
 
 @push('css_or_js')
-    <meta property="og:image" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']->value}}"/>
+    <meta property="og:image" content="{{$web_config['web_logo']['path']}}"/>
     <meta property="og:title" content="Brands of {{$web_config['name']->value}} "/>
     <meta property="og:url" content="{{env('APP_URL')}}">
     <meta property="og:description"
           content="{{ substr(strip_tags(str_replace('&nbsp;', ' ', $web_config['about']->value)),0,160) }}">
 
-    <meta property="twitter:card" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']->value}}"/>
+    <meta property="twitter:card" content="{{$web_config['web_logo']['path']}}"/>
     <meta property="twitter:title" content="Brands of {{$web_config['name']->value}}"/>
     <meta property="twitter:url" content="{{env('APP_URL')}}">
     <meta property="twitter:description"
@@ -34,10 +34,9 @@
         @if(count($brands) > 0)
             <div class="brand_div-wrap mb-4">
                 @foreach($brands as $brand)
-                    <a href="{{route('products',['id'=> $brand['id'],'data_from'=>'brand','page'=>1])}}" class="brand_div"
-                       data-toggle="tooltip" title="{{$brand->name}}">
-                        <img alt="{{$brand->name}}"
-                             src="{{ getValidImage(path: 'storage/app/public/brand/'.$brand->image, type: 'brand') }}">
+                    <a href="{{route('products',['id'=> $brand['id'],'data_from'=>'brand','page'=>1])}}" class="brand_div">
+                        <img alt="{{$brand->image_alt_text ?? $brand->name}}" src="{{ getStorageImages(path: $brand->image_full_url, type: 'brand') }}">
+                        <div>{{$brand->name}}</div>
                     </a>
                 @endforeach
             </div>

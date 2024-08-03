@@ -103,25 +103,17 @@
                                         </td>
                                         <td>
                                             <a href="#" class="store-name font-weight-medium">
-                                                    @if($order->seller_is == 'seller')
-                                                        {{ isset($order->seller->shop) ? $order->seller->shop->name : 'Store not found' }}
-                                                    @elseif($order->seller_is == 'admin')
-                                                        {{translate('in_House')}}
-                                                    @endif
+                                                @if($order->seller_is == 'seller')
+                                                    {{ isset($order->seller->shop) ? $order->seller->shop->name : 'Store not found' }}
+                                                @elseif($order->seller_is == 'admin')
+                                                    {{translate('in_House')}}
+                                                @endif
                                             </a>
                                         </td>
                                         <td class="text-right">
                                             <div>
-                                                @php($discount = 0)
-                                                @if($order->order_type == 'default_type' && $order->coupon_discount_bearer == 'inhouse' && !in_array($order['coupon_code'], [0, NULL]))
-                                                    @php($discount = $order->discount_amount)
-                                                @endif
-
-                                                @php($free_shipping = 0)
-                                                @if($order->is_shipping_free)
-                                                    @php($free_shipping = $order->shipping_cost)
-                                                @endif
-                                                {{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $order->order_amount+$discount+$free_shipping))}}
+                                                @php($orderTotalPriceSummary = \App\Utils\OrderManager::getOrderTotalPriceSummary(order: $order))
+                                                {{ setCurrencySymbol(amount: usdToDefaultCurrency(amount:  $orderTotalPriceSummary['totalAmount']), currencyCode: getCurrencyCode()) }}
                                             </div>
 
                                             @if($order->payment_status=='paid')

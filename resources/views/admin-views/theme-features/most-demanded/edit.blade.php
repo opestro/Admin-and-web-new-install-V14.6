@@ -63,7 +63,7 @@
                                         <div class="text-center mt-lg-3">
                                             <img class="border radius-10 ratio-4:1 max-w-655px w-100"
                                                  id="viewer"
-                                                 src="{{ getValidImage(path:'storage/app/public/most-demanded/'.$mostDemandedProduct['banner'],type: 'backend-basic')}}"
+                                                 src="{{ getStorageImages(path:$mostDemandedProduct->banner_full_url,type: 'backend-basic')}}"
                                                  alt="">
                                         </div>
                                     </div>

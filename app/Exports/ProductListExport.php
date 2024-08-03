@@ -14,6 +14,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class ProductListExport implements FromView, ShouldAutoSize, WithStyles,WithColumnWidths ,WithHeadings, WithEvents
@@ -76,10 +77,20 @@ class ProductListExport implements FromView, ShouldAutoSize, WithStyles,WithColu
     }
     public function setImage($workSheet) {
         $this->data['products']->each(function($item,$index) use($workSheet) {
-            $drawing = new Drawing();
+            $tempImagePath = null;
+            $filePath = 'product/thumbnail/'.$item->thumbnail_full_url['key'];
+            $fileCheck = fileCheck(disk:'public',path: $filePath);
+            if($item->thumbnail_full_url['path'] && !$fileCheck){
+                $tempImagePath = getTemporaryImageForExport($item->thumbnail_full_url['path']);
+                $imagePath = getImageForExport($item->thumbnail_full_url['path']);
+                $drawing = new MemoryDrawing();
+                $drawing->setImageResource($imagePath);
+            }else{
+                $drawing = new Drawing();
+                $drawing->setPath(is_file(storage_path('app/public/'.$filePath)) ? storage_path('app/public/'.$filePath) : public_path('assets/back-end/img/products.png'));
+            }
             $drawing->setName($item->name);
             $drawing->setDescription($item->name);
-            $drawing->setPath(is_file(storage_path('app/public/product/thumbnail/'.$item->thumbnail))? storage_path('app/public/product/thumbnail/'.$item->thumbnail) : public_path('assets/back-end/img/products.png'));
             $drawing->setHeight(50);
             $drawing->setOffsetX(45);
             $drawing->setOffsetY(70);
@@ -87,7 +98,9 @@ class ProductListExport implements FromView, ShouldAutoSize, WithStyles,WithColu
             $index+=4;
             $drawing->setCoordinates("B$index");
             $drawing->setWorksheet($workSheet);
-
+            if($tempImagePath){
+                imagedestroy($tempImagePath);
+            }
         });
     }
 

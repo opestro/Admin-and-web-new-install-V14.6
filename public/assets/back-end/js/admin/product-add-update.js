@@ -26,7 +26,19 @@ $(document).on('ready', function () {
             ['color', ['color']],
             ['para', ['ul', 'ol', 'paragraph']],
             ['height', ['height']]
-        ]
+        ],
+        callbacks: {
+            onChange: function (contents, $editable) {
+                if ($(this).hasClass('product-description-default-language')) {
+                    var textWithoutTagsAndEntities = contents.replace(/<[^>]+>|&[^;]+;/g, '');
+                    var maxLength = 160;
+                    if (textWithoutTagsAndEntities.length > maxLength) {
+                        textWithoutTagsAndEntities = textWithoutTagsAndEntities.substring(0, maxLength);
+                    }
+                    $('#meta_description').val(textWithoutTagsAndEntities);
+                }
+            }
+        }
     });
 
     getProductTypeFunctionality();
@@ -42,7 +54,9 @@ $(document).on('ready', function () {
     $('.color-var-select').select2({
         templateResult: colorCodeSelect,
         templateSelection: colorCodeSelect,
-        escapeMarkup: function (m) {return m;}
+        escapeMarkup: function (m) {
+            return m;
+        }
     })
 
     function colorCodeSelect(state) {
@@ -56,31 +70,45 @@ $(document).on('ready', function () {
 function getProductTypeFunctionality() {
     let productType = elementProductTypeByID.val();
     if (productType && productType.toString() === 'physical') {
-        $('#digital_product_type_show').hide();
-        $('#digital_file_ready_show').hide();
-        $('.physical_product_show').show();
         elementDigitalProductTypeByID.val($('#digital_product_type option:first').val());
+        elementProductColorSwitcherByIDFunctionality('reset')
+        $('#digital_product_type_show').hide();
         $('#digital_file_ready').val('');
+        $('.physical_product_show').show();
+        $('.digitalProductVariationSetupSection').hide();
     } else if (productType && productType.toString() === 'digital') {
+
+        elementProductColorSwitcherByID.prop('checked', false);
+        $('#color-wise-image-section').empty().html('')
+        elementProductColorSwitcherByIDFunctionality('reset')
         $('#digital_product_type_show').show();
+        $('.digitalProductVariationSetupSection').show();
         $('.physical_product_show').hide();
+    }
+
+    try {
+        if (productType && productType.toString() === 'physical') {
+            $('#digital-product-variation-section').empty().html();
+            $('#digital-product-type-choice-section .extension-choice-section').remove();
+        }
+    } catch (e) {
     }
 }
 
 function getDigitalProductTypeFunctionality() {
     let digitalProductType = elementDigitalProductTypeByID.val();
-    if (digitalProductType && digitalProductType.toString() === 'ready_product') {
-        $('#digital_file_ready_show').show();
-    } else if (digitalProductType && digitalProductType.toString() === 'ready_after_sell') {
-        $('#digital_file_ready_show').hide();
-        $("#digital_file_ready").val('');
-    }
+    getUpdateDigitalVariationFunctionality()
 }
 
 elementProductTypeByID.on('change', () => getProductTypeFunctionality())
 elementDigitalProductTypeByID.on('change', () => getDigitalProductTypeFunctionality())
 
 elementProductColorSwitcherByID.on('click', function () {
+    elementProductColorSwitcherByIDFunctionality()
+});
+
+let pageLoadFirstTime = true;
+function elementProductColorSwitcherByIDFunctionality(action = null) {
     if (elementProductColorSwitcherByID.prop('checked')) {
         $('.color_image_column').removeClass('d-none');
         elementAdditionalImageColumn.removeClass('col-md-9');
@@ -88,13 +116,28 @@ elementProductColorSwitcherByID.on('click', function () {
         $('#color-wise-image-area').show();
         $('#additional_Image_Section .col-md-4').addClass('col-lg-2');
     } else {
+        let colors = $('#colors-selector');
+        let choiceAttributes = $('#choice_attributes');
+
+        colors.val(null).trigger('change');
+        if (pageLoadFirstTime === false && action === 'reset') {
+            choiceAttributes.val(null).trigger('change');
+            pageLoadFirstTime = false;
+        }
+
         $('.color_image_column').addClass('d-none');
         elementAdditionalImageColumn.addClass('col-md-9');
         elementAdditionalImageColumn.removeClass('col-md-12');
         $('#color-wise-image-area').hide();
         $('#additional_Image_Section .col-md-4').removeClass('col-lg-2');
     }
-});
+
+    if (!$('input[name="colors_active"]').is(':checked')) {
+        $('#colors-selector').prop('disabled', true);
+    } else {
+        $('#colors-selector').prop('disabled', false);
+    }
+}
 
 $(document).on('ready', function () {
     if (elementProductColorSwitcherByID.prop('checked')) {
@@ -119,17 +162,12 @@ $('input[name="colors_active"]').on('change', function () {
 });
 
 $('#choice_attributes').on('change', function () {
-
-    let colors = $('#colors-selector').val();
-    let choiceAttributes = $('#choice_attributes').val();
-    if (colors.length === 0 && choiceAttributes.length === 0 || (!$('#product-color-switcher').prop('checked') && choiceAttributes.length === 0)) {
-        $('#sku_combination').empty().html('');
-    }
-
+    $('#sku_combination').empty().html('');
     $('#customer_choice_options').empty().html('');
     $.each($("#choice_attributes option:selected"), function () {
         addMoreCustomerChoiceOption($(this).val(), $(this).text());
     });
+    getUpdateSKUFunctionality();
 })
 
 $('#colors-selector').on('change', function () {
@@ -137,7 +175,7 @@ $('#colors-selector').on('change', function () {
     if (elementProductColorSwitcherByID.prop('checked')) {
         colorWiseImageFunctionality($('#colors-selector'));
         $('#color-wise-image-area').show();
-    }else {
+    } else {
         $('#color-wise-image-area').hide();
     }
 })
@@ -147,7 +185,12 @@ $('input[name="unit_price"]').on('keyup', function () {
     if (productType && productType.toString() === 'physical') {
         getUpdateSKUFunctionality();
     }
+    getUpdateDigitalVariationFunctionality();
+    setTimeout(()=>{
+        $('.variation-price-input').val($(this).val());
+    }, 500)
 })
+
 
 function getUpdateSKUFunctionality() {
     $.ajaxSetup({
@@ -164,10 +207,13 @@ function getUpdateSKUFunctionality() {
             $('#sku_combination').html(data.view);
             updateProductQuantity();
             updateProductQuantityByKeyUp()
-            if (data.length > 1) {
-                $('#quantity').hide();
-            } else {
-                $('#quantity').show();
+            let productType = elementProductTypeByID.val();
+            if (productType && productType.toString() === 'physical') {
+                if (data.length > 1) {
+                    $('#quantity').hide();
+                } else {
+                    $('#quantity').show();
+                }
             }
             generateSKUPlaceHolder();
             removeSymbol();
@@ -177,7 +223,7 @@ function getUpdateSKUFunctionality() {
 
 $('#discount_type').on('change', function () {
     if ($(this).val().toString() === 'flat') {
-        $('.discount_amount_symbol').html(`(`+ getSystemCurrencyCode +`)`).fadeIn();
+        $('.discount_amount_symbol').html(`(` + getSystemCurrencyCode + `)`).fadeIn();
     } else {
         $('.discount_amount_symbol').html("(%)").fadeIn();
     }
@@ -219,8 +265,8 @@ function addMoreImage(thisData, targetSection) {
                             </div>
                             <div class="position-absolute h-100 top-0 w-100 d-flex align-content-center justify-content-center">
                                 <div class="d-flex flex-column justify-content-center align-items-center">
-                                    <img src="`+ elementImagePathOfProductUploadIconByID +`" class="w-50" alt="">
-                                    <h3 class="text-muted">`+ messageUploadImage +`</h3>
+                                    <img src="` + elementImagePathOfProductUploadIconByID + `" class="w-50" alt="">
+                                    <h3 class="text-muted">` + messageUploadImage + `</h3>
                                 </div>
                             </div>
                         </div>
@@ -305,7 +351,7 @@ function addMoreCustomerChoiceOption(index, name) {
                     <input type="text" name="choice[]" value="${nameSplit}" hidden>
                     <div class="">
                         <input type="text" class="form-control" name="choice_options_${index}[]"
-                        placeholder="`+ messageEnterChoiceValues +`" data-role="tagsinput" onchange="getUpdateSKUFunctionality()">
+                        placeholder="` + messageEnterChoiceValues + `" data-role="tagsinput" onchange="getUpdateSKUFunctionality()">
                     </div>
                 </div>
         </div>`;
@@ -329,6 +375,14 @@ function uploadColorImage(thisData = null) {
     if (thisData) {
         document.getElementById(thisData.dataset.imgpreview).setAttribute("src", window.URL.createObjectURL(thisData.files[0]));
         document.getElementById(thisData.dataset.imgpreview).classList.remove('d-none');
+
+        try {
+            if (thisData.dataset.imgpreview == 'pre_img_viewer' && !$('#meta_image_input').val()) {
+                $('#pre_meta_image_viewer').removeClass('d-none');
+                $('.pre-meta-image-viewer').attr('src', window.URL.createObjectURL(thisData.files[0]));
+            }
+        }catch (e) {
+        }
     }
 }
 
@@ -359,6 +413,7 @@ $('.action-onclick-generate-number').on('click', function () {
     $(getElement).val(generateRandomString(6));
     generateSKUPlaceHolder();
 })
+
 function generateRandomString(length) {
     let result = '';
     let characters = '012345ABCDEFGHIJKLMNOPQRSTUVWXYZ3456789';
@@ -428,13 +483,116 @@ function getProductAddRequirementsCheck() {
     })
 }
 
-$('#generate_number').on('keyup', function() {
+$('#generate_number').on('keyup', function () {
     generateSKUPlaceHolder();
 });
- function generateSKUPlaceHolder(){
-     let newPlaceholderValue = $('#get-example-text').data('example')+' : '+$('input[name=code]').val()+'-MCU-47-V593-M';
-     $('.store-keeping-unit').attr('placeholder', newPlaceholderValue);
- }
-$(window).on('load',function (){
+
+function generateSKUPlaceHolder() {
+    let newPlaceholderValue = $('#get-example-text').data('example') + ' : ' + $('input[name=code]').val() + '-MCU-47-V593-M';
+    $('.store-keeping-unit').attr('placeholder', newPlaceholderValue);
+}
+
+$(window).on('load', function () {
     generateSKUPlaceHolder();
+})
+
+$('#digital-product-type-select').on('change', function () {
+    $('#digital-product-type-choice-section .extension-choice-section').remove();
+    $('#digital-product-variation-section').empty().html();
+    $.each($("#digital-product-type-select option:selected"), function () {
+        addMoreDigitalProductChoiceOption($(this).val(), $(this).text());
+    });
+    getUpdateDigitalVariationFunctionality()
+})
+
+function addMoreDigitalProductChoiceOption(index, name) {
+    let nameSplit = name.split(' ').join('');
+    let ExtensionText = $('#get-extension-text-message').data('text');
+    let genHtml = `<div class="col-sm-6 col-md-4 col-xxl-3 extension-choice-section">
+                <div class="form-group">
+                    <input type="hidden" name="extensions_type[]" value="${index}">
+                    <label class="title-color">${nameSplit} ${ExtensionText}</label>
+                    <input type="text" name="extensions[]" value="${nameSplit}" hidden>
+                    <div class="">
+                        <input type="text" class="form-control" name="extensions_options_${index}[]"
+                        placeholder="` + messageEnterChoiceValues + `" data-role="tagsinput" onchange="getUpdateDigitalVariationFunctionality()">
+                    </div>
+                </div>
+        </div>`;
+    $('#digital-product-type-choice-section').append(genHtml);
+    $("input[data-role=tagsinput], select[multiple][data-role=tagsinput]").tagsinput();
+}
+
+
+function getUpdateDigitalVariationFunctionality() {
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    $.ajax({
+        type: "POST",
+        url: $('#route-admin-products-digital-variation-combination').data('url'),
+        data: $('#product_form').serialize(),
+        success: function (data) {
+            $('#digital-product-variation-section').html(data.view);
+            ProductVariationFileUploadFunctionality()
+            deleteDigitalVariationFileFunctionality()
+        }
+    });
+}
+
+function deleteDigitalVariationFileFunctionality() {
+    $('.digital-variation-file-delete-button').on('click', function () {
+        let variantKey = $(this).data('variant');
+        let productId = $(this).data('product');
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: $('#route-admin-products-digital-variation-file-delete').data('url'),
+            data: {
+                product_id: productId,
+                variant_key: variantKey,
+            },
+            success: function (response) {
+                getUpdateDigitalVariationFunctionality()
+                response.status === 1 ? toastr.success(response.message) : toastr.error(response.message)
+            }
+        });
+    });
+}
+
+function ProductVariationFileUploadFunctionality() {
+    $('.variation-upload-item input[type="file"]').each(function () {
+        $(this).on('change', function () {
+            const file = $(this)[0].files[0];
+            if (file) {
+                $(this).closest('.variation-upload-item').find('.variation-upload-file').addClass('collapse');
+                $(this).closest('.variation-upload-item').find('.uploading-item').removeClass('collapse');
+                const timer = setTimeout(() => {
+                    $(this).closest('.variation-upload-item').find('.uploading-item').addClass('collapse');
+                    $(this).closest('.variation-upload-item').find('.uploaded-item').removeClass('collapse');
+                    $(this).closest('.variation-upload-item').find('.uploaded-item .file-name').text(file.name);
+                }, 500);
+                return () => clearTimeout(timer);
+            }
+        });
+    })
+    $('.cancel-upload').on('click', function () {
+        $(this).closest('.variation-upload-item').find('.variation-upload-file').removeClass('collapse');
+        $(this).closest('.variation-upload-item').find('.uploading-item').addClass('collapse');
+        $(this).closest('.variation-upload-item').find('.uploaded-item').addClass('collapse');
+        $(this).closest('.variation-upload-item').find('input[type="file"]').val('');
+    })
+}
+
+$('.product-title-default-language').on('change keyup keypress', function () {
+    $('#meta_title').val($(this).val());
+    getUpdateDigitalVariationFunctionality()
 })

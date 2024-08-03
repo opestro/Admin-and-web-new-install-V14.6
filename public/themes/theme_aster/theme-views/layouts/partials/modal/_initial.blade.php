@@ -5,7 +5,7 @@
             <div class="modal-body p-0">
                 <button type="button" class="btn-close outside" data-bs-dismiss="modal" aria-label="Close"></button>
                 <div onclick="location.href='{{$web_config['popup_banner']['url']}}'">
-                    <img src="{{ getValidImage(path: 'storage/app/public/banner/'.$web_config['popup_banner']['photo'], type:'banner') }}"
+                    <img src="{{ getStorageImages(path:$web_config['popup_banner']['photo_full_url'], type:'banner') }}"
                          class="dark-support rounded img-fit" alt="">
                 </div>
             </div>

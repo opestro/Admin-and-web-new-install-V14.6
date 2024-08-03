@@ -32,7 +32,7 @@
                         <div class="modal-body px-4 px-sm-5 pt-0 text-center">
                             <div class="row g-2 g-sm-3 mt-lg-0">
                                 <div class="col-12">
-                                    <div class="swiper mySwiper pb-3">
+                                    <div class="swiper instruction-carousel pb-3">
                                         <div class="swiper-wrapper">
                                             <div class="swiper-slide mb-2">
                                                 <img
@@ -69,7 +69,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="swiper-pagination"></div>
+                                        <div class="my-2 instruction-pagination-custom"></div>
                                     </div>
                                 </div>
                             </div>
@@ -187,7 +187,7 @@
                             <div class="modal-body px-5 px-sm-5 pt-0 text-center">
                                 <div class="row g-2 g-sm-3 mt-lg-0">
                                     <div class="col-12">
-                                        <div class="swiper mySwiper pb-3">
+                                        <div class="swiper instruction-carousel pb-3">
                                             <div class="swiper-wrapper">
                                                 <div class="swiper-slide">
 
@@ -232,7 +232,7 @@
                                                              alt="">
                                                     </div>
                                                 </div>
-                                                <div class="swiper-pagination"></div>
+                                                <div class="instruction-pagination-custom my-2"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -361,7 +361,7 @@
                                         ?>
 
                                         <img class="img-fit radius-10" alt=""
-                                             src="{{ getValidImage(path: 'resources/themes/'.$key.'/public/addon/'.$theme['image'], type: 'backend-basic', source: $themeImage) }}">
+                                             src="{{ getStorageImages(path: null, type: 'backend-basic', source: $themeImage) }}">
                                     </div>
                                 </div>
                             </div>

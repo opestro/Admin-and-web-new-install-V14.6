@@ -14,6 +14,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class CategoryListExport implements FromView, ShouldAutoSize, WithStyles,WithColumnWidths ,WithHeadings, WithEvents
@@ -65,10 +66,21 @@ class CategoryListExport implements FromView, ShouldAutoSize, WithStyles,WithCol
     }
     public function setImage($workSheet) {
         $this->data['categories']->each(function($item,$index) use($workSheet) {
+            $tempImagePath = null;
+            $filePath = 'category/'.$item->icon_full_url['key'];
+            $fileCheck = fileCheck(disk:'public',path: $filePath);
+            if($item->icon_full_url['path'] && !$fileCheck){
+                $tempImagePath = getTemporaryImageForExport($item->icon_full_url['path']);
+                $imagePath = getImageForExport($item->icon_full_url['path']);
+                $drawing = new MemoryDrawing();
+                $drawing->setImageResource($imagePath);
+            }else{
+                $drawing = new Drawing();
+                $drawing->setPath(is_file(storage_path('app/public/'.$filePath)) ? storage_path('app/public/'.$filePath) : public_path('assets/back-end/img/placeholder/category.png'));
+            }
             $drawing = new Drawing();
             $drawing->setName($item->name);
             $drawing->setDescription($item->name);
-            $drawing->setPath(is_file(storage_path('app/public/category/'.$item->icon))? storage_path('app/public/category/'.$item->icon) : public_path('assets/back-end/img/placeholder/category.png'));
             $drawing->setHeight(50);
             $drawing->setOffsetX(40);
             $drawing->setOffsetY(7);
@@ -76,7 +88,9 @@ class CategoryListExport implements FromView, ShouldAutoSize, WithStyles,WithCol
             $index+=5;
             $drawing->setCoordinates("B$index");
             $drawing->setWorksheet($workSheet);
-
+            if($tempImagePath){
+                imagedestroy($tempImagePath);
+            }
         });
     }
 

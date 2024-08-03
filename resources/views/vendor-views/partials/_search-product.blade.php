@@ -5,7 +5,7 @@
                 <div class="select-product-item media gap-3 border-bottom py-2 cursor-pointer action-select-product"
                      data-id="{{ $product['id'] }}">
                     <img class="avatar avatar-xl border" width="75"
-                         src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'],type: 'backend-product') }}" alt="">
+                         src="{{ getStorageImages(path: $product->thumbnail_full_url,type: 'backend-product') }}" alt="">
                     <div class="media-body d-flex flex-column gap-1">
                         <h6 class="product-id" hidden>{{$product['id']}}</h6>
                         <h6 class="fz-13 mb-1 text-truncate custom-width product-name ">{{$product['name']}}</h6>

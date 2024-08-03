@@ -1,3 +1,4 @@
+@if (count($category['products']) > 0)
 <section class="container rtl pb-4 px-max-sm-0">
     <div class="__shadow-2">
         <div class="__p-20px rounded bg-white overflow-hidden">
@@ -39,3 +40,4 @@
         </div>
     </div>
 </section>
+@endif

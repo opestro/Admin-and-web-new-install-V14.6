@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\StorageTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\DB;
  * @property string $phone
  * @property string $identity_type
  * @property string $identity_number
- * @property string $identity_image
+ * @property array|null $identity_image
  * @property int $is_active
  * @property int $is_online
  * @property string $password
@@ -28,6 +29,7 @@ use Illuminate\Support\Facades\DB;
  */
 class DeliveryMan extends Model
 {
+    use StorageTrait;
     protected $hidden = ['password','auth_token'];
 
     protected $fillable = [
@@ -61,7 +63,7 @@ class DeliveryMan extends Model
         'image'=>'string',
         'identity_number'=>'string',
         'identity_type'=>'string',
-        'identity_image'=>'string',
+        'identity_image'=>'array',
         'is_active'=>'integer',
         'is_online'=>'integer',
         'password'=>'string',
@@ -102,5 +104,47 @@ class DeliveryMan extends Model
         return $this->hasMany(Review::class)
             ->select(DB::raw('avg(rating) average, delivery_man_id'))
             ->groupBy('delivery_man_id');
+    }
+
+    public function getImageFullUrlAttribute():string|null|array
+    {
+        $value = $this->image;
+        if (count($this->storage) > 0) {
+            $storage = $this->storage->where('key', 'image')->first();
+        }
+        return $this->storageLink('delivery-man',$value,$storage['value'] ?? 'public');
+    }
+    public function getIdentityImagesFullUrlAttribute():array|null
+    {
+        $images = [];
+        $value = $this->identity_image;
+        if ($value){
+            foreach ($value as $item){
+                $item = isset($item['image_name']) ? (array)$item : ['image_name' => $item, 'storage' => 'public'];
+                $images[] =  $this->storageLink('delivery-man',$item['image_name'],$item['storage'] ?? 'public');
+            }
+        }
+        return $images;
+    }
+    protected $appends = ['image_full_url','identity_images_full_url'];
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::saved(function ($model) {
+            $file = 'image';
+            $storage = config('filesystems.disks.default') ?? 'public';
+            if($model->isDirty($file)){
+                $value = $storage;
+                DB::table('storages')->updateOrInsert([
+                    'data_type' => get_class($model),
+                    'data_id' => $model->id,
+                    'key' => $file,
+                ], [
+                    'value' => $value,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        });
     }
 }

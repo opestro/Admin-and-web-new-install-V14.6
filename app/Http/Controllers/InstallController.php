@@ -60,8 +60,10 @@ class InstallController extends Controller
             shell_exec('ln -s ../resources/themes themes');
             Artisan::call('storage:link');
         }
-        //end symlink
 
+        //end symlink
+        self::updateRobotTexFile();
+        Artisan::call('file:permission');
         Artisan::call('config:cache');
         Artisan::call('config:clear');
         return view('installation.step5');
@@ -530,12 +532,69 @@ class InstallController extends Controller
             }
         }
 
+        DB::table('business_settings')->updateOrInsert(['type' => 'storage_connection_type'],
+            [
+                'type' => 'storage_connection_type',
+                'value' => 'public',
+                'updated_at' => now()
+            ]
+        );
+
+        DB::table('business_settings')->updateOrInsert(['type' => 'google_search_console_code'],
+            [
+                'type' => 'google_search_console_code',
+                'value' => '',
+                'updated_at' => now()
+            ]
+        );
+
+        DB::table('business_settings')->updateOrInsert(['type' => 'bing_webmaster_code'],
+            [
+                'type' => 'bing_webmaster_code',
+                'value' => '',
+                'updated_at' => now()
+            ]
+        );
+
+        DB::table('business_settings')->updateOrInsert(['type' => 'baidu_webmaster_code'],
+            [
+                'type' => 'baidu_webmaster_code',
+                'value' => '',
+                'updated_at' => now()
+            ]
+        );
+
+        DB::table('business_settings')->updateOrInsert(['type' => 'yandex_webmaster_code'],
+            [
+                'type' => 'yandex_webmaster_code',
+                'value' => '',
+                'updated_at' => now()
+            ]
+        );
+
         $previousRouteServiceProvier = base_path('app/Providers/RouteServiceProvider.php');
         $newRouteServiceProvier = base_path('app/Providers/RouteServiceProvider.txt');
         copy($newRouteServiceProvier, $previousRouteServiceProvier);
         //sleep(5);
         return view('installation.step6');
     }
+
+    public static function updateRobotTexFile(): void
+    {
+        try {
+            $path = DOMAIN_POINTED_DIRECTORY == 'public' ? public_path('robots.txt') : base_path('robots.txt');
+            if (!File::exists($path)) {
+                fopen($path, "w") or die("Unable to open file!");
+            }
+            $content = "User-agent: *\nDisallow: /login/admin/\nSitemap: " . url('/sitemap.xml');
+            if (!File::exists($path)) {
+                File::put($path, '');
+            }
+            File::put($path, $content);
+        }catch (\Exception $exception){
+        }
+    }
+
 
     public static function getPrioritySetupAndVendorRegistrationData()
     {
@@ -589,7 +648,7 @@ class InstallController extends Controller
                     [
                         [
                             "title" => "Get Registered",
-                            "description" => "Sign up easily and create your seller account in just a few minutes. It's fast and simple to get started.",
+                            "description" => "Sign up easily and create your seller account in just a few minutes. It fast and simple to get started.",
                             "image" => "",
                         ],
                         [

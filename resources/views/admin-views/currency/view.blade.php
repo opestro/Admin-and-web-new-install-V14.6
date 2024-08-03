@@ -142,12 +142,11 @@
                                     @endif
                                     <td>
                                         @if($default['value'] != $currency->id)
-                                            <form action="{{route('admin.currency.status')}}" method="post"
-                                                  id="currency-status{{$currency['id']}}-form" class="currency_status_form">
-                                                @csrf
-                                                <input type="hidden" name="id" value="{{$currency['id']}}">
-                                                <label class="switcher" for="currency-status{{$currency['id']}}">
-                                                    <input type="checkbox" class="switcher_input toggle-switch-message"
+                                            @if(($currency->status == 0) || ($currency->status == 1 && ($digitalPaymentStatus ? $currency->must_required_for_gateway != 1 : 1)))
+                                                @include("admin-views.currency._status-button-partial")
+                                            @else
+                                                <label class="switcher" for="currency-status{{ $currency['id'] }}" data-toggle="modal" data-target="#currency-modal{{ $currency['id'] }}">
+                                                    <input type="checkbox" class="switcher_input" disabled
                                                            id="currency-status{{$currency['id']}}" name="status" value="1"
                                                            {{$currency->status?'checked':''}}
                                                            data-modal-id = "toggle-status-modal"
@@ -160,7 +159,7 @@
                                                            data-off-message = "<p>{{translate('if_disabled_this_currency_will_be_hidden_from_the_entire_system')}}</p>">
                                                     <span class="switcher_control"></span>
                                                 </label>
-                                            </form>
+                                            @endif
                                         @else
                                             <label class="badge badge-primary-light">{{translate('default')}}</label>
                                         @endif
@@ -194,6 +193,53 @@
                             </tbody>
                         </table>
                     </div>
+
+                    @foreach($currencies as $key => $currency)
+                        @if(!(($currency->status == 0 && $currency->total_supported_gateway > 0) || ($currency->status == 1 && $currency->must_required_for_gateway != 1)))
+                        <div class="modal fade" id="currency-modal{{ $currency['id'] }}" tabindex="-1" aria-labelledby="toggle-modal" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content shadow-lg">
+                                    <div class="modal-header border-0 pb-0 d-flex justify-content-end">
+                                        <button type="button" class="btn-close border-0" data-dismiss="modal" aria-label="Close">
+                                            <i class="tio-clear"></i>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body px-4 px-sm-5 pt-0">
+                                        <div class="d-flex flex-column align-items-center text-center gap-2 mb-2">
+                                            <div class="toggle-modal-img-box d-flex flex-column justify-content-center align-items-center mb-3 position-relative">
+                                                @if($currency->status)
+                                                    <img src="{{ getStorageImages(path: null, type: 'banner', source: asset('public/assets/back-end/img/modal/currency-off.png')) }}" class="status-icon"  alt="" width="80"/>
+                                                @else
+                                                    <img src="{{ getStorageImages(path: null, type: 'banner', source: asset('public/assets/back-end/img/modal/currency-on.png')) }}" class="status-icon"  alt="" width="80"/>
+                                                @endif
+                                                <img src="" alt="" />
+                                            </div>
+                                            <h5 class="modal-title">
+                                                {{ translate('Are_you_sure') }}, {{ translate('want_to_turn_'. ($currency->status == 1 ? 'Off' : 'ON') .'_currency_status') }}?
+                                            </h5>
+                                            <div class="text-center">
+                                                {{ translate('If_you_enable_this_currency_please_check_in_payment_gateway_settings_that_gateway_support_this_currency_or_not') }}!
+                                            </div>
+                                            <div class="text-center py-3">
+                                                <a class="text-underline font-weight-bold" href="{{ $paymentGatewayPublishedStatus && !empty($paymentGatewayUrl) ? $paymentGatewayUrl : route('admin.business-settings.payment-method.index') }}">
+                                                    {{ translate('Go_to_payment_gateway_settings') }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-center gap-3 mt-3">
+                                            <button type="button" class="btn btn--primary min-w-120" data-dismiss="modal">
+                                                {{ translate('ok') }}
+                                            </button>
+                                            <button type="button" class="btn btn-danger-light min-w-120" data-dismiss="modal">
+                                                {{ translate('cancel') }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                    @endforeach
 
                     <div class="table-responsive mt-4">
                         <div class="px-4 d-flex justify-content-lg-end">

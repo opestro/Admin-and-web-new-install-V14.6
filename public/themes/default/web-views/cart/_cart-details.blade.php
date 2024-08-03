@@ -3,7 +3,7 @@
 @php($shippingMethod=getWebConfig(name: 'shipping_method'))
 @php($cart=\App\Models\Cart::where(['customer_id' => (auth('customer')->check() ? auth('customer')->id() : session('guest_id'))])->get()->groupBy('cart_group_id'))
 
-<div class="row g-3 mx-max-md-0">
+<div class="row g-3 mx-max-md-0 mb-3">
     <section class="col-lg-8 px-max-md-0">
         @if(count($cart)==0)
             @php($isPhysicalProductExist = false)
@@ -265,7 +265,7 @@
                                                 <a href="{{ $checkProductStatus == 1 ? route('product', $cartItem['slug']) : 'javascript:'}}"
                                                    class="position-relative overflow-hidden">
                                                     <img class="rounded __img-62 {{ $checkProductStatus == 0?'custom-cart-opacity-50':'' }}"
-                                                         src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$cartItem['thumbnail'], type: 'product') }}"
+                                                         src="{{ getStorageImages(path: $cartItem?->product?->thumbnail_full_url, type: 'product') }}"
                                                         alt="{{ translate('product') }}">
                                                     @if ($checkProductStatus == 0)
                                                         <span class="temporary-closed position-absolute text-center p-2">
@@ -277,7 +277,14 @@
                                             <div class="d-flex flex-column gap-1">
                                                 <div
                                                     class="text-break __line-2 __w-18rem {{ $checkProductStatus == 0?'custom-cart-opacity-50':'' }}">
-                                                    <a href="{{ $checkProductStatus == 1 ? route('product',$cartItem['slug']) : 'javascript:'}}">{{$cartItem['name']}}</a>
+                                                    <a href="{{ $checkProductStatus == 1 ? route('product', $cartItem['slug']) : 'javascript:'}}">
+                                                        {{$cartItem['name']}}
+                                                    </a>
+                                                    @if(!empty($cartItem['variant']))
+                                                        <div>
+                                                            <span class="__text-12px">{{translate('variant')}} : {{$cartItem['variant']}}</span>
+                                                        </div>
+                                                    @endif
                                                 </div>
 
                                                 <div
@@ -606,7 +613,7 @@
                                     <a href="{{ $checkProductStatus == 1 ? route('product',$cartItem['slug']) : 'javascript:'}}"
                                     class="position-relative overflow-hidden">
                                         <img class="rounded __img-48 {{ $checkProductStatus == 0?'custom-cart-opacity-50':'' }}"
-                                            src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$cartItem['thumbnail'], type: 'product') }}"
+                                            src="{{ getStorageImages(path: $cartItem?->product?->thumbnail_full_url, type: 'product') }}"
                                             alt="{{ translate('product') }}">
                                         @if ($checkProductStatus == 0)
                                             <span class="temporary-closed position-absolute text-center p-2">
@@ -619,6 +626,12 @@
                                     <div class="text-break __line-2">
                                         <a href="{{ $checkProductStatus == 1 ? route('product',$cartItem['slug']) : 'javascript:'}}">{{$cartItem['name']}}</a>
                                     </div>
+
+                                    @if(!empty($cartItem['variant']))
+                                        <div>
+                                            <span class="__text-12px">{{translate('variant')}} : {{$cartItem['variant']}}</span>
+                                        </div>
+                                    @endif
 
                                     <div class="d-flex flex-wrap column-gap-2">
                                         @foreach(json_decode($cartItem['variations'],true) as $key1 =>$variation)
@@ -674,8 +687,8 @@
                         <div>
                             @php($minimum_order=\App\Utils\ProductManager::get_product($cartItem['product_id']))
                             @if ($minimum_order && $checkProductStatus)
-                                <div class="qty d-flex flex-column align-items-center gap-3">
-                                    <span class="qty_plus action-update-cart-quantity-list-mobile"
+                                <div class="qty d-flex flex-column align-items-center gap-1">
+                                    <span class="qty_plus action-update-cart-quantity-list-mobile p-2"
                                           data-minimum-order="{{ $product->minimum_order_qty }}"
                                           data-cart-id="{{ $cartItem['id'] }}"
                                           data-increment="1">
@@ -690,7 +703,7 @@
                                            data-current-stock="{{ $getProductCurrentStock }}"
                                            data-min="{{ isset($cartItem->product->minimum_order_qty) ? $cartItem->product->minimum_order_qty : 1 }}"
                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                                    <span class="qty_minus action-update-cart-quantity-list-mobile"
+                                    <span class="qty_minus action-update-cart-quantity-list-mobile p-2"
                                           data-minimum-order="{{ $product->minimum_order_qty }}"
                                           data-cart-id="{{ $cartItem['id'] }}"
                                           data-increment="-1"

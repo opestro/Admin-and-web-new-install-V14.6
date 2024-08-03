@@ -2,7 +2,7 @@
 <div class="card border-primary-light flex-grow-1">
     <div class="media flex-wrap align-items-center gap-3 p-3">
         <div class="avatar border rounded-circle size-3-437rem">
-            <img src="{{ getValidImage(path: 'storage/app/public/profile/'.(isset($item->user)?$item->user->image : ''), type:'avatar') }}" alt="{{translate('image')}}"
+            <img src="{{ getStorageImages(path: (isset($item->user)?$item->user->image_full_url : null), type:'avatar') }}" alt="{{translate('image')}}"
             class="img-fit dark-support rounded-circle">
         </div>
         <div class="media-body d-flex flex-column gap-2">

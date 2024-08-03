@@ -12,10 +12,11 @@ use App\Models\DeliveryManTransaction;
 use App\Models\DeliverymanWallet;
 use App\Models\EmergencyContact;
 use App\Models\Order;
+use App\Models\OrderDeliveryVerification;
 use App\Models\OrderDetail;
 use App\Models\Review;
 use App\Traits\CommonTrait;
-use App\User;
+use App\Models\User;
 use App\Utils\BackEndHelper;
 use App\Utils\CustomerManager;
 use App\Utils\Helpers;
@@ -258,7 +259,9 @@ class DeliveryManController extends Controller
         foreach ($details as $detail) {
             $detail['is_pause'] = $order['is_pause'];
             $detail['variation'] = json_decode($detail['variation']);
-            $detail['product_details'] = Helpers::product_data_formatting(json_decode($detail['product_details'], true));
+            $product = json_decode($detail['product_details'], true);
+            $product['thumbnail_full_url'] = $detail?->productAllStatus?->thumbnail_full_url;
+            $detail['product_details'] = Helpers::product_data_formatting_for_json_data($product);
         }
         return response()->json($details, 200);
     }
@@ -571,7 +574,7 @@ class DeliveryManController extends Controller
     {
         $dm = $request['delivery_man'];
 
-        $reviews = Review::with('customer','order')
+        $reviews = Review::with(['customer', 'order', 'reply'])
             ->when($request->is_saved, function ($query) use($request){
                 $query->where('is_saved', 1);
             })
@@ -688,12 +691,13 @@ class DeliveryManController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
         foreach($request->file('image') as $key=>$img){
-            DB::table('order_delivery_verifications')->insert([
+            $data = [
                 'order_id' => $request->order_id,
                 'image'    => ImageManager::upload('delivery-man/verification-image/','webp',$img),
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]);
+            ];
+            OrderDeliveryVerification::create($data);
         }
         return response()->json(['message' => 'successfully_uploaded'], 200);
       }

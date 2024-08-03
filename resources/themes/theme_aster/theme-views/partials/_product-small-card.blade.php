@@ -39,7 +39,7 @@
         </div>
 
         <div class="product__thumbnail align-items-center d-flex h-100 justify-content-center">
-            <img src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'product') }}"
+            <img src="{{ getStorageImages(path: $product->thumbnail_full_url, type: 'product') }}"
                  loading="lazy" class="dark-support rounded"
                  alt="{{ $product['name'] }}">
         </div>

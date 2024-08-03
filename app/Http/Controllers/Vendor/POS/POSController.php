@@ -32,7 +32,6 @@ class POSController extends BaseController
 {
     use CalculatorTrait,CommonTrait,CustomerTrait;
 
-
     /**
      * @param VendorRepositoryInterface $vendorRepo
      * @param CategoryRepositoryInterface $categoryRepo
@@ -43,17 +42,18 @@ class POSController extends BaseController
      * @param OrderRepositoryInterface $orderRepo
      * @param CartService $cartService
      * @param POSService $POSService
+     * @param DeliveryZipCodeRepositoryInterface $deliveryZipCodeRepo
      */
     public function __construct(
-        private readonly VendorRepositoryInterface $vendorRepo,
-        private readonly CategoryRepositoryInterface $categoryRepo,
-        private readonly ProductRepositoryInterface $productRepo,
-        private readonly CustomerRepositoryInterface $customerRepo,
-        private readonly ShopRepositoryInterface $shopRepo,
-        private readonly CouponRepositoryInterface $couponRepo,
-        private readonly OrderRepositoryInterface $orderRepo,
-        private readonly CartService $cartService,
-        private readonly POSService $POSService,
+        private readonly VendorRepositoryInterface          $vendorRepo,
+        private readonly CategoryRepositoryInterface        $categoryRepo,
+        private readonly ProductRepositoryInterface         $productRepo,
+        private readonly CustomerRepositoryInterface        $customerRepo,
+        private readonly ShopRepositoryInterface            $shopRepo,
+        private readonly CouponRepositoryInterface          $couponRepo,
+        private readonly OrderRepositoryInterface           $orderRepo,
+        private readonly CartService                        $cartService,
+        private readonly POSService                         $POSService,
         private readonly DeliveryZipCodeRepositoryInterface $deliveryZipCodeRepo,
     )
     {
@@ -308,12 +308,13 @@ class POSController extends BaseController
             'view' => view(POS::CART[VIEW], compact('cartId','cartItems'))->render()
         ]);
     }
-    public function getQuickView(Request $request):JsonResponse
+
+    public function getQuickView(Request $request): JsonResponse
     {
         $product = $this->productRepo->getFirstWhereWithCount(
-            params:['id'=> $request['product_id']],
+            params: ['id' => $request['product_id']],
             withCount: ['reviews'],
-            relations: ['brand','category','rating','tags'],
+            relations: ['brand', 'category', 'rating', 'tags', 'digitalVariation'],
         );
         return response()->json([
             'success' => 1,

@@ -65,8 +65,8 @@ class HomeController extends Controller
 
         $theme_name = theme_root_path();
         $brand_setting = BusinessSetting::where('type', 'product_brand')->first()->value;
-        $home_categories = Category::where('home_status', true)->priority()->get();
-        $home_categories->map(function ($data) {
+        $homeCategories = Category::where('home_status', true)->priority()->get();
+        $homeCategories->map(function ($data) {
             $id = '"' . $data['id'] . '"';
             $homeCategoriesProducts = Product::active()
                 ->withCount('reviews')
@@ -172,7 +172,7 @@ class HomeController extends Controller
         return view(VIEW_FILE_NAMES['home'],
             compact(
                 'flashDeal', 'featuredProductsList', 'topRated', 'bestSellProduct', 'latest_products', 'categories', 'brands',
-                'deal_of_the_day', 'topVendorsList', 'home_categories', 'brand_setting', 'main_banner', 'main_section_banner',
+                'deal_of_the_day', 'topVendorsList', 'homeCategories', 'brand_setting', 'main_banner', 'main_section_banner',
                 'current_date', 'recommendedProduct', 'footer_banner', 'newArrivalProducts'
             )
         );
@@ -187,11 +187,11 @@ class HomeController extends Controller
         $theme_name = theme_root_path();
         $current_date = date('Y-m-d H:i:s');
 
-        $home_categories = $this->category
+        $homeCategories = $this->category
             ->where('home_status', true)
             ->priority()->get();
 
-        $home_categories->map(function ($data) {
+        $homeCategories->map(function ($data) {
             $current_date = date('Y-m-d H:i:s');
             $homeCategoriesProducts = Product::active()
                 ->with([
@@ -546,6 +546,7 @@ class HomeController extends Controller
         $main_section_banner = [];
         $top_side_banner = [];
         foreach ($banners as $banner) {
+            $banner['photo_full_url'] = $banner->photo_full_url;
             if ($banner->banner_type == 'Main Banner') {
                 $main_banner[] = $banner;
             } elseif ($banner->banner_type == 'Footer Banner') {
@@ -578,12 +579,20 @@ class HomeController extends Controller
             ->whereDate('expire_date', '>=', date('Y-m-d'))
             ->inRandomOrder()->take(3)->get();
 
+        $topVendorsListSectionShowingStatus = false;
+        foreach ($topVendorsList as $vendorList) {
+            if($vendorList->products_count > 0 ){
+                $topVendorsListSectionShowingStatus = true;
+                break;
+            }
+        }
+
         return view(VIEW_FILE_NAMES['home'],
             compact(
                 'flashDeal', 'topRated', 'bestSellProduct', 'latest_products', 'featuredProductsList', 'deal_of_the_day', 'topVendorsList',
-                'home_categories', 'main_banner', 'footer_banner', 'random_product', 'decimal_point_settings', 'just_for_you', 'more_seller',
+                'homeCategories', 'main_banner', 'footer_banner', 'random_product', 'decimal_point_settings', 'just_for_you', 'more_seller',
                 'final_category', 'category_slider', 'order_again', 'sidebar_banner', 'main_section_banner', 'random_coupon', 'top_side_banner',
-                'featured_deals', 'categories'
+                'featured_deals', 'categories','topVendorsListSectionShowingStatus'
             )
         );
     }
@@ -870,7 +879,7 @@ class HomeController extends Controller
             if ($orders) {
                 $order_details = $orders?->flatMap(function ($order) {
                     return $order?->details->map(function ($detail) {
-                        $detail['category_id'] = $detail?->product?->category_id;
+                        $detail['category_id'] = $detail?->productAllStatus?->category_id;
                         return $detail;
                     });
                 });

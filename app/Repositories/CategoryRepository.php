@@ -60,7 +60,7 @@ class CategoryRepository implements CategoryRepositoryInterface
 
     public function update(string $id, array $data): bool
     {
-        return $this->category->where('id', $id)->update($data);
+        return $this->category->find($id)->update($data);
     }
 
     public function delete(array $params): bool

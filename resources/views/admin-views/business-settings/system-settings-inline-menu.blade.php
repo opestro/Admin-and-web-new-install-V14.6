@@ -31,9 +31,5 @@
         <li class="{{ Request::is('admin/business-settings/web-config/'.DatabaseSetting::VIEW[URI]) ?'active':'' }}">
             <a href="{{route('admin.business-settings.web-config.db-index')}}">{{translate('Clean_Database')}}</a>
         </li>
-        <li class="{{ Request::is('admin/business-settings/web-config/'.SiteMap::VIEW[URI]) ?'active':'' }}">
-            <a href="{{route('admin.business-settings.web-config.mysitemap')}}">{{translate('site_Map')}}</a>
-        </li>
-
     </ul>
 </div>

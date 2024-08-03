@@ -8,19 +8,21 @@
     use App\Enums\ViewPaths\Admin\ShippingMethod;
     use App\Enums\ViewPaths\Admin\PaymentMethod;
     use App\Enums\ViewPaths\Admin\InvoiceSettings;
+    use App\Enums\ViewPaths\Admin\SEOSettings;
+    use App\Enums\ViewPaths\Admin\ErrorLogs;
+    use App\Enums\ViewPaths\Admin\StorageConnectionSettings;
     use App\Utils\Helpers;
     use App\Enums\EmailTemplateKey;
-
+    $eCommerceLogo = getWebConfig(name: 'company_web_logo');
 @endphp
 <div id="sidebarMain" class="d-none">
     <aside class="bg-white js-navbar-vertical-aside navbar navbar-vertical-aside navbar-vertical navbar-vertical-fixed navbar-expand-xl navbar-bordered text-start">
         <div class="navbar-vertical-container">
             <div class="navbar-vertical-footer-offset pb-0">
                 <div class="navbar-brand-wrapper justify-content-between side-logo">
-                    @php($eCommerceLogo = getWebConfig(name: 'company_web_logo'))
                     <a class="navbar-brand" href="{{route('admin.dashboard.index')}}" aria-label="Front">
                         <img class="navbar-brand-logo-mini for-web-logo max-h-30"
-                             src="{{getValidImage('storage/app/public/company/'.$eCommerceLogo,type: 'backend-logo') }}" alt="{{translate('logo')}}">
+                             src="{{getStorageImages(path:$eCommerceLogo,type: 'backend-logo') }}" alt="{{translate('logo')}}">
                     </a>
                     <button type="button"
                             class="d-none js-navbar-vertical-aside-toggle-invoker navbar-vertical-aside-toggle btn btn-icon btn-xs btn-ghost-dark">
@@ -513,7 +515,7 @@
                                 </a>
                                 <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
                                     style="display: {{(Request::is('admin/notification*') || Request::is('admin/push-notification/*')) ? 'block':'none'}}">
-                                    <li class="navbar-vertical-aside-has-menu {{!Request::is('admin/notification/push') && Request::is('admin/notification*')?'active':''}}">
+                                    <li class="navbar-vertical-aside-has-menu {{!Request::is('admin/notification/push') && Request::is('admin/notification/*')?'active':''}}">
                                         <a class="js-navbar-vertical-aside-menu-link nav-link"
                                            href="{{route('admin.notification.index')}}"
                                            title="{{translate('send_notification')}}">
@@ -932,6 +934,11 @@
                                 Request::is('admin/business-settings/shipping-method/'.ShippingMethod::INDEX[URI]) ||
                                 Request::is('admin/business-settings/delivery-restriction') ||
                                 Request::is('admin/business-settings/invoice-settings') ||
+                                Request::is('admin/seo-settings/'.SEOSettings::WEB_MASTER_TOOL[URI]) ||
+                                Request::is('admin/seo-settings/'.SEOSettings::ROBOT_TXT[URI]) ||
+                                Request::is('admin/seo-settings/'.SiteMap::SITEMAP[URI]) ||
+                                Request::is('admin/seo-settings/robots-meta-content*') ||
+                                Request::is('admin/error-logs/'.ErrorLogs::INDEX[URI]) ||
                                 Request::is('admin/addon')) ? 'scroll-here' : '' }}">
 
                                 <small class="nav-subtitle"
@@ -961,7 +968,12 @@
                                         Request::is('admin/business-settings/order-settings/index') ||
                                         Request::is('admin/'.BusinessSettings::PRODUCT_SETTINGS[URI]) ||
                                         Request::is('admin/business-settings/invoice-settings') ||
-                                       Request::is('admin/business-settings/priority-setup')||
+                                        Request::is('admin/business-settings/priority-setup')||
+                                        Request::is('admin/seo-settings/'.SEOSettings::WEB_MASTER_TOOL[URI]) ||
+                                        Request::is('admin/seo-settings/'.SEOSettings::ROBOT_TXT[URI]) ||
+                                        Request::is('admin/seo-settings/'.SiteMap::SITEMAP[URI]) ||
+                                        Request::is('admin/seo-settings/robots-meta-content*') ||
+                                        Request::is('admin/error-logs/'.ErrorLogs::INDEX[URI]) ||
                                         Request::is('admin/business-settings/delivery-restriction'))?'block':'none'}}">
                                     <li class="nav-item {{(
                                             Request::is('admin/business-settings/web-config') ||
@@ -994,6 +1006,21 @@
                                             </span>
                                         </a>
                                     </li>
+                                    <li class="nav-item {{
+                                        (Request::is('admin/seo-settings/'.SEOSettings::WEB_MASTER_TOOL[URI]) ||
+                                        Request::is('admin/seo-settings/'.SEOSettings::ROBOT_TXT[URI]) ||
+                                        Request::is('admin/seo-settings/'.SiteMap::SITEMAP[URI]) ||
+                                        Request::is('admin/seo-settings/robots-meta-content*') ||
+                                        Request::is('admin/error-logs/'.ErrorLogs::INDEX[URI])) ? 'active' : ''
+                                    }}">
+                                        <a class="nav-link" href="{{ route('admin.seo-settings.web-master-tool') }}"
+                                           title="{{ translate('SEO_Settings') }}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate">
+                                              {{ translate('SEO_Settings') }}
+                                            </span>
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                             <li class="navbar-vertical-aside-has-menu ">
@@ -1007,7 +1034,7 @@
                                 <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
                                     style="display: {{(
                                         Request::is('admin/business-settings/web-config/'.EnvironmentSettings::VIEW[URI]) ||
-                                        Request::is('admin/business-settings/web-config/'.SiteMap::VIEW[URI]) ||
+                                        Request::is('admin/business-settings/web-config/'.SiteMap::SITEMAP[URI]) ||
                                         Request::is('admin/currency/'.Currency::LIST[URI]) ||
                                         Request::is('admin/currency/'.Currency::UPDATE[URI].'*') ||
                                         Request::is('admin/business-settings/web-config/'.DatabaseSetting::VIEW[URI]) ||
@@ -1022,7 +1049,7 @@
                                         Request::is('admin/addon'))?'block':'none'}}">
                                     <li class="nav-item {{(
                                             Request::is('admin/business-settings/web-config/'.EnvironmentSettings::VIEW[URI]) ||
-                                            Request::is('admin/business-settings/web-config/'.SiteMap::VIEW[URI]) ||
+                                            Request::is('admin/business-settings/web-config/'.SiteMap::SITEMAP[URI]) ||
                                             Request::is('admin/currency/'.Currency::LIST[URI]) ||
                                             Request::is('admin/currency/'.Currency::UPDATE[URI].'*') ||
                                             Request::is('admin/business-settings/web-config/'.DatabaseSetting::VIEW[URI]) ||
@@ -1093,6 +1120,7 @@
                                             Request::is('admin/business-settings/'.GoogleMapAPI::VIEW[URI]) ||
                                             Request::is('admin/business-settings/payment-method') ||
                                             Request::is('admin/business-settings/'.BusinessSettings::ANALYTICS_INDEX[URI]) ||
+                                            Request::is('admin/storage-connection-settings/'.StorageConnectionSettings::INDEX[URI]) ||
                                             Request::is('admin/business-settings/payment-method/offline-payment*') ? 'block':'none' }}">
                                     <li class="nav-item {{
                                             Request::is('admin/business-settings/payment-method') ||
@@ -1115,6 +1143,7 @@
                                         Request::is('admin/social-login/'.SocialLoginSettings::VIEW[URI]) ||
                                         Request::is('admin/social-media-chat/'.SocialMediaChat::VIEW[URI]) ||
                                         Request::is('admin/business-settings/'.BusinessSettings::ANALYTICS_INDEX[URI]) ||
+                                        Request::is('admin/storage-connection-settings/'.StorageConnectionSettings::INDEX[URI]) ||
                                         Request::is('admin/business-settings/'.GoogleMapAPI::VIEW[URI])?'active':''}}
                                     ">
                                         <a class="js-navbar-vertical-aside-menu-link nav-link"

@@ -45,7 +45,7 @@
                                                 <div class="p-3 border-bottom rounded d-flex justify-content-between gap-2">
                                                     <div class="media gap-2">
                                                         <img width="40" alt=""
-                                                             src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$item['image'], type: 'backend-product') }}">
+                                                             src="{{ getStorageImages(path: $item['image'], type: 'backend-product') }}">
                                                         <div class="media-body">
                                                             <h6 class="text-truncate"> {{ Str::limit($item['name'], 12 )}}</h6>
                                                             @if($item['variant'])

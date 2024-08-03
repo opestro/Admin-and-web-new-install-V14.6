@@ -108,10 +108,10 @@ function submitRegistration(){
         }
     })
 }
-$('#terms-checkbox').on('click',function (){
-    if($(this).is(':checked')){
-        $('#vendor-apply-submit').removeClass('disabled')
-    }else{
-        $('#vendor-apply-submit').addClass('disabled')
+$('#terms-checkbox').on('click', function () {
+    if ($(this).is(':checked')) {
+        $('#vendor-apply-submit').removeAttr('disabled');
+    } else {
+        $('#vendor-apply-submit').attr('disabled', 'disabled');
     }
-})
+});

@@ -7,24 +7,27 @@ use App\Models\Contact;
 use App\Models\GuestUser;
 use App\Models\HelpTopic;
 use App\Utils\Helpers;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class GeneralController extends Controller
 {
-    public function faq(){
-        return response()->json(HelpTopic::orderBy('ranking')->get(),200);
+    public function faq(): JsonResponse
+    {
+        return response()->json(HelpTopic::orderBy('ranking')->get(), 200);
     }
 
-    public function get_guest_id(Request $request){
-        $guest_id = GuestUser::insertGetId([
+    public function get_guest_id(Request $request): JsonResponse
+    {
+        $guestId = GuestUser::create([
             'ip_address' => $request->ip(),
             'created_at' => now(),
         ]);
-        return response()->json(['guest_id'=>$guest_id],200);
+        return response()->json(['guest_id' => $guestId?->id], 200);
     }
 
-    public function contact_store(Request $request)
+    public function contact_store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'mobile_number' => 'required',
@@ -38,21 +41,20 @@ class GeneralController extends Controller
             'subject.required' => ' Subject is Empty!',
             'message.required' => 'Message is Empty!',
             'email.required' => 'Email is Empty!',
-
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
-        $contact = new Contact;
-        $contact->name = $request->name;
-        $contact->email = $request->email;
-        $contact->mobile_number = $request->mobile_number;
-        $contact->subject = $request->subject;
-        $contact->message = $request->message;
-        $contact->save();
+        Contact::create([
+            'name' => $request['name'],
+            'email' => $request['email'],
+            'mobile_number' => $request['mobile_number'],
+            'subject' => $request['subject'],
+            'message' => $request['message']
+        ]);
 
-        return response()->json(['message'=>'Your Message Send Successfully'], 200);
+        return response()->json(['message' => 'your_message_send_successfully'], 200);
     }
 }

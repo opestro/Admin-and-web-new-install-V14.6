@@ -7,8 +7,12 @@ $('.action-get-refund-details').on('click', function (){
 
 function getRefundDetails(route) {
     $.get(route, (response) => {
-        $("#refund_details_field").html(response);
-        $('#refund_details_modal').modal().show();
+        if(response.status == 1) {
+            $("#refund_details_field").html(response.view);
+            $('#refund_details_modal').modal().show();
+        }else{
+            toastr.error(response.message);
+        }
     })
 }
 
@@ -27,13 +31,7 @@ function digitalProductDownload(link) {
         },
         success: function (data) {
             if (data.status == 1 && data.file_path) {
-                const a = document.createElement('a');
-                a.href = data.file_path;
-                a.download = data.file_name;
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(data.file_path);
+                downloadFileUsingFileUrl(data.file_path)
             }
         },
         error: function () {

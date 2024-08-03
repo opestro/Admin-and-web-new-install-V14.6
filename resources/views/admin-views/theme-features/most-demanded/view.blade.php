@@ -126,7 +126,7 @@
                                     <td class="pl-xl-5">{{ $mostDemandedProducts->firstItem()+ $key}}</td>
                                     <td>
                                         <img class="ratio-4:1" width="80" alt=""
-                                             src="{{ getValidImage(path:'storage/app/public/most-demanded/'.$mostDemanded['banner'],type: 'backend-banner')}}">
+                                             src="{{ getStorageImages(path:$mostDemanded->banner_full_url,type: 'backend-banner')}}">
                                     </td>
                                     <td>
                                         @if(isset($mostDemanded->product->name))
@@ -171,6 +171,8 @@
                                             </a>
                                             <a class="btn btn-outline-danger btn-sm cursor-pointer most-demanded-product-delete-button"
                                             title="{{ translate('delete') }}"
+                                               data-warning-text ="{{ translate('are_you_sure_delete_this_most_demanded_product') }}"
+                                               data-text ="{{ translate('you_will_not_be_able_to_revert_this') }}"
                                             id="{{ $mostDemanded['id'] }}">
                                                 <i class="tio-delete"></i>
                                             </a>

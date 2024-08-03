@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -72,10 +73,20 @@ class RefundTransactionReportExport implements FromView, ShouldAutoSize, WithSty
     }
     public function setImage($workSheet) {
         $this->data['transactions']->each(function($item,$index) use($workSheet) {
-            $drawing = new Drawing();
-            $drawing->setName($item->orderDetails->product->name);
-            $drawing->setDescription($item->orderDetails->product->name);
-            $drawing->setPath(is_file(storage_path('app/public/product/thumbnail/'.$item->orderDetails->product->thumbnail))? storage_path('app/public/product/thumbnail/'.$item->orderDetails->product->thumbnail) : public_path('assets/back-end/img/products.png'));
+            $tempImagePath = null;
+            $filePath = 'product/thumbnail/'.$item?->orderDetails?->product?->thumbnail_full_url['key'];
+            $fileCheck = fileCheck(disk:'public',path: $filePath);
+            if($item?->orderDetails?->product?->thumbnail_full_url['path'] && !$fileCheck){
+                $tempImagePath = getTemporaryImageForExport($item?->orderDetails?->product?->thumbnail_full_url['path']);
+                $imagePath = getImageForExport($item?->orderDetails?->product?->thumbnail_full_url['path']);
+                $drawing = new MemoryDrawing();
+                $drawing->setImageResource($imagePath);
+            }else{
+                $drawing = new Drawing();
+                $drawing->setPath(is_file(storage_path('app/public/'.$filePath)) ? storage_path('app/public/'.$filePath) : public_path('assets/back-end/img/products.png'));
+            }
+            $drawing->setName($item?->orderDetails?->product?->name ?? translate('product_not_found'));
+            $drawing->setDescription($item?->orderDetails?->product?->name ?? translate('product_not_found'));
             $drawing->setHeight(50);
             $drawing->setOffsetX(100);
             $drawing->setOffsetY(25);
@@ -83,7 +94,9 @@ class RefundTransactionReportExport implements FromView, ShouldAutoSize, WithSty
             $index+=4;
             $drawing->setCoordinates("B$index");
             $drawing->setWorksheet($workSheet);
-
+            if($tempImagePath){
+                imagedestroy($tempImagePath);
+            }
         });
     }
     public function registerEvents(): array

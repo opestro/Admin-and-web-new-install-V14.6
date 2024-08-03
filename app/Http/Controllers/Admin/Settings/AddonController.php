@@ -69,6 +69,11 @@ class AddonController extends BaseController
     {
         $scan = scandir(base_path('Modules/'));
         $addonsFolders = array_diff($scan, ['.', '..','.DS_Store']);
+        $collection = collect($addonsFolders);
+
+        $addonsFolders = $collection->reject(function ($value, $key) {
+            return $value === "doc.txt";
+        });
         $addons = [];
         foreach ($addonsFolders as $directory) {
             $addons[] = 'Modules/' . $directory;

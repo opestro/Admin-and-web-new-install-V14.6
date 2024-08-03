@@ -15,7 +15,7 @@
                         <div class="grid-item bg-transparent basic-box-shadow">
                             <div class="d-flex gap-10 align-items-center">
                                 <img
-                                    src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'. $product['thumbnail'], type: 'backend-product') }}"
+                                    src="{{ getStorageImages(path: $product->thumbnail_full_url, type: 'backend-product') }}"
                                      class="avatar avatar-lg rounded avatar-bordered"
                                      alt="{{ $product['name'].'_'.translate('image') }}">
                                 <div

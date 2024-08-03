@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Vendor;
 
+use App\Enums\GlobalConstant;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ChattingRequest extends FormRequest
@@ -21,23 +22,24 @@ class ChattingRequest extends FormRequest
      *
      * @return array
      */
-    public function rules():array
+    public function rules(): array
     {
         return [
-            'message' => 'required_without:image',
-            'image.*' => 'required_without:message|mimes:jpeg,png,gif,webp,jpg,jpeg',
+            'message' => 'required_without_all:file,image',
+            'image.*' => 'image|max:2048|mimes:'.str_replace('.', '', implode(',', GlobalConstant::IMAGE_EXTENSION)),
+            'file.*' => 'file|max:2048|mimes:'.str_replace('.', '', implode(',', GlobalConstant::DOCUMENT_EXTENSION)),
         ];
+
     }
-    /**
-     * @return array
-     * Get the validation error message
-     */
+
     public function messages(): array
     {
         return [
-            'required_without' => translate('type_something').'!',
-            'image.mimes' => translate('image_type_jpg,_jpeg,_webp_or_png'),
+            'required_without_all' => translate('type_something').'!',
+            'image.mimes' => translate('the_image_format_is_not_supported').' '.translate('supported_format_are').' '.str_replace('.', '', implode(',', GlobalConstant::IMAGE_EXTENSION)),
             'image.max' => translate('image_maximum_size_') . MAXIMUM_IMAGE_UPLOAD_SIZE,
+            'file.mimes' => translate('the_file_format_is_not_supported').' '.translate('supported_format_are').' '.str_replace('.', '', implode(',', GlobalConstant::DOCUMENT_EXTENSION)),
+            'file.max' => translate('file_maximum_size_') . MAXIMUM_IMAGE_UPLOAD_SIZE,
         ];
     }
 }

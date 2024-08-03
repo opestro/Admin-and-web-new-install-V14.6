@@ -13,7 +13,9 @@
                 <img width="20" src="{{ dynamicAsset(path: 'public/assets/back-end/img/banner.png') }}" alt="">
                 {{ translate('banner_Setup') }}
                 <small>
-                    <strong class="text--primary"> ({{str_replace("_", " ", theme_root_path()) }})</strong>
+                    <strong class="text--primary text-capitalize">
+                        ({{str_replace("_", " ", (theme_root_path() == "theme_fashion" ? "theme_lifestyle" : theme_root_path())) }})
+                    </strong>
                 </small>
             </h2>
             <div class="btn-group">
@@ -236,7 +238,7 @@
                                     <td class="pl-xl-5">{{ $banners->firstItem()+$key}}</td>
                                     <td>
                                         <img class="ratio-4:1" width="80" alt=""
-                                             src="{{ getValidImage(path: 'storage/app/public/banner/'.$banner['photo'] , type: 'backend-banner') }}">
+                                             src="{{ getStorageImages(path: $banner->photo_full_url , type: 'backend-banner') }}">
                                     </td>
                                     <td>{{ translate(str_replace('_',' ',$banner->banner_type)) }}</td>
                                     <td>

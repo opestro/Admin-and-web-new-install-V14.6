@@ -5,7 +5,7 @@ namespace App\Http\Controllers\RestAPI\v1\auth;
 use App\Events\EmailVerificationEvent;
 use App\Http\Controllers\Controller;
 use App\Models\PhoneOrEmailVerification;
-use App\User;
+use App\Models\User;
 use App\Utils\Helpers;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;

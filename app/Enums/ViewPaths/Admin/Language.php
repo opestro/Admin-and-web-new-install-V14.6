@@ -59,4 +59,9 @@ enum Language
         VIEW => ''
     ];
 
+    const TRANSLATE_AUTO_ALL = [
+        URI => 'auto-translate-all',
+        VIEW => ''
+    ];
+
 }

@@ -1,7 +1,7 @@
 <div class="p-3 px-xl-4 py-sm-5">
     <div class="text-center">
         <img width="100" class="mb-4" id="view-mail-icon"
-             src="{{$template['image'] ? dynamicStorage('storage/app/public/email-template/'.$template['image']) : dynamicAsset(path: 'public/assets/back-end/img/email-template/congratulations.png')}}"
+             src="{{ $template->image_full_url['path'] ?? dynamicAsset(path: 'public/assets/back-end/img/email-template/congratulations.png')}}"
              alt="">
         <h3 class="mb-3 view-mail-title text-capitalize">
             {{$title}}
@@ -12,7 +12,7 @@
     </div>
     <div class="main-table-inner mb-4">
         <div class="d-flex justify-content-center pt-3">
-            <img width="76" class="mb-4 mx-auto" id="view-mail-logo" src="{{$template['logo'] ? dynamicStorage('storage/app/public/email-template/'.$template['logo']) : getValidImage(path: "storage/app/public/company/".$companyLogo, type:'backend-logo')}}" alt="">
+            <img width="76" class="mb-4 mx-auto" id="view-mail-logo" src="{{ $template->logo_full_url['path'] ?? getStorageImages(path: $companyLogo, type:'backend-logo')}}" alt="">
         </div>
         <div class="text-center">
             <h3 class="mb-3 ">{{translate('order_Info')}}</h3>
@@ -32,12 +32,12 @@
                         <td>
                             <h4 class="mb-2">{{translate('products')}}</h4>
                             @if(isset($data['order']))
-                                @foreach($data['order']->details as $key=>$detail)
+                                @foreach($data['order']->details as $key=> $detail)
                                     @php($product = json_decode($detail['product_details']))
                                     @if($product->product_type == 'digital')
                                         <div class="d-flex align-items-center gap-3 mb-3">
                                             <img class="product-image"
-                                                src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product->thumbnail, type: 'backend-product') }}"
+                                                src="{{ getStorageImages(path: $detail?->productAllStatus?->thumbnail_full_url, type: 'backend-product') }}"
                                                  alt="">
                                             <div class="product-title">{{substr($product->name, 0, 50)}}</div>
                                         </div>

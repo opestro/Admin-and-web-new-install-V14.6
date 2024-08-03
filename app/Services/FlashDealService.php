@@ -44,10 +44,10 @@ class FlashDealService
     }
 
 
-    public function getAddProduct(object $request, string|int $id): array
+    public function getAddProduct(object $request,string|int $productId ,string|int $id): array
     {
         return [
-            'product_id' => $request['product_id'],
+            'product_id' => $productId,
             'flash_deal_id' => $id,
             'discount' => $request['discount'] ?? 0,
             'discount_type' => $request['discount_type'] ?? 0,

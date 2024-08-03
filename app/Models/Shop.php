@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\StorageTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class YourModel
@@ -31,6 +33,7 @@ use Illuminate\Support\Carbon;
  */
 class Shop extends Model
 {
+    use StorageTrait;
     /**
      * The attributes that are mass assignable.
      *
@@ -43,14 +46,18 @@ class Shop extends Model
         'address',
         'contact',
         'image',
+        'image_storage_type',
         'bottom_banner',
+        'bottom_banner_storage_type',
         'offer_banner',
+        'offer_banner_storage_type',
         'vacation_start_date',
         'vacation_end_date',
         'vacation_note',
         'vacation_status',
         'temporary_close',
         'banner',
+        'banner_storage_type',
     ];
 
     /**
@@ -81,4 +88,38 @@ class Shop extends Model
             $query->where(['status' => 'approved']);
         });
     }
+
+    public function getImageFullUrlAttribute():string|null|array
+    {
+        if($this->id == 0){
+            return getWebConfig(name: 'company_fav_icon');
+        }
+        $value = $this->image;
+        return $this->storageLink('shop', $value, $this->image_storage_type ?? 'public');
+    }
+    public function getBannerFullUrlAttribute():string|null|array
+    {
+        if($this->id == 0){
+            return getWebConfig(name: 'shop_banner');
+        }
+        $value = $this->banner;
+        return $this->storageLink('shop/banner', $value, $this->banner_storage_type ?? 'public');
+    }
+   public function getBottomBannerFullUrlAttribute():string|null|array
+    {
+        if($this->id == 0){
+            return getWebConfig(name: 'bottom_banner');
+        }
+        $value = $this->bottom_banner;
+        return $this->storageLink('shop/banner', $value, $this->bottom_banner_storage_type ?? 'public');
+    }
+   public function getOfferBannerFullUrlAttribute():string|null|array
+    {
+        if($this->id == 0){
+            return getWebConfig(name: 'offer_banner');
+        }
+        $value = $this->offer_banner;
+        return $this->storageLink('shop/banner', $value, $this->offer_banner_storage_type ?? 'public');
+    }
+    protected $appends = ['image_full_url','bottom_banner_full_url','offer_banner_full_url','banner_full_url'];
 }

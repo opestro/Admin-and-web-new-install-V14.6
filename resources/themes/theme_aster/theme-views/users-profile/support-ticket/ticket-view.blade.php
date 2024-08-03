@@ -15,7 +15,7 @@
                             <div class="media flex-wrap gap-3">
                                 <div class="avatar avatar-lg rounded-circle">
                                     <img loading="lazy" class="img-fit rounded-circle dark-support" alt=""
-                                         src="{{ getValidImage(path: 'storage/app/public/profile/'.(customer_info()->image), type:'avatar') }}">
+                                         src="{{ getStorageImages(path: customer_info()->image_full_url, type:'avatar') }}">
                                 </div>
                                 <div class="media-body">
                                     <div class="d-flex flex-column gap-1">
@@ -78,14 +78,12 @@
                                             @if($conversation['customer_message'])
                                                 <p class="message_text">{{ $conversation['customer_message']}}</p>
                                             @endif
-                                            @if ($conversation['attachment'] !=null && count(json_decode($conversation['attachment'])) > 0)
+                                            @if (count($conversation->attachment_full_url) > 0)
                                                 <div class="d-flex flex-wrap g-2 gap-2 justify-content-end custom-image-popup-init">
-                                                    @foreach (json_decode($conversation['attachment']) as $key => $photo)
-                                                        @if(file_exists(base_path("storage/app/public/support-ticket/".$photo)))
-                                                            <a class="inbox-image-element custom-image-popup" href="{{ getValidImage(path: 'storage/app/public/support-ticket/'.$photo, type:'product') }}">
-                                                                <img src="{{ getValidImage(path: 'storage/app/public/support-ticket/'.$photo, type:'product') }}" alt="">
-                                                            </a>
-                                                        @endif
+                                                    @foreach ($conversation->attachment_full_url as $key => $photo)
+                                                        <a class="inbox-image-element custom-image-popup" href="{{ getStorageImages(path: $photo, type:'product') }}">
+                                                            <img src="{{ getStorageImages(path: $photo, type:'product') }}" alt="">
+                                                        </a>
                                                     @endforeach
                                                 </div>
                                             @endif
@@ -98,14 +96,12 @@
                                             @if($conversation['admin_message'])
                                                 <p class="message_text">{{$conversation['admin_message']}}</p>
                                             @endif
-                                            @if ($conversation['attachment'] !=null && count(json_decode($conversation['attachment'])) > 0)
+                                            @if (count($conversation->attachment_full_url ) > 0)
                                                 <div class="d-flex flex-wrap g-2 gap-2 justify-content-start custom-image-popup-init">
-                                                    @foreach (json_decode($conversation['attachment']) as $key => $photo)
-                                                        @if(file_exists(base_path("storage/app/public/support-ticket/".$photo)))
-                                                            <a class="inbox-image-element custom-image-popup" href="{{ getValidImage(path: 'storage/app/public/support-ticket/'.$photo, type:'product') }}">
-                                                                <img src="{{ getValidImage(path: 'storage/app/public/support-ticket/'.$photo, type:'product') }}" alt="">
-                                                            </a>
-                                                        @endif
+                                                    @foreach ($conversation->attachment_full_url as $key => $photo)
+                                                        <a class="inbox-image-element custom-image-popup" href="{{ getStorageImages(path: $photo, type:'product') }}">
+                                                            <img src="{{ getStorageImages(path: $photo, type:'product') }}" alt="">
+                                                        </a>
                                                     @endforeach
                                                 </div>
                                             @endif

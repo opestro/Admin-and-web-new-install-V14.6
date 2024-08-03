@@ -54,32 +54,41 @@
                                     @foreach($orderDetails as $index => $orderDetail)
                                         <div class="d-flex justify-content-between align-items-center gap-2">
                                             <div class="d-flex justify-content-between align-items-center gap-2">
-                                                <img width="50" src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$orderDetail->product->thumbnail, type: 'product') }}" alt="" class="border rounded">
+                                                <img width="50" src="{{ getStorageImages(path: $orderDetail?->product?->thumbnail_full_url, type: 'product') }}" alt="" class="border rounded">
                                                 <a class="fs-13 font-semi-bold" href="{{ route('product', $orderDetail->product->slug) }}">
                                                     {{ $orderDetail->product->name }}
                                                 </a>
                                             </div>
                                             <div>
-                                                @php($productDetails = $orderDetail?->product ?? json_decode($orderDetail->product_details) )
+                                                @php($productDetails = json_decode($orderDetail->product_details, true))
 
-                                                @if($productDetails->digital_product_type == 'ready_product')
-
-                                                    @if (File::exists(base_path('storage/app/public/product/digital-product/'. $productDetails->digital_file_ready)))
-                                                        <a class="btn p-0 shadow-none border-0" data-bs-toggle="tooltip" title="{{ translate('download') }}" href="{{ dynamicStorage(path: 'storage/app/public/product/digital-product/'.$productDetails->digital_file_ready) }}" download>
+                                                @if($productDetails['digital_product_type'] == 'ready_product')
+                                                    <?php
+                                                        $checkFilePath = storageLink('product/digital-product', $productDetails['digital_file_ready'], ($productDetails['storage_path'] ?? 'public'));
+                                                        $filePath = $checkFilePath['path'];
+                                                        $fileExist = $checkFilePath['status'] == 200;
+                                                        $fileName = $productDetails['digital_file_ready'];
+                                                    ?>
+                                                    @if ($fileExist)
+                                                        <span class="btn p-0 shadow-none border-0 getDownloadFileUsingFileUrl" data-bs-toggle="tooltip" title="{{ translate('download') }}" data-file-path="{{ $filePath }}">
                                                             <img src="{{ theme_asset(path: 'assets/img/icons/download-green.svg') }}" alt="">
-                                                        </a>
+                                                        </span>
                                                     @else
-                                                        <a class="btn p-0 shadow-none border-0" data-bs-toggle="tooltip" title="{{ translate('File_not_found') }}" href="javascript:" download>
+                                                        <a class="btn p-0 shadow-none border-0" data-bs-toggle="tooltip" title="{{ translate('File_not_found') }}" href="javascript:" disabled>
                                                             <img src="{{ theme_asset(path: 'assets/img/icons/download-green.svg') }}" alt="">
                                                         </a>
                                                     @endif
-
-
-                                                @elseif($productDetails->digital_product_type == 'ready_after_sell')
-                                                    @if($orderDetail->digital_file_after_sell)
-                                                        <a class="btn p-0 shadow-none border-0" data-bs-toggle="tooltip" title="{{ translate('download') }}" href="{{ dynamicStorage(path: 'storage/app/public/product/digital-product/'.$orderDetail->digital_file_after_sell) }}" download>
+                                                @elseif($productDetails['digital_product_type'] == 'ready_after_sell')
+                                                    @if($orderDetail['digital_file_after_sell'])
+                                                        <?php
+                                                            $checkFilePath = $orderDetail->digital_file_after_sell_full_url;
+                                                            $filePath = $checkFilePath['path'];
+                                                            $fileName = $orderDetail['digital_file_after_sell'];
+                                                            $fileExist = $checkFilePath['status'] == 200;
+                                                        ?>
+                                                        <span class="btn p-0 shadow-none border-0 getDownloadFileUsingFileUrl" data-bs-toggle="tooltip" title="{{ translate('download') }}" data-file-path="{{ $filePath }}">
                                                             <img src="{{ theme_asset(path: 'assets/img/icons/download-green.svg') }}" alt="">
-                                                        </a>
+                                                        </span>
                                                     @else
                                                         <a class="btn p-0 shadow-none border-0" data-bs-toggle="tooltip" title="{{ translate('product_not_uploaded_yet') }}" disabled>
                                                             <img src="{{ theme_asset(path: 'assets/img/icons/download-green.svg') }}" alt="">

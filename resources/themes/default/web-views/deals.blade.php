@@ -3,12 +3,12 @@
 @section('title', translate('flash_Deal_Products'))
 
 @push('css_or_js')
-    <meta property="og:image" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']->value}}"/>
+    <meta property="og:image" content="{{$web_config['web_logo']['path']}}"/>
     <meta property="og:title" content="Deals of {{$web_config['name']->value}} "/>
     <meta property="og:url" content="{{env('APP_URL')}}">
     <meta property="og:description" content="{{ substr(strip_tags(str_replace('&nbsp;', ' ', $web_config['about']->value)),0,160) }}">
 
-    <meta property="twitter:card" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']->value}}"/>
+    <meta property="twitter:card" content="{{$web_config['web_logo']['path']}}"/>
     <meta property="twitter:title" content="Deals of {{$web_config['name']->value}}"/>
     <meta property="twitter:url" content="{{env('APP_URL')}}">
     <meta property="twitter:description"
@@ -42,12 +42,8 @@
 
 @section('content')
     @php($decimal_point_settings = getWebConfig(name: 'decimal_point_settings'))
+    @php($deal_banner = getStorageImages(path: $deal['banner_full_url'],type: 'banner' ,source: theme_asset(path: 'public/assets/front-end/img/flash-deals.png')))
     <div class="__inline-59 pt-md-3">
-        @if(file_exists('storage/app/public/deal/'.$deal['banner']))
-            @php($deal_banner = dynamicStorage(path: 'storage/app/public/deal/'.$deal['banner']))
-        @else
-            @php($deal_banner = theme_asset(path: 'public/assets/front-end/img/flash-deals.png'))
-        @endif
         <div class="container md-4 mt-3 rtl text-align-direction">
             <div class="__flash-deals-bg rounded" style="background: url({{$deal_banner}}) no-repeat center center / cover">
                 <div class="row g-3 justify-content-end align-items-center">

@@ -4,42 +4,7 @@
 @section('title', $product['name'].' | '.$web_config['name']->value.' '.translate('ecommerce'))
 
 @push('css_or_js')
-    <meta name="description" content="{{$product->slug}}">
-    <meta name="keywords" content="@foreach(explode(' ',$product['name']) as $keyword) {{$keyword.' , '}} @endforeach">
-    @if($product->added_by=='seller')
-        <meta name="author" content="{{ $product->seller->shop?$product->seller->shop->name:$product->seller->f_name}}">
-    @elseif($product->added_by=='admin')
-        <meta name="author" content="{{$web_config['name']->value}}">
-    @endif
-    @if($product['meta_image'])
-        <meta property="og:image" content="{{dynamicStorage(path: "storage/app/public/product/meta")}}/{{$product->meta_image}}"/>
-        <meta property="twitter:card"
-              content="{{dynamicStorage(path: "storage/app/public/product/meta")}}/{{$product->meta_image}}"/>
-    @else
-        <meta property="og:image" content="{{dynamicStorage(path: "storage/app/public/product/thumbnail")}}/{{$product->thumbnail}}"/>
-        <meta property="twitter:card"
-              content="{{dynamicStorage(path: "storage/app/public/product/thumbnail/")}}/{{$product->thumbnail}}"/>
-    @endif
-
-    @if($product['meta_title'])
-        <meta property="og:title" content="{{$product->meta_title}}"/>
-        <meta property="twitter:title" content="{{$product->meta_title}}"/>
-    @else
-        <meta property="og:title" content="{{$product->name}}"/>
-        <meta property="twitter:title" content="{{$product->name}}"/>
-    @endif
-    <meta property="og:url" content="{{route('product',[$product->slug])}}">
-
-    @if($product['meta_description'])
-        <meta property="twitter:description" content="{!! $product['meta_description'] !!}">
-        <meta property="og:description" content="{!! $product['meta_description'] !!}">
-    @else
-        <meta property="og:description"
-              content="@foreach(explode(' ',$product['name']) as $keyword) {{$keyword.' , '}} @endforeach">
-        <meta property="twitter:description"
-              content="@foreach(explode(' ',$product['name']) as $keyword) {{$keyword.' , '}} @endforeach">
-    @endif
-    <meta property="twitter:url" content="{{route('product',[$product->slug])}}">
+    @include(VIEW_FILE_NAMES['product_seo_meta_content_partials'], ['metaContentData' => $product?->seoInfo, 'product' => $product])
 @endpush
 
 @section('content')
@@ -115,13 +80,13 @@
                                                     </div>
                                                 </div>
 
-                                                @if($product->images!=null && json_decode($product->images)>0)
+                                                @if($product->images!=null && count($product->images_full_url)>0)
                                                     <div class="swiper-wrapper">
-                                                        @if(json_decode($product->colors) && $product->color_image)
-                                                            @foreach (json_decode($product->color_image) as $key => $photo)
-                                                                @if($photo->color != null)
+                                                        @if(json_decode($product->colors) && count($product->color_images_full_url)>0)
+                                                            @foreach ($product->color_images_full_url as $key => $photo)
+                                                                @if($photo['color'] != null)
                                                                     <div class="swiper-slide position-relative"
-                                                                         id="preview-box-{{ $photo->color }}">
+                                                                         id="preview-box-{{ $photo['color'] }}">
                                                                         @if ($product->discount > 0 && $product->discount_type === "percent")
                                                                             <span class="product__discount-badge">
                                                                                 <span>
@@ -135,17 +100,16 @@
                                                                                 </span>
                                                                             </span>
                                                                         @endif
-
                                                                         <div class="easyzoom easyzoom--overlay">
-                                                                            <a href="{{ getValidImage(path: 'storage/app/public/product/'.($photo->image_name), type:'product') }}">
+                                                                            <a href="{{ getStorageImages(path:$photo['image_name'], type:'product') }}">
                                                                                 <img class="dark-support rounded" alt=""
-                                                                                    src="{{ getValidImage(path: 'storage/app/public/product/'.($photo->image_name), type:'product') }}">
+                                                                                    src="{{ getStorageImages(path:$photo['image_name'], type:'product') }}">
                                                                             </a>
                                                                         </div>
                                                                     </div>
                                                                 @else
                                                                     <div class="swiper-slide position-relative"
-                                                                         id="preview-box-{{ $photo->color }}">
+                                                                         id="preview-box-{{ $photo['color'] }}">
                                                                         @if ($product->discount > 0 && $product->discount_type === "percent")
                                                                             <span class="product__discount-badge">
                                                                                 <span>
@@ -158,16 +122,16 @@
                                                                                 </span>
                                                                         @endif
                                                                         <div class="easyzoom easyzoom--overlay">
-                                                                            <a href="{{ getValidImage(path: 'storage/app/public/product/'.($photo->image_name), type:'product') }}">
+                                                                            <a href="{{ getStorageImages(path: $photo['image_name'], type:'product') }}">
                                                                                 <img class="dark-support rounded" alt=""
-                                                                                    src="{{ getValidImage(path: 'storage/app/public/product/'.($photo->image_name), type:'product') }}">
+                                                                                    src="{{ getStorageImages(path: $photo['image_name'], type:'product') }}">
                                                                             </a>
                                                                         </div>
                                                                     </div>
                                                                 @endif
                                                             @endforeach
                                                         @else
-                                                            @foreach (json_decode($product->images) as $key => $photo)
+                                                            @foreach ($product->images_full_url as $key => $photo)
                                                                 <div class="swiper-slide position-relative">
                                                                     @if ($product->discount > 0 && $product->discount_type === "percent")
                                                                         <span class="product__discount-badge">
@@ -183,9 +147,9 @@
                                                                         </span>
                                                                     @endif
                                                                     <div class="easyzoom easyzoom--overlay">
-                                                                        <a href="{{ getValidImage(path: 'storage/app/public/product/'.$photo, type:'product') }}">
+                                                                        <a href="{{ getStorageImages(path: $photo, type:'product') }}">
                                                                             <img class="dark-support rounded" alt=""
-                                                                                src="{{ getValidImage(path: 'storage/app/public/product/'.$photo, type:'product') }}">
+                                                                                src="{{ getStorageImages(path: $photo, type:'product') }}">
                                                                         </a>
                                                                     </div>
                                                                 </div>
@@ -199,30 +163,27 @@
                                                     @if($product->images!=null && json_decode($product->images)>0)
                                                         <div
                                                             class="swiper-wrapper auto-item-width justify-content-center border--gray width--4rem">
-                                                            @if(json_decode($product->colors) && $product->color_image)
-                                                                @foreach (json_decode($product->color_image) as $key => $photo)
-                                                                    @if($photo->color != null)
+                                                            @if(count($product->color_images_full_url)>0)
+                                                                @foreach ($product->color_images_full_url as $key => $photo)
+                                                                    @if($photo['color'] != null)
                                                                         <div
                                                                             class="swiper-slide position-relative aspect-1">
                                                                             <img class="dark-support rounded" alt=""
-                                                                                src="{{ getValidImage(path: 'storage/app/public/product/'.($photo->image_name), type:'product') }}">
+                                                                                src="{{ getStorageImages(path: $photo['image_name'], type:'product') }}">
                                                                         </div>
-                                                                    @endif
-                                                                @endforeach
-                                                                @foreach (json_decode($product->color_image) as $key => $photo)
-                                                                    @if($photo->color == null)
+                                                                    @else
                                                                         <div class="swiper-slide position-relative aspect-1">
                                                                             <img class="dark-support rounded" alt=""
-                                                                                src="{{ getValidImage(path: 'storage/app/public/product/'.($photo->image_name), type:'product') }}">
+                                                                                 src="{{ getStorageImages(path: $photo['image_name'], type:'product') }}">
                                                                         </div>
                                                                     @endif
                                                                 @endforeach
                                                             @else
-                                                                @foreach (json_decode($product->images) as $key => $photo)
+                                                                @foreach ($product->images_full_url as $key => $photo)
                                                                     <div
                                                                         class="swiper-slide position-relative aspect-1">
                                                                         <img class="dark-support rounded" alt=""
-                                                                            src="{{ getValidImage(path: 'storage/app/public/product/'.$photo, type:'product') }}">
+                                                                            src="{{ getStorageImages(path: $photo, type:'product') }}">
                                                                     </div>
                                                                 @endforeach
                                                             @endif
@@ -312,6 +273,7 @@
                                                             </ul>
                                                         </div>
                                                     @endif
+
                                                     @foreach (json_decode($product->choice_options) as  $choice)
                                                         <div class="d-flex gap-4 flex-wrap align-items-center mb-4">
                                                             <h6 class="fw-semibold">{{translate($choice->title)}}</h6>
@@ -331,6 +293,37 @@
                                                             </ul>
                                                         </div>
                                                     @endforeach
+
+                                                    @php($extensionIndex=0)
+                                                    @if($product['product_type'] == 'digital' && $product['digital_product_file_types'] && count($product['digital_product_file_types']) > 0 && $product['digital_product_extensions'])
+                                                        @foreach($product['digital_product_extensions'] as $extensionKey => $extensionGroup)
+                                                            <div class="d-flex gap-4 flex-wrap align-items-center mb-4">
+                                                                <h6 class="fw-semibold">
+                                                                    {{ translate($extensionKey) }}
+                                                                </h6>
+
+                                                                @if(count($extensionGroup) > 0)
+                                                                    <ul class="option-select-btn custom_01_option flex-wrap weight-style--two gap-2">
+                                                                    @foreach($extensionGroup as $index => $extension)
+                                                                        <li>
+                                                                            <label>
+                                                                                <input type="radio" hidden
+                                                                                       name="variant_key"
+                                                                                       value="{{ $extensionKey.'-'.preg_replace('/\s+/', '-', $extension) }}"
+                                                                                    {{ $extensionIndex == 0 ? 'checked' : ''}}>
+                                                                                <span class="text-transform-none">{{ $extension }}</span>
+                                                                            </label>
+                                                                        </li>
+                                                                    @php($extensionIndex++)
+                                                                    @endforeach
+                                                                    </ul>
+                                                                @endif
+
+                                                            </div>
+                                                        @endforeach
+                                                    @endif
+
+
                                                     <div class="d-flex gap-4 flex-wrap align-items-center mb-4">
                                                         <h6 class="fw-semibold">{{translate('quantity')}}</h6>
                                                         <div class="quantity quantity--style-two">
@@ -349,7 +342,7 @@
                                                             </span>
                                                         </div>
                                                     </div>
-                                                    <input type="hidden" class="product-generated-variation-code" name="product_variation_code">
+                                                    <input type="hidden" class="product-generated-variation-code" name="product_variation_code" data-product-id="{{ $product['id'] }}">
                                                     <input type="hidden" value="" class="in_cart_key form-control w-50" name="key">
                                                     <div class="mx-w width--24rem">
                                                         <div class="bg-light w-100 rounded p-4">
@@ -425,10 +418,10 @@
                                             aria-selected="false">{{translate("reviews")}}</button>
                                 </div>
                             </nav>
-                            <div class="tab-content mt-3" id="nav-tabContent">
+                            <div class="product-details-tab-content tab-content mt-3" id="nav-tabContent">
                                 <div class="tab-pane fade show active" id="product-details" role="tabpanel"
                                      aria-labelledby="product-details-tab" tabindex="0">
-                                    <div class="details-content-wrap custom-height ov-hidden show-more--content active">
+                                    <div class="details-content-wrap ov-hidden show-more--content">
                                         <div class="table-responsive">
                                             <table class="table mb-0">
                                                 <thead class="table-light">
@@ -461,7 +454,7 @@
                                 </div>
                                 <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab"
                                      tabindex="0">
-                                    <div class="details-content-wrap custom-height ov-hidden show-more--content active">
+                                    <div class="details-content-wrap ov-hidden show-more--content">
                                         <div class="row gy-4">
                                             <div class="col-lg-5">
                                                 <div class="rating-review mx-auto text-center mb-30">
@@ -545,11 +538,11 @@
                                                 <div class="d-flex flex-wrap gap-3" id="product-review-list">
                                                     @foreach ($productReviews as $review)
                                                         <div class="card border-primary-light flex-grow-1">
-                                                            <div class="media flex-wrap align-items-centr gap-3 p-3">
+                                                            <div class="media flex-wrap align-items-centr gap-3 p-3 {{ $review->reply ? 'before-content-border' : '' }}">
                                                                 <div
                                                                     class="avatar overflow-hidden border rounded-circle size-3-437rem">
                                                                     <img alt="" class="img-fit dark-support"
-                                                                        src="{{ getValidImage(path: 'storage/app/public/profile/'.(isset($review->user)?$review->user->image : ''), type: 'avatar') }}">
+                                                                        src="{{ getStorageImages(path: $review?->user?->image_full_url, type: 'avatar') }}">
                                                                 </div>
                                                                 <div class="media-body d-flex flex-column gap-2">
                                                                     <div
@@ -574,19 +567,40 @@
                                                                         <div>{{ $review->created_at ? $review->created_at->format("d M Y h:i:s A") : ($review->updated_at->format("d M Y h:i:s A")) }}</div>
                                                                     </div>
                                                                     <p>{{$review->comment}}</p>
-                                                                    @isset($review->attachment)
-                                                                    <div
-                                                                        class="d-flex flex-wrap gap-2 products-comments-img custom-image-popup-init">
-                                                                        @foreach(json_decode($review->attachment) as $img)
-                                                                            <a href="{{ getValidImage(path: 'storage/app/public/review/'.$img, type:'product') }}" class="custom-image-popup mx-3">
-                                                                                <img class="remove-mask-img" alt=""
-                                                                                    src="{{ getValidImage(path: 'storage/app/public/review/'.$img, type:'product') }}">
-                                                                            </a>
-                                                                        @endforeach
-                                                                    </div>
-                                                                   @endisset
+                                                                    @if(count($review->attachment_full_url)>0)
+                                                                        <div
+                                                                            class="d-flex flex-wrap gap-2 products-comments-img custom-image-popup-init">
+                                                                            @foreach($review->attachment_full_url as $img)
+                                                                                <a href="{{ getStorageImages(path:$img, type:'product') }}" class="custom-image-popup">
+                                                                                    <img class="remove-mask-img" alt=""
+                                                                                        src="{{ getStorageImages(path:$img, type:'product') }}">
+                                                                                </a>
+                                                                            @endforeach
+                                                                        </div>
+                                                                   @endif
                                                                 </div>
                                                             </div>
+
+                                                            @if($review->reply)
+                                                            <div class="ps-4 mt-3 pb-4">
+                                                                <div class="review-reply rounded bg-E9F3FF80 p-3 mx-4">
+                                                                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                                                                        <div class="d-flex align-items-center gap-2">
+                                                                            <img src="{{dynamicAsset('/public/assets/front-end/img/seller-reply-icon.png')}}" alt="">
+                                                                            <h6 class="font-bold fs-14 m-0">
+                                                                                {{ translate('Reply_by_Seller') }}
+                                                                            </h6>
+                                                                        </div>
+                                                                        <span class="opacity-50 fs-12">
+                                                                            {{ isset($review->created_at) ? $review->reply->created_at->format('M-d-Y') : '' }}
+                                                                        </span>
+                                                                    </div>
+                                                                    <p class="fs-14">
+                                                                        {!! $review->reply->reply_text !!}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            @endif
                                                         </div>
                                                     @endforeach
                                                     @if(count($productReviews)==0)
@@ -642,7 +656,7 @@
                                             <div class="avatar size-4-375rem">
                                                 <img class="img-fit dark-support rounded img-fluid overflow-hidden"
                                                     alt=""
-                                                    src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$item['thumbnail'], type: 'product') }}">
+                                                    src="{{ getStorageImages(path: $item['thumbnail_full_url'], type: 'product') }}">
                                             </div>
                                             @php($itemReview = getOverallRating($item->reviews))
                                             <div class="media-body d-flex flex-column gap-2">
@@ -680,11 +694,11 @@
                             <div class="card order-0 order-sm-1">
                                 <div class="card-body">
                                     <div class="p-2 overlay shop-bg-card"
-                                         data-bg-img="{{ getValidImage(path: 'storage/app/public/shop/banner/'.($product->seller->shop->banner), type: 'shop-banner') }}">
+                                         data-bg-img="{{ getStorageImages(path:$product?->seller?->shop->banner_full_url, type: 'shop-banner') }}">
                                         <div class="media flex-wrap gap-3 p-2">
                                             <div class="avatar border rounded-circle size-3-437rem get-view-by-onclick cursor-pointer aspect-1 overflow-hidden d-flex align-items-center" data-link="{{ route('shopView',[$product->seller->id]) }}">
                                                 <img alt="" class="img-fit dark-support rounded-circle"
-                                                    src="{{ getValidImage(path: 'storage/app/public/shop/'.($product->seller->shop->image), type:'shop') }}">
+                                                    src="{{ getStorageImages(path: $product?->seller?->shop->image_full_url, type:'shop') }}">
                                             </div>
                                             <div class="media-body d-flex flex-column gap-2 text-absolute-whtie get-view-by-onclick" data-link="{{ route('shopView',[$product->seller->id]) }}">
                                                 <div class="d-flex flex-column gap-1 justify-content-start">
@@ -738,11 +752,11 @@
                         <div class="card  order-0 order-sm-1">
                             <div class="card-body">
                                 <div class="p-2 overlay shop-bg-card"
-                                     data-bg-img="{{dynamicStorage(path: 'storage/app/public/shop/'.getWebConfig(name: 'shop_banner'))}}">
+                                     data-bg-img="{{getStorageImages(path: getWebConfig(name: 'shop_banner'),type: 'banner')}}">
                                     <div class="media flex-wrap gap-3 p-2">
                                         <div class="avatar border rounded-circle size-3-437rem cursor-pointer aspect-1 overflow-hidden d-flex align-items-center">
                                             <img alt="" class="img-fit dark-support rounded-circle"
-                                                src="{{ getValidImage(path: 'storage/app/public/company/'.($web_config['fav_icon']->value), type:'shop') }}">
+                                                src="{{ getStorageImages(path: $web_config['fav_icon'], type:'shop') }}">
                                         </div>
 
                                         <div class="media-body d-flex flex-column gap-2 text-absolute-whtie">

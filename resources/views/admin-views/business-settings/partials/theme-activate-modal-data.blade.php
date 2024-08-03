@@ -6,7 +6,7 @@
 <div class="modal-body px-4 px-sm-5">
     <div class="mb-4 text-center">
         <img width="200"
-             src="{{ getValidImage(path: 'storage/app/public/company/'.$web_config['web_logo']->value, type: 'backend-basic') }}"
+             src="{{ getStorageImages(path: getWebConfig('company_web_logo'), type: 'backend-basic') }}"
              alt="" class="dark-support"/>
     </div>
     <h2 class="text-center mb-4">{{ ucfirst(str_replace('_', ' ', $themeInfo['name'])) }}</h2>

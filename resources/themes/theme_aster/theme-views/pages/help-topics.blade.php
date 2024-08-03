@@ -1,29 +1,12 @@
 @extends('theme-views.layouts.app')
+
 @section('title', translate('FAQ'))
-@push('css_or_js')
-    <meta property="og:image" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']->value}}"/>
-    <meta property="og:title" content="FAQ of {{$web_config['name']->value}} "/>
-    <meta property="og:url" content="{{env('APP_URL')}}">
-    <meta property="og:description" content="{!! substr($web_config['about']->value,0,100) !!}">
-    <meta property="twitter:card" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']->value}}"/>
-    <meta property="twitter:title" content="FAQ of {{$web_config['name']->value}}"/>
-    <meta property="twitter:url" content="{{env('APP_URL')}}">
-    <meta property="twitter:description" content="{!! substr($web_config['about']->value,0,100) !!}">
-@endpush
+
 @section('content')
     <main class="main-content d-flex flex-column gap-3 pt-3 mb-sm-5">
         <div class="page-title overlay py-5 __opacity-half background-custom-fit"
-             @if ($pageTitleBanner)
-                 @if (File::exists(base_path('storage/app/public/banner/'.json_decode($pageTitleBanner['value'])->image)))
-                     data-bg-img="{{ dynamicStorage(path: 'storage/app/public/banner/'.json_decode($pageTitleBanner['value'])->image) }}"
-                 @else
-                     data-bg-img="{{theme_asset('assets/img/media/page-title-bg.png')}}"
-                 @endif
-             @else
-                 data-bg-img="{{theme_asset('assets/img/media/page-title-bg.png')}}"
-            @endif
-        >
-            <div class="container">
+             data-bg-img = {{getStorageImages(path: imagePathProcessing(imageData: (isset($pageTitleBanner['value']) ?json_decode($pageTitleBanner['value'])?->image : null),path: 'banner'),source: theme_asset('assets/img/media/page-title-bg.png'))}}>
+        <div class="container">
                 <h1 class="absolute-white text-center">{{ translate('FAQ') }}</h1>
             </div>
         </div>

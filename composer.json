@@ -48,7 +48,8 @@
         "symfony/translation": "^6.4",
         "twilio/sdk": "^7.14",
         "unicodeveloper/laravel-paystack": "^1.1",
-        "xendit/xendit-php": "^4.1"
+        "xendit/xendit-php": "^4.1",
+        "ext-gd": "*"
     },
     "require-dev": {
         "amirami/localizator": "^0.12@alpha",

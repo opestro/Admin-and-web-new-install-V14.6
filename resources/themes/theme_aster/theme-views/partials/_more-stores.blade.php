@@ -31,7 +31,7 @@
                                         @foreach($order['details']->take(3) as $key=>$detail)
                                             <div>
                                                 <img width="42" loading="lazy" alt="" class="dark-support rounded"
-                                                     src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.($detail['product']['thumbnail'] ?? ''), type: 'product') }}">
+                                                     src="{{ getStorageImages(path: $detail?->productAllStatus?->thumbnail_full_url, type: 'product') }}">
                                             </div>
                                         @endforeach
 
@@ -60,7 +60,7 @@
             <div class="d-sm-none mb-4">
                 @if($sidebar_banner)
                     <a href="{{ $sidebar_banner['url'] }}">
-                        <img src="{{ getValidImage(path: 'storage/app/public/banner/'.($sidebar_banner ? $sidebar_banner['photo'] : ''), type:'banner') }}"
+                        <img src="{{ getStorageImages(path: $sidebar_banner['photo_full_url'], type:'banner') }}"
                             alt="" class="dark-support rounded w-100">
                     </a>
                 @else
@@ -87,15 +87,15 @@
                                 <div class="position-relative">
                                     <div class="avatar rounded-circle">
                                         <img class="dark-support img-fit rounded-circle img-w-h-100"
-                                             src="{{ getValidImage(path: 'storage/app/public/shop/'.$seller->shop->image, type:'shop') }}" alt=""
+                                             src="{{ getStorageImages(path: $seller?->shop->image_full_url, type:'shop') }}" alt=""
                                              loading="lazy">
                                     </div>
                                     @if($seller->shop->temporary_close)
-                                        <span class="temporary-closed position-absolute rounded-circle">
+                                        <span class="temporary-closed position-absolute rounded-circle text-center">
                                             <span>{{translate('Temporary_OFF')}}</span>
                                         </span>
                                     @elseif($seller->shop->vacation_status && ($current_date >= $start_date) && ($current_date <= $end_date))
-                                        <span class="temporary-closed position-absolute rounded-circle">
+                                        <span class="temporary-closed position-absolute rounded-circle text-center">
                                             <span>{{translate('closed_now')}}</span>
                                         </span>
                                     @endif

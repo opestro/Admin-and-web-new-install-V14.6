@@ -226,7 +226,7 @@
                                                             <div
                                                                 class="avatar avatar-xxl rounded border position-relative overflow-hidden">
                                                                 <img alt="{{ translate('product') }}"
-                                                                    src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$cartItem['thumbnail'], type: 'product') }}"
+                                                                    src="{{ getStorageImages(path: $cartItem->product->thumbnail_full_url, type: 'product') }}"
                                                                     class="dark-support img-fit rounded img-fluid overflow-hidden {{ $cartItem->allProducts ? ($product->status == 0 ?'custom-cart-opacity-50':'') : 'custom-cart-opacity-50' }}">
 
                                                                 @if ($checkProductStatus == 0)
@@ -239,6 +239,13 @@
                                                                 <h6 class="text-truncate text-capitalize width--20ch" >
                                                                     <a href="{{ $checkProductStatus ? route('product', $cartItem['slug']):'javascript:' }}">{{$cartItem['name']}}</a>
                                                                 </h6>
+
+                                                                @if(!empty($cartItem['variant']))
+                                                                    <div>
+                                                                        <span class="fs-12">{{translate('variant')}} : {{ $cartItem['variant'] }}</span>
+                                                                    </div>
+                                                                @endif
+
                                                                 @foreach(json_decode($cartItem['variations'],true) as $key1 =>$variation)
                                                                     <div class="fs-12">{{$key1}} : {{$variation}}</div>
                                                                 @endforeach
@@ -327,16 +334,19 @@
                                         <div class="free-delivery-area px-3 mb-3">
                                             <div class="d-flex align-items-center gap-2">
                                                 <img
-                                                    src="{{ dynamicAsset(path: 'public/assets/front-end/img/icons/free-shipping.png') }}"
-                                                    alt="{{translate('image')}}" width="40">
+                                                    src="{{ theme_asset(path: 'assets/img/icons/free-shipping.png') }}"
+                                                    alt="{{ translate('image') }}" width="40">
                                                 @if ($free_delivery_status['amount_need'] <= 0)
-                                                    <span
-                                                        class="text-muted fs-16 text-capitalize">{{ translate('you_get_free_delivery_bonus') }}</span>
+                                                    <span class="text-muted fs-16 text-capitalize">
+                                                        {{ translate('you_get_free_delivery_bonus') }}
+                                                    </span>
                                                 @else
-                                                    <span
-                                                        class="need-for-free-delivery font-bold">{{ Helpers::currency_converter($free_delivery_status['amount_need']) }}</span>
-                                                    <span
-                                                        class="text-muted fs-16">{{ translate('add_more_for_free_delivery') }}</span>
+                                                    <span class="need-for-free-delivery font-bold">
+                                                        {{ Helpers::currency_converter($free_delivery_status['amount_need']) }}
+                                                    </span>
+                                                    <span class="text-muted fs-16">
+                                                        {{ translate('add_more_for_free_delivery') }}
+                                                    </span>
                                                 @endif
                                             </div>
                                             <div class="progress free-delivery-progress">
@@ -385,7 +395,7 @@
                                                     <div
                                                         class="avatar avatar-lg rounded border position-relative overflow-hidden">
                                                         <img
-                                                            src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$cartItem['thumbnail'], type: 'product') }}"
+                                                            src="{{ getStorageImages(path: $cartItem?->product?->thumbnail_full_url, type: 'product') }}"
                                                             class="dark-support img-fit rounded img-fluid overflow-hidden {{ $checkProductStatus == 0 ? 'custom-cart-opacity-50' : '' }}"
                                                             alt="">
                                                         @if ($checkProductStatus == 0)
@@ -400,6 +410,11 @@
                                                                 {{ $cartItem['name'] }}
                                                             </a>
                                                         </h6>
+                                                        @if(!empty($cartItem['variant']))
+                                                            <div>
+                                                                <span class="fs-12">{{translate('variant')}} : {{ $cartItem['variant'] }}</span>
+                                                            </div>
+                                                        @endif
                                                         @foreach(json_decode($cartItem['variations'],true) as $key1 =>$variation)
                                                             <div class="fs-12">{{$key1}} : {{$variation}}</div>
                                                         @endforeach
@@ -478,7 +493,7 @@
                                         <div class="free-delivery-area px-3 mb-3">
                                             <div class="d-flex align-items-center gap-3">
                                                 <img
-                                                    src="{{ dynamicAsset(path: 'public/assets/front-end/img/icons/free-shipping.png') }}"
+                                                    src="{{ theme_asset(path: 'assets/img/icons/free-shipping.png') }}"
                                                     alt="" width="40">
                                                 @if ($free_delivery_status['amount_need'] <= 0)
                                                     <span

@@ -12,7 +12,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{route('admin.deal.update',[$deal['id']])}}"
+                        <form action="{{route('admin.deal.update-data',[$deal['id']])}}"
                               class="text-start onsubmit-disable-action-button"
                               method="post">
                             @csrf

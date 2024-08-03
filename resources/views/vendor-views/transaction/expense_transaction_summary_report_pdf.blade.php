@@ -18,7 +18,7 @@
                         {{translate('expense_Transaction_Statement')}}
                     </th>
                     <th class="p-0 text-right">
-                        <img class="logo" src="{{getValidImage(path: 'storage/app/public/company/'.$data['company_web_logo'],type: 'backend-logo')}}"
+                        <img class="logo" src="{{getStorageImages(path: $data['company_web_logo'],type: 'backend-logo')}}"
                              alt="">
                     </th>
                 </tr>

@@ -12,11 +12,11 @@
             </h2>
         </div>
 
-        <div class="row">
+        <div class="row g-3">
             <div class="col-md-12">
                 <div class="card mb-3">
                     <div class="card-body text-start">
-                        <form action="{{ route('admin.brand.add-new') }}" method="post" enctype="multipart/form-data">
+                        <form action="{{ route('admin.brand.add-new') }}" method="post" enctype="multipart/form-data" class="brand-setup-form">
                             @csrf
 
                             <ul class="nav nav-tabs w-fit-content mb-4">
@@ -45,28 +45,49 @@
                                         </div>
                                         <input type="hidden" name="lang[]" value="{{$lang}}">
                                     @endforeach
+                                </div>
+                                <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="name" class="title-color">
-                                            {{ translate('brand_Logo') }}<span class="text-danger">*</span>
+                                        <label class="title-color text-capitalize">
+                                            {{ translate('image_alt_text') }}
                                         </label>
-                                        <span class="ml-1 text-info">
-                                        {{ THEME_RATIO[theme_root_path()]['Brand Image'] }}
-                                    </span>
-                                        <div class="custom-file text-left">
-                                            <input type="file" name="image" id="brand-image"
-                                                   class="custom-file-input image-preview-before-upload"
-                                                   data-preview="#viewer" required
-                                                   accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*">
-                                            <label class="custom-file-label" for="brand-image">
-                                                {{translate('choose_file') }}
-                                            </label>
-                                        </div>
+                                        <input type="text" name="image_alt_text" class="form-control" value=""
+                                               placeholder="{{ translate('ex').' : '.translate('apex_Brand') }}">
                                     </div>
                                 </div>
-                                <div class="col-md-6 mb-4">
-                                    <div class="text-center">
-                                        <img class="upload-img-view" id="viewer"
-                                             src="{{dynamicAsset(path: 'public\assets\back-end\img\400x400\img2.jpg') }}" alt="">
+                            </div>
+
+                            <div class="card mb-4 shadow-none">
+                                <div class="card-body py-5">
+                                    <div class="mx-auto text-center max-w-170px">
+                                        <label class="d-block text-center font-weight-bold">
+                                            {{translate('image')}}  <small class="text-danger">{{'('.translate('size').': 1:1)'}}</small>
+                                        </label>
+
+                                        <label class="custom_upload_input d-block mx-2 cursor-pointer">
+                                            <input type="file" name="image" id="brand-image" class="image-input image-preview-before-upload d-none" data-preview="#pre_img_viewer" accept="image/*">
+
+                                            <span class="delete_file_input btn btn-outline-danger btn-sm square-btn d--none">
+                                                <i class="tio-delete"></i>
+                                            </span>
+
+                                            <div class="img_area_with_preview position-absolute z-index-2 p-0">
+                                                <img id="pre_img_viewer" class="h-auto aspect-1 bg-white d-none"
+                                                        src="dummy" alt="">
+                                            </div>
+                                            <div class="placeholder-image">
+                                                <div
+                                                    class="d-flex flex-column justify-content-center align-items-center aspect-1">
+                                                    <img alt="" width="33" src="{{ dynamicAsset(path: 'public/assets/back-end/img/icons/product-upload-icon.svg') }}">
+                                                    <h3 class="text-muted fz-12">{{ translate('Upload_Image') }}</h3>
+                                                </div>
+                                            </div>
+                                        </label>
+
+                                        <p class="text-muted mt-2 fz-12 m-0">
+                                            {{ translate('image_format') }} : {{ "jpg, png, jpeg" }}
+                                            <br>
+                                            {{ translate('image_size') }} : {{ translate('max') }} {{ "2 MB" }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -85,5 +106,11 @@
 @endsection
 
 @push('script')
+    <script>
+        $('.brand-setup-form').on('reset', function () {
+            $(this).find('#pre_img_viewer').addClass('d-none');
+            $(this).find('.placeholder-image').css('opacity', '1');
+        });
+    </script>
     <script src="{{ dynamicAsset(path: 'public/assets/back-end/js/products-management.js') }}"></script>
 @endpush

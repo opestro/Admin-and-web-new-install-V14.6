@@ -59,7 +59,7 @@
                                         </li>
                                     @endif
                                     @if ($digital_payment['status']==1)
-                                        <li class="{{ ((($payment_gateway_published_status == 1 && count($payment_gateways_list) == 0) && (!isset($offline_payment) && !$offline_payment['status']))? 'd-none':'') }}">
+                                        <li class="{{ ((($paymentGatewayPublishedStatus == 1 && count($payment_gateways_list) == 0) && (!isset($offline_payment) && !$offline_payment['status']))? 'd-none':'') }}">
                                             <label id="digital-payment-btn">
                                                 <input type="hidden">
                                                 <span class="payment-method d-flex align-iems-center gap-3">
@@ -99,7 +99,7 @@
                                                             class="payment-method border-0 d-flex align-iems-center gap-3 digital-payment-card overflow-hidden"
                                                             type="submit">
                                                             <img width="100" class="dark-support" alt=""
-                                                                 src="{{ getValidImage(path: 'storage/app/public/payment_modules/gateway_image/'.($additional_data != null ? $additional_data->gateway_image : ''), type:'banner') }}">
+                                                                 src="{{ getStorageImages(path: null, type:'banner',source: 'storage/app/public/payment_modules/gateway_image/'.($additional_data != null ? $additional_data->gateway_image : '')) }}">
                                                         </button>
                                                     </label>
                                                 </form>

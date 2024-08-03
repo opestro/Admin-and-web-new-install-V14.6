@@ -51,7 +51,7 @@ class ProductCompareController extends BaseController
         $compareLists = $this->productCompareRepo->getListWhere(
             orderBy: ['id' => 'desc'],
             filters: ['user_id' => $customerId, 'whereHas' => 'product'],
-            relations: ['product'],
+            relations: ['product', 'product.digitalVariation'],
             dataLimit: 'all'
         );
         $attributes = [];

@@ -56,8 +56,15 @@
                                             </span>
 
                                             <div class="img_area_with_preview position-absolute z-index-2">
+                                                @php
+                                                    $imageArray = [
+                                                        'image_name' => $value?->image->image_name ?? $value?->image,
+                                                        'storage' => $value?->image?->storage ?? 'public',
+                                                    ];
+                                                    $imagePath = storageLink('company-reliability',$imageArray['image_name'],$imageArray['storage']);
+                                                @endphp
                                                 <img id="pre_img_header_logo{{$key}}" class="h-auto aspect-ratio-3-15 bg-white" onerror="this.classList.add('d-none')"
-                                                     src="{{dynamicStorage(path: 'storage/app/public/company-reliability').'/'.$value->image}}"
+                                                     src="{{$imagePath['path']}}"
                                                      alt="">
                                             </div>
                                             <div class="position-absolute h-100 top-0 w-100 d-flex align-content-center justify-content-center">

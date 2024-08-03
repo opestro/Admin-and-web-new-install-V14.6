@@ -28,8 +28,8 @@
                   data-product-id="{{$product['id']}}">
                 <i class="bi bi-eye fs-12"></i>
             </span>
-            <img width="155" alt="" loading="lazy" class="dark-support rounded"
-                 src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'product') }}">
+            <img alt="" loading="lazy" class="dark-support rounded aspect-1 img-fit"
+                 src="{{ getStorageImages(path: $product?->thumbnail_full_url, type: 'product') }}">
         </div>
         <a class="fs-16 text-truncate text-muted text-capitalize width--9rem"  href="{{route('product',$product->slug)}}">
             {{ Str::limit($product['name'], 18) }}

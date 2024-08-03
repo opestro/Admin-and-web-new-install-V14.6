@@ -21,8 +21,8 @@
             ?>
 
             <div class="row g-3 mx-max-md-0">
-                <div class="col-lg-4 px-max-md-0">
-                    <div class="countdown-card bg-transparent">
+                <div class="col-lg-4 px-max-md-0 flashdeal-responsive">
+                    <a href="{{route('flash-deals',[$web_config['flash_deals']?$web_config['flash_deals']['id']:0])}}" class="countdown-card bg-transparent">
                         <div class="flash-deal-text web-text-primary">
                             <div>
                                 <span>{{$web_config['flash_deals']->title}}</span>
@@ -58,7 +58,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
 
                 @php($nullFilter = 0)

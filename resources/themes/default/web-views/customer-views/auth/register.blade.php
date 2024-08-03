@@ -129,13 +129,29 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="web-direction">
                         <div class="mx-auto mt-4 __max-w-356">
                             <button class="w-100 btn btn--primary" id="sign-up" type="submit" disabled>
                                 {{ translate('sign_up') }}
                             </button>
                         </div>
-
+                        @if($web_config['social_login_text'])
+                            <div class="text-center m-3 text-black-50">
+                                <small>{{ translate('or_continue_with') }}</small>
+                            </div>
+                        @endif
+                        <div class="d-flex justify-content-center my-3 gap-2">
+                            @foreach (getWebConfig(name: 'social_login') as $socialLoginService)
+                                @if (isset($socialLoginService) && $socialLoginService['status'])
+                                    <div>
+                                        <a class="d-block" href="{{ route('customer.auth.service-login', $socialLoginService['login_medium']) }}">
+                                            <img src="{{theme_asset(path: 'public/assets/front-end/img/icons/'.$socialLoginService['login_medium'].'.png') }}" alt="">
+                                        </a>
+                                    </div>
+                                @endif
+                            @endforeach
+                        </div>
                         <div class="text-black-50 mt-3 text-center">
                             <small>
                                 {{  translate('Already_have_account ') }}?
@@ -144,7 +160,9 @@
                                 </a>
                             </small>
                         </div>
+
                     </div>
+
                 </form>
             </div>
         </div>

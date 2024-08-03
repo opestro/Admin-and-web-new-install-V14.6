@@ -44,7 +44,7 @@
                             <input type="text" class="product_id" name="product_id" value="{{request('product_id')}}"
                                    hidden>
                             <button class="form-control text-start dropdown-toggle text-truncate select-product-button"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" type="button">
                                 {{request('product_id') !=null ? $product['name']: translate('select_Product')}}
                             </button>
                             <div class="dropdown-menu w-100 px-2">
@@ -85,23 +85,15 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-5 mr-auto">
                         <div>
-                            <label for="from" class="title-color d-flex">{{ translate('from') }}</label>
-                            <input type="date" name="from" id="start-date-time" value="{{ $from }}"
-                                   class="form-control"
-                                   title="{{ translate('from_date') }}">
+                            <label for="from" class="title-color d-flex">{{ translate('Date_Wise_Filter') }}</label>
+                            <input type="text" name="from" id="start-date-time" value="{{ $from }}"
+                                   class="form-control date-range-js"
+                                   title="{{ translate('Date_Wise_Filter') }}" autocomplete="off">
                         </div>
                     </div>
 
-                    <div class="col-md-4">
-                        <div>
-                            <label for="to" class="title-color d-flex">{{ translate('to') }}</label>
-                            <input type="date" name="to" id="end-date-time" value="{{ $to }}"
-                                   class="form-control"
-                                   title="{{ ucfirst(translate('to_date')) }}">
-                        </div>
-                    </div>
                     <div class="col-md-2">
                         <div>
                             <button id="filter" type="submit" class="btn btn--primary btn-block filter">
@@ -140,12 +132,15 @@
                     <thead class="thead-light thead-50 text-capitalize">
                     <tr>
                         <th>{{ translate('SL') }}</th>
+                        <th>{{ translate('Review_ID') }}</th>
                         <th>{{ translate('product') }}</th>
                         <th>{{ translate('customer') }}</th>
                         <th>{{ translate('rating') }}</th>
                         <th>{{ translate('review') }}</th>
+                        <th>{{ translate('Reply') }}</th>
                         <th>{{ translate('date') }}</th>
                         <th class="text-center">{{ translate('status') }}</th>
+                        <th class="text-center">{{ translate('action') }}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -153,6 +148,9 @@
                         <tr>
                             <td>
                                 {{ $reviews->firstItem()+$key }}
+                            </td>
+                            <td class="text-center">
+                                {{ $review->id }}
                             </td>
                             <td>
                                 @if(isset($review->product))
@@ -165,7 +163,6 @@
                                         {{ translate('product_not_found') }}
                                     </span>
                                 @endif
-
                             </td>
                             <td>
                                 @if ($review->customer)
@@ -186,21 +183,28 @@
                             </td>
                             <td>
                                 <div class="gap-1">
-                                    <div>{{ $review->comment ? Str::limit($review->comment, 35) : translate('no_comment_found') }}</div>
+                                    <div>
+                                        {{ $review->comment ? Str::limit($review->comment, 35) : translate('no_comment_found') }}
+                                    </div>
                                     <br>
-                                    @if($review->attachment)
-                                        <div class="d-flex flex-wrap">
-                                            @foreach (json_decode($review->attachment) as $img)
-                                                <a href="{{ dynamicStorage(path: 'storage/app/public/review').'/'.$img }}"
+                                    @if(count($review->attachment_full_url) > 0)
+                                        <div class="d-flex flex-wrap gap-1 min-w-200">
+                                            @foreach ($review->attachment_full_url as $img)
+                                                <a href="{{ $img['path'] }}"
                                                    data-lightbox="mygallery">
                                                     <img width="60" height="60"
-                                                         class="mx-1"
-                                                         src="{{ getValidImage(path: 'storage/app/public/review/'.$img, type: 'backend-basic') }}"
+                                                         class="aspect-1 rounded object-fit-cover"
+                                                         src="{{ getStorageImages(path: $img, type: 'backend-basic') }}"
                                                          alt="{{translate('image')}}">
                                                 </a>
                                             @endforeach
                                         </div>
                                     @endif
+                                </div>
+                            </td>
+                            <td>
+                                <div class="line--limit-2 max-w-250 word-break">
+                                    {{ $review?->reply?->reply_text ?? '-' }}
                                 </div>
                             </td>
                             <td>{{ date('d M Y', strtotime($review->created_at)) }}</td>
@@ -224,12 +228,198 @@
                                     </label>
                                 </form>
                             </td>
+                            <td>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <div data-toggle="modal" data-target="#review-view-for-{{ $review['id'] }}">
+                                        <a class="btn btn-outline-info btn-sm square-btn" title="{{ translate('View') }}" data-toggle="tooltip">
+                                            <i class="tio-invisible"></i>
+                                        </a>
+                                    </div>
 
+                                    @if(isset($review->product) && $review?->product?->added_by == 'admin')
+                                        <div data-toggle="modal" data-target="#review-update-for-{{ $review['id'] }}">
+                                            @if($review?->reply)
+                                                <a class="btn btn-outline-primary btn-sm square-btn" title="{{ translate('Update_Review') }}" data-toggle="tooltip">
+                                                    <i class="tio-edit"></i>
+                                                </a>
+                                            @else
+                                                <div class="btn btn-outline--primary btn-sm square-btn" title="{{ translate('Review_Reply') }}" data-toggle="tooltip">
+                                                    <i class="tio-reply-all"></i>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @elseif($review?->product?->added_by == 'seller')
+                                        <div>
+                                            <a class="btn btn-outline-primary btn-sm square-btn" title="{{ translate('Admin_can_not_reply_to_vendor_product_review') }}" data-toggle="tooltip">
+                                                @if($review?->reply)
+                                                    <i class="tio-edit"></i>
+                                                @else
+                                                    <i class="tio-reply-all"></i>
+                                                @endif
+                                            </a>
+                                        </div>
+                                    @else
+                                        <div>
+                                            <a class="btn btn-outline-primary btn-sm square-btn" title="{{ translate('product_not_found') }}" data-toggle="tooltip">
+                                                @if($review?->reply)
+                                                    <i class="tio-edit"></i>
+                                                @else
+                                                    <i class="tio-reply-all"></i>
+                                                @endif
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
+                            </td>
                         </tr>
                     @endforeach
                     </tbody>
                 </table>
             </div>
+
+            @foreach($reviews as $key => $review)
+                @if(isset($review->customer))
+                    <div class="modal fade" id="review-update-for-{{ $review['id'] }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close text-BFBFBF" data-dismiss="modal" aria-label="Close">
+                                        <i class="tio-clear-circle"></i>
+                                    </button>
+                                </div>
+                                <form method="POST" action="{{ route('admin.reviews.add-review-reply') }}">
+                                    @csrf
+                                    <div class="modal-body pt-0">
+                                        <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+                                            @if(isset($review->product))
+                                                <img src="{{ getStorageImages(path: $review->product->thumbnail_full_url, type: 'backend-product') }}" width="100" class="rounded aspect-1 border" alt="">
+                                                <div class="w-0 flex-grow-1 font-weight-semibold">
+                                                    @if($review['order_id'])
+                                                        <div class="mb-2">
+                                                            {{ translate('Order_ID') }} # {{ $review['order_id'] }}
+                                                        </div>
+                                                    @endif
+                                                    <h4 class="line--limit-2">{{ $review->product['name'] }}</h4>
+                                                </div>
+                                            @else
+                                                <span class="title-color">
+                                                    {{ translate('product_not_found') }}
+                                                </span>
+                                            @endif
+
+                                        </div>
+                                        <label class="input-label text--title font-weight-bold">
+                                            {{ translate('Review') }}
+                                        </label>
+                                        <div class="__bg-F3F5F9 p-3 rounded border mb-2">
+                                            {{ $review['comment'] }}
+                                        </div>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @if(count($review->attachment_full_url)>0)
+                                                @foreach ($review->attachment_full_url as $img)
+                                                    <a class="aspect-1 float-left overflow-hidden"
+                                                       href="{{ getStorageImages(path: $img,type: 'backend-basic') }}"
+                                                       data-lightbox="review-gallery-modal{{ $review['id'] }}" >
+                                                        <img width="45" class="rounded aspect-1 border"
+                                                             src="{{ getStorageImages(path:$img,type: 'backend-basic') }}"
+                                                             alt="{{translate('review_image')}}">
+                                                    </a>
+                                                @endforeach
+                                            @endif
+                                        </div>
+                                        <label class="input-label text--title font-weight-bold pt-4">
+                                            {{ translate('Reply') }}
+                                        </label>
+                                        <input type="hidden" name="review_id" value="{{ $review['id'] }}">
+                                        <textarea class="form-control text-area-max-min" rows="3" name="reply_text"
+                                                  placeholder="{{ translate('Write_the_reply_of_the_product_review') }}...">{{ $review?->reply?->reply_text ?? '' }}</textarea>
+                                        <div class="text-right mt-4">
+                                            <button type="submit" class="btn btn--primary">
+                                                @if($review?->reply?->reply_text)
+                                                    {{ translate('Update') }}
+                                                @else
+                                                    {{ translate('submit') }}
+                                                @endif
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                    <div class="modal fade" id="review-view-for-{{ $review['id'] }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close text-BFBFBF" data-dismiss="modal" aria-label="Close">
+                                        <i class="tio-clear-circle"></i>
+                                    </button>
+                                </div>
+                                <div class="modal-body pt-0">
+                                    <div class="d-flex flex-wrap align-items-center gap-3 mb-3 text-center border-bottom">
+                                        <div class="w-0 flex-grow-1 font-weight-semibold">
+                                            <div class="mb-2">
+                                                {{ translate('Review_ID') }} # {{ $review['id'] }}
+                                            </div>
+
+                                            @if($review['order_id'])
+                                                <div class="mb-2">
+                                                    {{ translate('Order_ID') }} # {{ $review['order_id'] }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <h2 class="text-center">
+                                        <span class="text-primary">{{ $review['rating'].'.0' }}</span><span class="fz-16 text-muted">{{ '/5' }}</span>
+                                    </h2>
+                                    <div class="d-flex align-items-center gap-1 text-primary justify-content-center fz-14 mb-4">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            @if($i <= $review['rating'])
+                                                <i class="tio-star"></i>
+                                            @else
+                                                <i class="tio-star-outlined"></i>
+                                            @endif
+                                        @endfor
+                                    </div>
+
+                                    <label class="input-label text--title font-weight-bold">
+                                        {{ translate('Review') }}
+                                    </label>
+                                    <div class="__bg-F3F5F9 p-3 rounded border mb-2">
+                                        {{ $review['comment'] }}
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @if(count($review->attachment_full_url) > 0)
+                                            @foreach ($review->attachment_full_url as $img)
+                                                <a class="aspect-1 float-left overflow-hidden"
+                                                   href="{{ getStorageImages(path: $img,type: 'backend-basic') }}"
+                                                   data-lightbox="review-gallery-modal{{ $review['id'] }}" >
+                                                    <img width="45" class="rounded aspect-1 border"
+                                                         src="{{ getStorageImages(path: $img,type: 'backend-basic') }}"
+                                                         alt="{{translate('review_image')}}">
+                                                </a>
+                                            @endforeach
+                                        @endif
+                                    </div>
+                                    @if($review?->reply?->reply_text)
+                                        <label class="input-label text--title font-weight-bold pt-4">
+                                            {{ translate('Reply') }}
+                                        </label>
+                                        <div class="__bg-F3F5F9 p-3 rounded border mb-2">
+                                            {{ $review?->reply?->reply_text ?? '' }}
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            @endforeach
+
             <div class="table-responsive mt-4">
                 <div class="px-4 d-flex justify-content-lg-end">
                     {!! $reviews->links() !!}

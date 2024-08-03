@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
+
 class DeliveryManController extends Controller
 {
     use CommonTrait;
@@ -67,14 +68,14 @@ class DeliveryManController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
-        $id_img_names = [];
+        $identity_images = [];
         if (!empty($request->file('identity_image'))) {
             foreach ($request->identity_image as $img) {
-                array_push($id_img_names, ImageManager::upload('delivery-man/', 'webp', $img));
+                $identity_images[] =[
+                    'image_name'=> ImageManager::upload('delivery-man/', 'webp', $img),
+                    'storage' => getWebConfig(name: 'storage_connection_type') ?? 'public',
+                ];
             }
-            $identity_image = json_encode($id_img_names);
-        } else {
-            $identity_image = json_encode([]);
         }
 
         $dm = new DeliveryMan();
@@ -87,7 +88,7 @@ class DeliveryManController extends Controller
         $dm->country_code = $request->country_code;
         $dm->identity_number = $request->identity_number;
         $dm->identity_type = $request->identity_type;
-        $dm->identity_image = $identity_image;
+        $dm->identity_image = $identity_images;
         $dm->image = ImageManager::upload('delivery-man/', 'webp', $request->file('image'));
         $dm->password = bcrypt($request->password);
         $dm->save();
@@ -112,22 +113,19 @@ class DeliveryManController extends Controller
         ]);
 
         if ($request->password) {
-            $validator->make($request->all(), [
+            $validator = Validator::make($request->all(), [
                 'password' => 'required|min:8|same:confirm_password'
             ]);
         }
+        $delivery_man = DeliveryMan::where(['id' => $id, 'seller_id' => $seller->id])->first();
         if (isset($delivery_man) && $request['email'] != $delivery_man['email']) {
-            $validator->make($request->all(), [
+            $validator = Validator::make($request->all(), [
                 'email' => 'required|unique:delivery_men',
             ]);
         }
-
         if ($validator->fails()) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
-
-        $delivery_man = DeliveryMan::where(['id' => $id, 'seller_id' => $seller->id])->first();
-
         $phone_combo_exists = DeliveryMan::where(['phone' => $request->phone, 'country_code' => $request->country_code])->first();
 
         if (isset($phone_combo_exists) && $phone_combo_exists->id != $delivery_man->id) {
@@ -135,20 +133,21 @@ class DeliveryManController extends Controller
         }
 
         if (!empty($request->file('identity_image'))) {
-            foreach (json_decode($delivery_man['identity_image'], true) as $img) {
-                if (Storage::disk('public')->exists('delivery-man/' . $img)) {
-                    Storage::disk('public')->delete('delivery-man/' . $img);
-                }
+            foreach ($delivery_man['identity_image'] as $image) {
+                ImageManager::delete(full_path: 'delivery-man/'.(isset($image['image_name']) ? $image['image_name'] : $image));
             }
-            $img_keeper = [];
-            foreach ($request->identity_image as $img) {
-                array_push($img_keeper, ImageManager::upload('delivery-man/', 'webp', $img));
+            $identityImage = [];
+            foreach ($request['identity_image'] as $img) {
+                $identityImage[] = [
+                    'image_name'=>ImageManager::upload(dir: 'delivery-man/', format: 'webp', image: $img),
+                    'storage' => getWebConfig(name: 'storage_connection_type') ?? 'public',
+                ];
             }
-            $identity_image = json_encode($img_keeper);
+            $identity_image = $identityImage;
         } else {
             $identity_image = $delivery_man['identity_image'];
         }
-        $delivery_man->seller_id = $seller->id;;
+        $delivery_man->seller_id = $seller->id;
         $delivery_man->f_name = $request->f_name;
         $delivery_man->l_name = $request->l_name;
         $delivery_man->address = $request->address;
@@ -184,23 +183,19 @@ class DeliveryManController extends Controller
     public function delete(Request $request, $id)
     {
         $seller = $request->seller;
-        if($this->shippingMethod=='inhouse_shipping') {
-            return response()->json(['message' => translate('access_denied!')], 403);
-        }
+//        if (getWebConfig('shipping_method') == 'inhouse_shipping') {
+//            return response()->json(['message' => translate('access_denied!')], 403);
+//        }
+
         $delivery_man = DeliveryMan::where(['seller_id' => $seller->id, 'id' => $id])->first();
-        if(!$delivery_man){
+        if (!$delivery_man) {
             return response()->json(['message' => translate('Invalid delivery-man!')], 403);
         }
 
-
-        if (Storage::disk('public')->exists('delivery-man/' . $delivery_man['image'])) {
-            Storage::disk('public')->delete('delivery-man/' . $delivery_man['image']);
-        }
-
-        foreach (json_decode($delivery_man['identity_image'], true) as $img) {
-            if (Storage::disk('public')->exists('delivery-man/' . $img)) {
-                Storage::disk('public')->delete('delivery-man/' . $img);
-            }
+        ImageManager::delete('delivery-man/' . $delivery_man['image']);
+        foreach ($delivery_man['identity_image'] as $img) {
+            $imageName = is_string($img) ? $img : $img['image_name'];
+            ImageManager::delete('delivery-man/'.$imageName);
         }
 
         $delivery_man->delete();
@@ -216,7 +211,7 @@ class DeliveryManController extends Controller
             return response()->json(['message' => translate('invalid_deliveryman!')], 403);
         }
 
-        $reviews = Review::with('customer')
+        $reviews = Review::with(['customer', 'reply'])
             ->where(['delivery_man_id' => $id])
             ->latest('updated_at')
             ->paginate($request['limit'], ['*'], 'page', $request['offset']);

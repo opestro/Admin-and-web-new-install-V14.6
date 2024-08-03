@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{translate('vendor_Login')}}</title>
-    <link rel="shortcut icon" href="{{ dynamicStorage(path: 'storage/app/public/company/'.getWebConfig(name: 'company_fav_icon')) }}">
+    <link rel="shortcut icon" href="{{ getStorageImages(path:getWebConfig(name: 'company_fav_icon')) }}">
     <link rel="stylesheet" href="{{dynamicAsset(path: 'public/assets/back-end/css/google-fonts.css')}}">
     <link rel="stylesheet" href="{{dynamicAsset(path: 'public/assets/back-end/css/bootstrap.min.css')}}">
     <link rel="stylesheet" href="{{dynamicAsset(path: 'public/assets/back-end/css/vendor.min.css')}}">
@@ -39,7 +39,7 @@
         @php($companyWebLogo=getWebConfig(name: 'company_web_logo'))
         <a class="d-flex justify-content-center mb-5" href="javascript:">
             <img class="z-index-2" height="40"
-                 src="{{getValidImage(path: 'storage/app/public/company/'.$companyWebLogo,type: 'backend-logo')}}"
+                 src="{{getStorageImages(path: $companyWebLogo,type: 'backend-logo')}}"
                  alt="{{translate('logo')}}">
         </a>
         <div class="row justify-content-center">

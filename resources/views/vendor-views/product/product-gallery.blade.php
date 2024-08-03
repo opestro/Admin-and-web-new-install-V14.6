@@ -60,10 +60,10 @@
                                 <div class="media flex-nowrap flex-column flex-sm-row gap-3">
                                     <div class="d-flex flex-column align-items-center __min-w-165px">
                                         <a class="aspect-1 float-left overflow-hidden"
-                                           href="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'. $product['thumbnail'],type: 'backend-product') }}"
+                                           href="{{ getStorageImages(path:$product->thumbnail_full_url,type: 'backend-product') }}"
                                            data-lightbox="product-gallery-{{ $product['id'] }}">
                                             <img class="avatar avatar-170 rounded-0"
-                                                 src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'. $product['thumbnail'],type: 'backend-product') }}"
+                                                 src="{{ getStorageImages(path:$product->thumbnail_full_url,type: 'backend-product') }}"
                                                  alt="">
                                         </a>
                                     </div>

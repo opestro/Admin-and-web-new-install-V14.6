@@ -3,11 +3,11 @@
 @section('title', (request('filter') && request('filter') == 'top-vendors' ? translate('top_Stores') : translate('all_Stores')))
 
 @push('css_or_js')
-    <meta property="og:image" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']->value}}"/>
+    <meta property="og:image" content="{{$web_config['web_logo']['path']}}"/>
     <meta property="og:title" content="Brands of {{$web_config['name']->value}} "/>
     <meta property="og:url" content="{{env('APP_URL')}}">
     <meta property="og:description" content="{{ substr(strip_tags(str_replace('&nbsp;', ' ', $web_config['about']->value)),0,160) }}">
-    <meta property="twitter:card" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']->value}}"/>
+    <meta property="twitter:card" content="{{$web_config['web_logo']['path']}}"/>
     <meta property="twitter:title" content="Brands of {{$web_config['name']->value}}"/>
     <meta property="twitter:url" content="{{env('APP_URL')}}">
     <meta property="twitter:description" content="{{ substr(strip_tags(str_replace('&nbsp;', ' ', $web_config['about']->value)),0,160) }}">
@@ -50,26 +50,16 @@
                             @php($current_date = date('Y-m-d'))
                             @php($start_date = date('Y-m-d', strtotime($seller['vacation_start_date'])))
                             @php($end_date = date('Y-m-d', strtotime($seller['vacation_end_date'])))
-
                             <div class="col-lg-3 col-md-6 col-sm-12 px-2 pb-4 text-center">
                                 <a href="{{route('shopView',['id'=>$seller['id']])}}" class="others-store-card text-capitalize">
                                     <div class="overflow-hidden other-store-banner">
-                                        @if($seller['id'] != 0)
-                                            <img class="w-100 h-100 object-cover" alt="" src="{{ getValidImage(path: 'storage/app/public/shop/banner/'.$seller['banner'], type: 'shop-banner') }}">
-                                        @else
-                                            <img class="w-100 h-100 object-cover" alt="" src="{{ getValidImage(path: 'storage/app/public/shop/'.$seller['banner'], type: 'shop-banner') }}">
-                                        @endif
+                                        <img class="w-100 h-100 object-cover" alt="" src="{{ getStorageImages(path: $seller->banner_full_url, type: 'shop-banner') }}">
                                     </div>
                                     <div class="name-area">
                                         <div class="position-relative">
                                             <div class="overflow-hidden other-store-logo rounded-full">
-                                                @if($seller['id'] != 0)
-                                                    <img class="rounded-full" alt="{{ translate('store') }}"
-                                                         src="{{ getValidImage(path: 'storage/app/public/shop/'.$seller['image'], type: 'shop') }}">
-                                                @else
                                                 <img class="rounded-full" alt="{{ translate('store') }}"
-                                                     src="{{ getValidImage(path: 'storage/app/public/company/'.$seller['image'], type: 'shop') }}">
-                                                @endif
+                                                     src="{{ getStorageImages(path: $seller->image_full_url, type: 'shop') }}">
                                             </div>
 
                                             @if($seller['temporary_close'])

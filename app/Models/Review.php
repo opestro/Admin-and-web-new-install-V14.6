@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
-use App\User;
+use App\Traits\StorageTrait;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class Review
@@ -19,7 +21,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $delivery_man_id
  * @property int|null $order_id
  * @property string|null $comment
- * @property string|null $attachment
+ * @property array|null $attachment
  * @property int $rating
  * @property int $status
  * @property bool $is_saved
@@ -30,6 +32,7 @@ use Illuminate\Support\Carbon;
  * */
 class Review extends Model
 {
+    use StorageTrait;
     /**
      * The attributes that are mass assignable.
      *
@@ -56,6 +59,7 @@ class Review extends Model
         'rating' => 'integer',
         'status' => 'integer',
         'is_saved' => 'boolean',
+        'attachment' => 'array',
     ];
 
     public function scopeActive($query): mixed
@@ -73,21 +77,39 @@ class Review extends Model
         return $this->belongsTo(Product::class, 'product_id');
     }
 
-    public function customer():BelongsTo
+    public function customer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'customer_id');
     }
 
-    public function deliveryMan():BelongsTo
+    public function deliveryMan(): BelongsTo
     {
         return $this->belongsTo(DeliveryMan::class, 'delivery_man_id');
     }
 
-    public function order():BelongsTo
+    public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class, 'order_id');
     }
 
+    public function reply(): BelongsTo
+    {
+        return $this->belongsTo(ReviewReply::class, 'id', 'review_id');
+    }
+
+    public function getAttachmentFullUrlAttribute(): array|null
+    {
+        $images = [];
+        $value = $this->attachment;
+        if ($value) {
+            foreach ($value as $item) {
+                $item = isset($item['file_name']) ? $item : ['file_name' => $item, 'storage' => 'public'];
+                $images[] = $this->storageLink('review', $item['file_name'], $item['storage'] ?? 'public');
+            }
+        }
+        return $images;
+    }
+    protected $appends = ['attachment_full_url'];
 
     protected static function boot()
     {
@@ -96,7 +118,7 @@ class Review extends Model
             if (str_contains(url()->current(), url('/') . '/admin') || str_contains(url()->current(), url('/') . '/seller') || str_contains(url()->current(), url('/') . '/vendor') || str_contains(url()->current(), url('/') . '/api/v2') || str_contains(url()->current(), url('/') . '/api/v3')) {
                 return $builder;
             } else {
-                return  $builder->where('status', 1);
+                return $builder->where('status', 1);
             }
         });
     }

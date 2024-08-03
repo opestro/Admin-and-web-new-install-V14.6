@@ -9,7 +9,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\RefundRequest;
 use App\Models\RefundStatus;
-use App\User;
+use App\Models\User;
 use App\Utils\CustomerManager;
 use App\Utils\Helpers;
 use Illuminate\Http\Request;
@@ -34,11 +34,6 @@ class RefundController extends Controller
                     $query->where('order_id', 'like', "%{$value}%");
                 }
             })->latest()->get();
-
-        $refund_list = $refund_list->map(function($data){
-            $data['images'] = json_decode($data['images']);
-            return $data;
-        });
         return response()->json($refund_list);
     }
     public function refund_details(Request $request)
@@ -70,10 +65,7 @@ class RefundController extends Controller
             $data['subtotal'] = $subtotal;
             $data['coupon_discount'] = $coupon_discount;
             $data['refund_amount'] = $refund_amount;
-            $data['refund_request']=$refund_request->map(function($data){
-                $data['images']=json_decode($data['images']);
-                return $data;
-            });
+            $data['refund_request']=$refund_request;
             $data['deliveryman_details']= DeliveryMan::find($order->delivery_man_id);
 
             return response()->json($data, 200);

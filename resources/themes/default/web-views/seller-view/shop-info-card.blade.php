@@ -16,7 +16,7 @@
                                 </span>
                             @endif
                             <img class="img-fluid" alt=""
-                                 src="{{ getValidImage(path: 'storage/app/public/shop/'.$shop->image, type: 'shop') }}">
+                                 src="{{ getStorageImages(path: $shop->image_full_url, type: 'shop') }}">
                         </div>
                     @else
                         <div class="position-relative overflow-hidden d-flex align-items-center aspect-1 rounded w-90px">
@@ -31,7 +31,7 @@
                                 </span>
                             @endif
                             <img class="img-fluid" alt=""
-                                 src="{{ getValidImage(path: 'storage/app/public/company/'.$web_config['fav_icon']->value, type: 'shop') }}">
+                                 src="{{ getStorageImages(path: $web_config['fav_icon'], type: 'shop') }}">
                         </div>
                     @endif
                 </div>

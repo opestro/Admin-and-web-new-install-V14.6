@@ -3,12 +3,12 @@
 @section('title', translate('all_Categories'))
 
 @push('css_or_js')
-    <meta property="og:image" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']->value}}"/>
+    <meta property="og:image" content="{{$web_config['web_logo']['path']}}"/>
     <meta property="og:title" content="Categories of {{$web_config['name']->value}} "/>
     <meta property="og:url" content="{{env('APP_URL')}}">
     <meta property="og:description"
           content="{{ substr(strip_tags(str_replace('&nbsp;', ' ', $web_config['about']->value)),0,160) }}">
-    <meta property="twitter:card" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['web_logo']->value}}"/>
+    <meta property="twitter:card" content="{{$web_config['web_logo']['path']}}"/>
     <meta property="twitter:title" content="Categories of {{$web_config['name']->value}}"/>
     <meta property="twitter:url" content="{{env('APP_URL')}}">
     <meta property="twitter:description"
@@ -16,46 +16,29 @@
 @endpush
 
 @section('content')
-    <div class="container p-3 rtl __inline-52 text-align-direction">
-        <div class="row">
+    <div class="container rtl __inline-52 text-align-direction">
 
-            @if(count($categories) > 0)
-                <div class="col-md-3"></div>
-                <div class="col-md-9 text-center">
-                    <h4>{{ translate('category')}}</h4>
-                </div>
-
-                <div class="col-lg-3 col-md-4">
-                    @foreach($categories as $categoryKey => $category)
-                        @if($categoryKey < 15)
-                            <div class="card-header mb-2 p-2 side-category-bar action-get-categories-function"
-                                 data-route="{{ route('category-ajax', [$category['id']]) }}">
-                                <img alt="" class="__img-18 mr-1"
-                                     src="{{ getValidImage(path: 'storage/app/public/category/'.$category->icon, type: 'category') }}">
-                                {{ $category['name'] }}
-                            </div>
-                        @endif
-                    @endforeach
-                </div>
-                <div class="col-lg-9 col-md-8">
-                    <hr>
-                    <div class="row" id="ajax-categories">
-                        <label class="col-md-12 text-center mt-5">
-                            {{ translate('select_your_desire_category.')}}
-                        </label>
-                    </div>
-                </div>
-            @else
-                <div class="d-flex justify-content-center align-items-center w-100 py-5">
-                    <div class="d-flex flex-column justify-content-center align-items-center gap-3">
-                        <img src="{{ dynamicStorage(path: 'public/assets/front-end/img/empty-icons/empty-category.svg') }}"
-                             alt="{{ translate('brand') }}" class="img-fluid" width="100">
-                        <h5 class="text-muted fs-14 font-semi-bold text-center">{{ translate('there_is_no_category') }}</h5>
-                    </div>
-                </div>
-            @endif
-
+        <div class="bg-primary-light rounded-10 my-4 p-3 p-sm-4"
+             data-bg-img="{{ theme_asset(path: 'public/assets/front-end/img/media/bg.png') }}">
+            <div class="d-flex flex-column gap-1 text-primary">
+                <h4 class="mb-0 text-start fw-bold text-primary text-uppercase">
+                    {{ translate('category') }}
+                </h4>
+                <p class="fs-14 fw-semibold mb-0">
+                    {{translate('Find_your_favourite_categories_and_products')}}
+                </p>
+            </div>
         </div>
+
+        <div class="brand_div-wrap mb-4">
+            @foreach($categories as $categoryKey => $category)
+            <a href="{{route('products',['id'=> $category['id'],'data_from'=>'category','page'=>1])}}" class="brand_div">
+                <img src="{{ getStorageImages(path: $category->icon_full_url, type: 'category') }}" alt="{{ $category['name'] }}">
+                <div>{{ $category['name'] }}</div>
+            </a>
+            @endforeach
+        </div>
+
     </div>
 @endsection
 

@@ -73,7 +73,7 @@
                             <td>
                                 <a href="{{route('admin.customer.view',[$customer['id']])}}"
                                    class="title-color hover-c1 d-flex align-items-center gap-10">
-                                    <img src="{{getValidImage(path: 'storage/app/public/profile/'.$customer->image,type:'backend-profile')}}"
+                                    <img src="{{getStorageImages(path:$customer->image_full_url,type:'backend-profile')}}"
                                          class="avatar rounded-circle " alt="" width="40">
                                     {{Str::limit($customer['f_name']." ".$customer['l_name'],20)}}
                                 </a>

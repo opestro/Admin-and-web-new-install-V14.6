@@ -50,7 +50,7 @@
 
             <div class="card">
                 <div class="card-body">
-                    <div class="auto-col xxl-items-6 justify-content-center gap-3">
+                    <div class="auto-col xxl-items-6 justify-content-center gap-3 max-sm-grid-col-2">
                         @foreach ($sellers as $shop)
                             @php($currentDate = date('Y-m-d'))
                             @php($startDate = date('Y-m-d', strtotime($shop['vacation_start_date'])))
@@ -60,15 +60,9 @@
                                class="store-item grid-center py-2">
                                 <div class="position-relative">
                                     <div class="avatar rounded-circle border" style="--size: 6.875rem">
-                                        @if($shop['id'] != 0)
-                                            <img class="dark-support img-fit rounded-circle img-w-h-100"
-                                                 src="{{ getValidImage(path: 'storage/app/public/shop/'.$shop->image, type:'shop') }}"
-                                                 alt="{{$shop->name}}" loading="lazy">
-                                        @else
-                                            <img class="dark-support img-fit rounded-circle img-w-h-100"
-                                                 src="{{ getValidImage(path: 'storage/app/public/company/'.$shop->image, type:'shop') }}"
-                                                 alt="{{$shop->name}}" loading="lazy">
-                                        @endif
+                                        <img class="dark-support img-fit rounded-circle img-w-h-100"
+                                             src="{{ getStorageImages(path: $shop->image_full_url, type:'shop') }}"
+                                             alt="{{$shop->name}}" loading="lazy">
                                     </div>
                                     @if($shop->temporary_close)
                                         <span class="temporary-closed position-absolute rounded-circle">

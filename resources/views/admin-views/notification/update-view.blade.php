@@ -31,7 +31,7 @@
                         <div class="col-md-6">
                             <div class="d-flex justify-content-center">
                                 <img class="upload-img-view mt-4" id="viewer"
-                                     src="{{ getValidImage(path: 'storage/app/public/notification/'.$notification['image']?? '', type: 'backend-basic') }}"
+                                     src="{{ getStorageImages(path: $notification->image_full_url, type: 'backend-basic') }}"
                                         alt="{{translate('image')}}"/>
                             </div>
                             <label class="title-color">{{translate('image')}}</label>

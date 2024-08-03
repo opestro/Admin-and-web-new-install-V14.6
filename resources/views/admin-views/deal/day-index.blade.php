@@ -55,7 +55,7 @@
                                         <input type="text" class="product_id" name="product_id" hidden>
                                         <div class="dropdown select-product-search w-100">
                                             <button class="form-control text-start dropdown-toggle text-capitalize select-product-button"
-                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" type="button">
                                                 {{translate('select_product')}}
                                             </button>
                                             <div class="dropdown-menu w-100 px-2">

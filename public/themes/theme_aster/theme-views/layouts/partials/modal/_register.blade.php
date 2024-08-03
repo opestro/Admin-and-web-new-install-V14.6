@@ -16,7 +16,7 @@
             <div class="modal-body px-4 px-lg-5">
                 <div class="mb-4 text-center">
                     <img width="200" alt="" class="dark-support"
-                        src="{{ getValidImage(path: 'storage/app/public/company/'.($web_config['web_logo']->value), type:'logo') }}">
+                        src="{{ getStorageImages(path: $web_config['web_logo'], type:'logo') }}">
                 </div>
                 <div class="mb-4">
                     <h2 class="mb-2">{{ translate('sign_up') }}</h2>
@@ -257,7 +257,7 @@
                     success: function (data) {
                         if (data.errors) {
                             for (let index = 0; index < data.errors.length; index++) {
-                                toastr.error(data.errors[index], {
+                                toastr.error(data.errors[index].message, {
                                     CloseButton: true,
                                     ProgressBar: true
                                 });

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{{translate('vendor')}} | {{translate('reset_Password')}}</title>
-    <link rel="shortcut icon" href="{{ dynamicStorage(path: 'storage/app/public/company/'.getWebConfig(name: 'company_fav_icon')) }}">
+    <link rel="shortcut icon" href="{{getStorageImages(path: getWebConfig(name: 'company_fav_icon'), type:'backend-logo')}}">
     <link rel="stylesheet" href="{{dynamicAsset(path: 'public/assets/back-end/css/google-fonts.css')}}">
     <link rel="stylesheet" href="{{dynamicAsset(path: 'public/assets/back-end/css/vendor.min.css')}}">
     <link rel="stylesheet" href="{{dynamicAsset(path: 'public/assets/back-end/css/bootstrap.min.css')}}">
@@ -26,7 +26,7 @@
     <div class="container py-5 py-sm-7">
         @php($ecommerceLogo=getWebConfig('company_web_logo'))
         <a class="d-flex justify-content-center mb-5" href="javascript:">
-            <img class="z-index-2 __w-8rem" src="{{getValidImage(path:'storage/app/public/company/'.$ecommerceLogo, type: 'backend-logo')}}" alt="{{translate('logo')}}">
+            <img class="z-index-2 __w-8rem" src="{{ getStorageImages(path:$ecommerceLogo, type: 'backend-logo')}}" alt="{{translate('logo')}}">
         </a>
         <div class="row justify-content-center">
             <div class="col-lg-8 col-md-10">

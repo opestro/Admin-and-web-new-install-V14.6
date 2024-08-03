@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Contracts\Repositories\RobotsMetaContentRepositoryInterface;
 use App\Models\Admin;
 use App\Traits\InHouseTrait;
-use App\User;
+use App\Models\User;
 use App\Utils\CategoryManager;
 use App\Utils\Helpers;
 use App\Events\DigitalProductOtpVerificationEvent;
@@ -58,6 +59,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use function App\Utils\payment_gateways;
 
@@ -68,14 +70,15 @@ class WebController extends Controller
     use SmsGateway;
 
     public function __construct(
-        private OrderDetail    $order_details,
-        private Product        $product,
-        private Wishlist       $wishlist,
-        private Order          $order,
-        private Category       $category,
-        private Brand          $brand,
-        private Seller         $seller,
-        private ProductCompare $compare,
+        private OrderDetail                                   $order_details,
+        private Product                                       $product,
+        private Wishlist                                      $wishlist,
+        private Order                                         $order,
+        private Category                                      $category,
+        private Brand                                         $brand,
+        private Seller                                        $seller,
+        private ProductCompare                                $compare,
+        private readonly RobotsMetaContentRepositoryInterface $robotsMetaContentRepo,
     )
     {
 
@@ -119,6 +122,10 @@ class WebController extends Controller
 
     public function getAllCategoriesView(): View
     {
+        $robotsMetaContentData = $this->robotsMetaContentRepo->getFirstWhere(params: ['page_name' => 'categories']);
+        if (!$robotsMetaContentData) {
+            $robotsMetaContentData = $this->robotsMetaContentRepo->getFirstWhere(params: ['page_name' => 'default']);
+        }
         $categories = Category::with(['product' => function ($query) {
             return $query->active()->withCount(['orderDetails']);
         }])->withCount(['product' => function ($query) {
@@ -131,6 +138,7 @@ class WebController extends Controller
 
         return view('web-views.products.categories', [
             'categories' => CategoryManager::getPriorityWiseCategorySortQuery(query: $categories),
+            'robotsMetaContentData' => $robotsMetaContentData
         ]);
     }
 
@@ -144,19 +152,24 @@ class WebController extends Controller
 
     public function getAllBrandsView(Request $request): View|RedirectResponse
     {
+        $robotsMetaContentData = $this->robotsMetaContentRepo->getFirstWhere(params: ['page_name' => 'brands']);
+        if (!$robotsMetaContentData) {
+            $robotsMetaContentData = $this->robotsMetaContentRepo->getFirstWhere(params: ['page_name' => 'default']);
+        }
         $brandStatus = BusinessSetting::where(['type' => 'product_brand'])->value('value');
         session()->put('product_brand', $brandStatus);
         if ($brandStatus == 1) {
             $brandList = Brand::active()->with(['brandProducts' => function ($query) {
-                return $query->withCount(['orderDetails']);
-            }])
-            ->withCount('brandProducts')
-            ->when($request->has('search'), function ($query) use ($request) {
-                $query->where('name', 'LIKE', '%' . $request['search'] . '%');
-            });
+                    return $query->withCount(['orderDetails']);
+                }])
+                ->withCount('brandProducts')
+                ->when($request->has('search'), function ($query) use ($request) {
+                    $query->where('name', 'LIKE', '%' . $request['search'] . '%');
+                });
 
             return view(VIEW_FILE_NAMES['all_brands'], [
                 'brands' => self::getPriorityWiseBrandProductsQuery(request: $request, query: $brandList),
+                'robotsMetaContentData' => $robotsMetaContentData
             ]);
         } else {
             return redirect()->route('home');
@@ -165,6 +178,13 @@ class WebController extends Controller
 
     function getPriorityWiseBrandProductsQuery($request, $query)
     {
+        if (theme_root_path() == 'theme_aster') {
+            $paginateLimit = 12;
+        } elseif (theme_root_path() == 'theme_fashion') {
+            $paginateLimit = 10;
+        }else{
+            $paginateLimit = 18;
+        }
         $brandProductSortBy = getWebConfig(name: 'brand_list_priority');
         $orderBy = $request->get('order_by', 'desc');
 
@@ -175,24 +195,28 @@ class WebController extends Controller
                     return $brand;
                 })->sortByDesc('order_count');
             } elseif ($brandProductSortBy['sort_by'] == 'latest_created') {
-                $query =  $query->orderBy('id', 'desc');
+                $query = $query->orderBy('id', 'desc');
             } elseif ($brandProductSortBy['sort_by'] == 'first_created') {
-                $query =  $query->orderBy('id', 'asc');
+                $query = $query->orderBy('id', 'asc');
             } elseif ($brandProductSortBy['sort_by'] == 'a_to_z') {
-                $query =  $query->orderBy('name', 'asc');
+                $query = $query->orderBy('name', 'asc');
             } elseif ($brandProductSortBy['sort_by'] == 'z_to_a') {
-                $query =  $query->orderBy('name', 'desc');
+                $query = $query->orderBy('name', 'desc');
             }
 
-            return $query->paginate(15)->appends(['order_by' => $orderBy, 'search' => $request['search']]);
+            return $query->paginate($paginateLimit)->appends(['order_by' => $orderBy, 'search' => $request['search']]);
         } else {
-            return $query->orderBy('name', $orderBy)->latest()->paginate(15)->appends(['order_by' => $orderBy, 'search' => $request['search']]);
+            return $query->orderBy('name', $orderBy)->latest()->paginate($paginateLimit)->appends(['order_by' => $orderBy, 'search' => $request['search']]);
         }
 
     }
 
     public function getAllVendorsView(Request $request): View|RedirectResponse
     {
+        $robotsMetaContentData = $this->robotsMetaContentRepo->getFirstWhere(params: ['page_name' => 'vendors']);
+        if (!$robotsMetaContentData) {
+            $robotsMetaContentData = $this->robotsMetaContentRepo->getFirstWhere(params: ['page_name' => 'default']);
+        }
         $businessMode = getWebConfig(name: 'business_mode');
         if (isset($businessMode) && $businessMode == 'single') {
             Toastr::warning(translate('access_denied') . ' !!');
@@ -223,7 +247,7 @@ class WebController extends Controller
                 $shop->orders_count = $shop->seller->orders_count;
 
                 $productReviews = $shop->seller->product->pluck('reviews')->collapse();
-                $productReviews = $productReviews->where('status',1);
+                $productReviews = $productReviews->where('status', 1);
                 $shop->average_rating = $productReviews->avg('rating');
                 $shop->review_count = $productReviews->count();
                 $shop->total_rating = $productReviews->sum('rating');
@@ -288,6 +312,7 @@ class WebController extends Controller
         return view(VIEW_FILE_NAMES['all_stores_page'], [
             'sellers' => $vendorsList->paginate(12)->appends($request->all()),
             'order_by' => $request['order_by'],
+            'robotsMetaContentData' => $robotsMetaContentData,
         ]);
     }
 
@@ -307,7 +332,6 @@ class WebController extends Controller
 
         $result = ProductManager::getSearchProductsForWeb($request['name'], $request['category_id'] ?? 'all');
         $products = $result['products'];
-
         if ($products == null) {
             $result = ProductManager::getTranslatedProductSearchForWeb($request['name'], $request['category_id'] ?? 'all');
             $products = $result['products'];
@@ -468,7 +492,7 @@ class WebController extends Controller
                 'inr' => $inr,
                 'usd' => $usd,
                 'myr' => $myr,
-                'payment_gateway_published_status' => $paymentGatewayPublishedStatus,
+                'paymentGatewayPublishedStatus' => $paymentGatewayPublishedStatus,
                 'payment_gateways_list' => payment_gateways(),
                 'offline_payment_methods' => $offlinePaymentMethods
             ]);
@@ -752,8 +776,13 @@ class WebController extends Controller
             }
             return view(VIEW_FILE_NAMES['cart_list'], compact('topRatedShops', 'newSellers', 'currentDate', 'request'));
         }
-        Toastr::info(translate('invalid_access'));
-        return redirect('/');
+        Toastr::warning(translate('please_login_your_account'));
+        if (theme_root_path() == 'default'){
+            return redirect('customer/auth/login');
+        }else{
+            return redirect('/');
+        }
+
     }
 
     //ajax filter (category based)
@@ -828,7 +857,7 @@ class WebController extends Controller
             foreach ($products as $product) {
                 foreach (json_decode($product['category_ids'], true) as $category) {
                     if ($category['id'] == $request['id']) {
-                        array_push($product_ids, $product['id']);
+                        $product_ids[] = $product['id'];
                     }
                 }
             }
@@ -1330,7 +1359,6 @@ class WebController extends Controller
 
     public function getDigitalProductDownload($id, Request $request): JsonResponse
     {
-
         $orderDetailsData = OrderDetail::with('order.customer')->find($id);
         if ($orderDetailsData) {
             if ($orderDetailsData->order->payment_status !== "paid") {
@@ -1350,16 +1378,21 @@ class WebController extends Controller
             } else {
                 if (auth('customer')->check() && auth('customer')->user()->id == $orderDetailsData->order->customer->id) {
                     $fileName = '';
-                    $productDetails = json_decode($orderDetailsData['product_details']);
-                    if ($productDetails->digital_product_type == 'ready_product' && $productDetails->digital_file_ready) {
-                        $filePath = asset('storage/app/public/product/digital-product/' . $productDetails->digital_file_ready);
-                        $fileName = $productDetails->digital_file_ready;
+                    $fileExist = false;
+                    $productDetails = json_decode($orderDetailsData['product_details'], true);
+                    if ($productDetails['digital_product_type'] == 'ready_product' && $productDetails['digital_file_ready']) {
+                        $checkFilePath = storageLink('product/digital-product', $productDetails['digital_file_ready'], ($productDetails['storage_path'] ?? 'public'));
+                        $filePath = $checkFilePath['path'];
+                        $fileExist = $checkFilePath['status'] == 200;
+                        $fileName = $productDetails['digital_file_ready'];
                     } else {
-                        $filePath = asset('storage/app/public/product/digital-product/' . $orderDetailsData['digital_file_after_sell']);
+                        $checkFilePath = $orderDetailsData->digital_file_after_sell_full_url;
+                        $filePath = $checkFilePath['path'];
                         $fileName = $orderDetailsData['digital_file_after_sell'];
+                        $fileExist = $checkFilePath['status'] == 200;
                     }
 
-                    if (!is_null($fileName) && (File::exists(base_path('storage/app/public/product/digital-product/' . $fileName)))) {
+                    if (!is_null($fileName) && $fileExist) {
                         return response()->json([
                             'status' => 1,
                             'file_path' => $filePath,
@@ -1391,24 +1424,29 @@ class WebController extends Controller
 
         if ($verification) {
             $fileName = '';
+            $fileExist = false;
             if ($orderDetailsData) {
-                $productDetails = json_decode($orderDetailsData['product_details']);
-                if ($productDetails->digital_product_type == 'ready_product' && $productDetails->digital_file_ready) {
-                    $filePath = asset('storage/app/public/product/digital-product/' . $productDetails->digital_file_ready);
-                    $fileName = $productDetails->digital_file_ready;
+                $productDetails = json_decode($orderDetailsData['product_details'], true);
+                if ($productDetails['digital_product_type'] == 'ready_product' && $productDetails['digital_file_ready']) {
+                    $checkFilePath = storageLink('product/digital-product', $productDetails['digital_file_ready'], ($productDetails['storage_path'] ?? 'public'));
+                    $filePath = $checkFilePath['path'];
+                    $fileExist = $checkFilePath['status'] == 200;
+                    $fileName = $productDetails['digital_file_ready'];
                 } else {
-                    $filePath = asset('storage/app/public/product/digital-product/' . $orderDetailsData['digital_file_after_sell']);
+                    $checkFilePath = $orderDetailsData->digital_file_after_sell_full_url;
+                    $filePath = $checkFilePath['path'];
                     $fileName = $orderDetailsData['digital_file_after_sell'];
+                    $fileExist = $checkFilePath['status'] == 200;
                 }
             }
 
             DigitalProductOtpVerification::where(['token' => $request->otp, 'order_details_id' => $request->order_details_id])->delete();
 
-            if (File::exists(base_path('storage/app/public/product/digital-product/' . $fileName))) {
+            if (!is_null($fileName) && $fileExist) {
                 return response()->json([
                     'status' => 1,
-                    'file_path' => $filePath ?? '',
-                    'file_name' => $fileName ?? '',
+                    'file_path' => $filePath,
+                    'file_name' => $fileName,
                     'message' => translate('successfully_verified'),
                 ]);
             } else {

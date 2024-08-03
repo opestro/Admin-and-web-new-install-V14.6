@@ -6,7 +6,7 @@
                 @php($product = $refund->product)
                 <div class="position-relative">
                     <img class="d-block get-view-by-onclick" data-link="{{route('product',$product['slug'])}}"
-                         src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'product') }}"
+                         src="{{ getStorageImages(path: $product->thumbnail_full_url, type: 'product') }}"
                          alt="{{ translate('product') }}" width="100">
 
                     @if($product->discount > 0)
@@ -120,15 +120,15 @@
 
         <div class="mt-2">
             <div class="d-flex gap-2 flex-wrap">
-                @foreach (json_decode($refund->images) as $key => $photo)
-                    <a data-lightbox="mygallery" href="{{dynamicStorage(path: 'storage/app/public/refund')}}/{{$photo}}">
+                @foreach ($refund->images_full_url as $key => $photo)
+                    <a data-lightbox="mygallery" href="{{$photo['path']}}">
                         <img class="border rounded border-primary-light"
-                             src="{{ getValidImage(path: 'storage/app/public/refund/'.$photo, type: 'product') }}"
+                             src="{{ getStorageImages(path: $photo, type: 'product') }}"
                              alt="{{ translate('product') }}" width="60">
                     </a>
                 @endforeach
             </div>
-            <p class="text-muted fs-12 mt-2">{{count(json_decode($refund->images))}} {{translate('files_Uploaded')}}</p>
+            <p class="text-muted fs-12 mt-2">{{count($refund->images_full_url)}} {{translate('files_Uploaded')}}</p>
         </div>
     </div>
 @endif

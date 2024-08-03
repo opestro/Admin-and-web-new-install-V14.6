@@ -86,7 +86,7 @@ class VendorRepository implements VendorRepositoryInterface
 
     public function update(string $id, array $data): bool
     {
-        return $this->vendor->where(['id'=>$id])->update($data);
+        return $this->vendor->find($id)->update($data);
     }
 
     public function delete(array $params): bool

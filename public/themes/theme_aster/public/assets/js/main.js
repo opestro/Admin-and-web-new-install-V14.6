@@ -73,10 +73,20 @@ We may release future updates so it will overwrite this file. it's better and sa
         .find(".has-sub-item > a, .has-sub-item > label")
         .on("click", function (event) {
             event.preventDefault();
+            $(this)
+                .parent(".has-sub-item")
+                .siblings("li")
+                .removeClass("sub-menu-opened");
             $(this).parent(".has-sub-item").toggleClass("sub-menu-opened");
             if ($(this).siblings("ul").hasClass("open")) {
                 $(this).siblings("ul").removeClass("open").slideUp("200");
             } else {
+                $(this)
+                    .parent("li")
+                    .siblings("li")
+                    .find("ul")
+                    .removeClass("open")
+                    .slideUp("200");
                 $(this).siblings("ul").addClass("open").slideDown("200");
             }
         });
@@ -108,6 +118,12 @@ We may release future updates so it will overwrite this file. it's better and sa
     $(".menu-btn").on("click", function () {
         $(".aside").toggleClass("active");
         $(".filter-toggle-aside").removeClass("active");
+
+        if ($(this).hasClass("search")) {
+            setTimeout(function () {
+                $(".aside .search-bar-input-mobile").focus();
+            }, 100);
+        }
     });
     $(".aside-close > i").on("click", function () {
         $(".aside").removeClass("active");
@@ -355,7 +371,6 @@ We may release future updates so it will overwrite this file. it's better and sa
         var timer = setInterval(countdownTimer, 1000);
     });
 
-
     /*==================================
     15: Swiper
     ====================================*/
@@ -576,7 +591,8 @@ We may release future updates so it will overwrite this file. it's better and sa
         slidesPerView: "auto",
         freeMode: true,
         watchSlidesVisibility: true,
-        watchSlidesProgress: true,
+        // watchSlidesProgress: true,
+        centeredSlides: true,
         autoplay: {
             delay: 5000,
             disableOnInteraction: false,
@@ -611,12 +627,12 @@ We may release future updates so it will overwrite this file. it's better and sa
         quickviewSlider2_start();
     });
 
-    function quickviewSlider2_stop(){
+    function quickviewSlider2_stop() {
         quickviewSlider2.autoplay.stop();
         quickviewSliderThumb2.autoplay.stop();
     }
 
-    function quickviewSlider2_start(){
+    function quickviewSlider2_start() {
         quickviewSlider2.autoplay.start();
         quickviewSliderThumb2.autoplay.start();
     }
@@ -756,9 +772,17 @@ We may release future updates so it will overwrite this file. it's better and sa
             "change",
             function () {
                 if ($(this).val() === "list-view") {
-                    $("#filtered-products").addClass("product-list-view").find('[class^="col-"]').removeClass('col-xxl-2 col-xl-3 col-md-4 col-sm-6').addClass('col-xl-4 col-md-6');
+                    $("#filtered-products")
+                        .addClass("product-list-view")
+                        .find('[class^="col-"]')
+                        .removeClass("col-xxl-2 col-xl-3 col-md-4 col-sm-6")
+                        .addClass("col-xl-4 col-md-6");
                 } else {
-                    $("#filtered-products").removeClass("product-list-view").find('[class^="col-"]').removeClass('col-xl-4 col-md-6').addClass('col-xxl-2 col-xl-3 col-md-4 col-sm-6');
+                    $("#filtered-products")
+                        .removeClass("product-list-view")
+                        .find('[class^="col-"]')
+                        .removeClass("col-xl-4 col-md-6")
+                        .addClass("col-xxl-2 col-xl-3 col-md-4 col-sm-6");
                 }
             }
         );
@@ -900,10 +924,35 @@ We may release future updates so it will overwrite this file. it's better and sa
     /*==================================
     36: Stop propagation
     ====================================*/
-    $(window).on('load',function (){
+    $(window).on("load", function () {
         $(".stopPropagation").on("click", function (e) {
             e.stopPropagation();
         });
-    })
+    });
 
+    $(document).ready(function () {
+        const tabFunction = function () {
+            $(".show-more--content").each(function () {
+                const button = $(this)
+                    .closest(".tab-pane")
+                    .find(".see-more-details, .see-more-details-review");
+
+                if ($(this).innerHeight() > 280) {
+                    $(this).addClass("custom-height active");
+                    button.show();
+                } else {
+                    $(this).removeClass("custom-height active");
+                    button.hide();
+                }
+            });
+        };
+        tabFunction();
+        $('[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
+            tabFunction();
+        });
+        $(".aside-overlay").on("click", function () {
+            $(".aside").removeClass("active");
+            $(".profile-menu-aside").removeClass("active");
+        });
+    });
 })(jQuery);

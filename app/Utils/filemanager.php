@@ -2,6 +2,8 @@
 
 namespace App\Utils;
 
+use Illuminate\Support\Facades\Storage;
+
 class FileManagerLogic
 {
     private static function get_file_name($path)
@@ -47,5 +49,26 @@ class FileManagerLogic
             ];
         }
         return $data;
+    }
+
+    public static function getFileSize($path)
+    {
+        if (!is_null($path)) {
+            $headers = get_headers($path, 1);
+            $decimals = 2;
+            $bytes = isset($headers['Content-Length']) ? $headers['Content-Length'] : $headers['content-length'];
+            $size = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            $factor = floor((strlen($bytes) - 1) / 3);
+            return sprintf("%.{$decimals}f", $bytes / (1024 ** $factor)) . @$size[$factor];
+        }
+    }
+
+    public static function formatBytes($bytes, $precision = 2): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        return round($bytes / pow(1024, $pow), $precision) . ' ' . $units[$pow];
     }
 }

@@ -15,7 +15,7 @@
                         <div class="grid-card basic-box-shadow">
                             <div class="text-center">
                                 <img class="avatar rounded-circle avatar-lg get-view-by-onclick" alt=""
-                                     src="{{ getValidImage(path: 'storage/app/public/delivery-man/'.$deliveryMan['image']??'',type:'backend-profile') }}"
+                                     src="{{ getStorageImages(path:$deliveryMan->image_full_url,type:'backend-profile') }}"
                                      data-link="{{ route('admin.delivery-man.earning-statement-overview',[$deliveryMan['id']]) }}">
                             </div>
                             <h5 class="mb-0 get-view-by-onclick" data-link="{{ route('admin.delivery-man.earning-statement-overview',[$deliveryMan['id']]) }}">

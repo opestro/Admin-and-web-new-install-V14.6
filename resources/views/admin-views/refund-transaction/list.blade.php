@@ -50,7 +50,7 @@
                                     data-action="{{ url()->current() }}">
                                 {{translate('filter')}}
                             </button>
-                            <div>
+                            <div class="dropdown">
                                 <button type="button" class="btn btn-outline--primary text-nowrap btn-block"
                                         data-toggle="dropdown">
                                     <i class="tio-download-to"></i>
@@ -101,7 +101,7 @@
                                     <a href="{{route('admin.products.view',['addedBy'=>($refund_transaction->orderDetails->product->added_by =='seller'?'vendor' : 'in-house'),'id'=>$refund_transaction->orderDetails->product->id])}}"
                                        class="media align-items-center gap-2">
                                         <img
-                                            src="{{ getValidImage(path:'storage/app/public/product/thumbnail/'.$refund_transaction->orderDetails->product->thumbnail,type: 'backend-product')}}"
+                                            src="{{ getStorageImages(path: $refund_transaction->orderDetails->product->thumbnail_full_url,type: 'backend-product')}}"
                                             class="avatar border" alt="">
                                         <span class="media-body title-color hover-c1">
                                             {{ isset($refund_transaction->orderDetails->product->name) ? Str::limit($refund_transaction->orderDetails->product->name, 20) : '' }}

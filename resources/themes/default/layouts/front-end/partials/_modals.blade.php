@@ -9,7 +9,7 @@
                 </div>
                 <div class="modal-body cursor-pointer __p-3px get-view-by-onclick" data-link="{{ $web_config['popup_banner']['url'] }}">
                     <img class="d-block w-100" alt=""
-                         src="{{ getValidImage(path: 'storage/app/public/banner/'.$web_config['popup_banner']['photo'], type: 'banner') }}">
+                         src="{{ getStorageImages(path: $web_config['popup_banner']['photo_full_url'], type: 'banner') }}">
                 </div>
             </div>
         </div>

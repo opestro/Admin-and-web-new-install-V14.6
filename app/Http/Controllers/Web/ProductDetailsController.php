@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Auth;
 class ProductDetailsController extends Controller
 {
     use ProductTrait;
+
     public function __construct(
         private readonly ProductRepositoryInterface        $productRepo,
         private readonly WishlistRepository                $wishlistRepo,
@@ -46,7 +47,7 @@ class ProductDetailsController extends Controller
 
     /**
      * @param string $slug
-     * @return View
+     * @return View|RedirectResponse
      */
     public function index(string $slug): View|RedirectResponse
     {
@@ -62,13 +63,14 @@ class ProductDetailsController extends Controller
 
     public function getDefaultTheme(string $slug): View|RedirectResponse
     {
-        $product = $this->productRepo->getFirstWhereActive(params: ['slug' => $slug], relations: ['reviews', 'seller.shop']);
+        $product = $this->productRepo->getFirstWhereActive(params: ['slug' => $slug], relations: ['seoInfo', 'digitalVariation', 'reviews', 'seller.shop']);
         if ($product) {
             $overallRating = getOverallRating(reviews: $product->reviews);
             $wishlistStatus = $this->wishlistRepo->getListWhereCount(filters: ['product_id' => $product['id'], 'customer_id' => auth('customer')->id()]);
             $productReviews = $this->reviewRepo->getListWhere(
                 orderBy: ['id' => 'desc'],
                 filters: ['product_id' => $product['id']],
+                relations: ['reply'],
                 dataLimit: 2, offset: 1
             );
 
@@ -107,7 +109,7 @@ class ProductDetailsController extends Controller
                 scope: 'active',
                 filters: ['category_id' => $product['category_id']],
                 whereNotIn: ['id' => [$product['id']]],
-                relations: ['reviews'=>'reviews'],
+                relations: ['reviews' => 'reviews'],
                 dataLimit: 12,
                 offset: 1
             );
@@ -138,7 +140,7 @@ class ProductDetailsController extends Controller
     {
         $product = $this->productRepo->getWebFirstWhereActive(
             params: ['slug' => $slug, 'customer_id' => Auth::guard('customer')->user()->id ?? 0],
-            relations: ['reviews' => 'reviews', 'seller.shop' => 'seller.shop', 'wishList' => 'wishList', 'compareList' => 'compareList'],
+            relations: ['seoInfo', 'digitalVariation', 'reviews' => 'reviews', 'seller.shop' => 'seller.shop', 'wishList' => 'wishList', 'compareList' => 'compareList'],
             withCount: ['orderDetails' => 'orderDetails', 'wishList' => 'wishList']
         );
 
@@ -154,7 +156,7 @@ class ProductDetailsController extends Controller
                 scope: 'active',
                 filters: ['category_ids' => $product['category_ids'], 'customer_id' => Auth::guard('customer')->user()->id ?? 0],
                 whereNotIn: ['id' => [$product['id']]],
-                relations: ['reviews'=>'reviews', 'flashDealProducts.flashDeal'=>'flashDealProducts.flashDeal', 'wishList'=>'wishList','compareList'=>'compareList'],
+                relations: ['reviews' => 'reviews', 'flashDealProducts.flashDeal' => 'flashDealProducts.flashDeal', 'wishList' => 'wishList', 'compareList' => 'compareList'],
                 withCount: ['reviews' => 'reviews'],
                 dataLimit: 12,
                 offset: 1
@@ -195,6 +197,7 @@ class ProductDetailsController extends Controller
             $productReviews = $this->reviewRepo->getListWhere(
                 orderBy: ['id' => 'desc'],
                 filters: ['product_id' => $product['id']],
+                relations: ['reply'],
                 dataLimit: 2, offset: 1
             );
             $decimalPointSettings = getWebConfig('decimal_point_settings');
@@ -233,11 +236,11 @@ class ProductDetailsController extends Controller
             $avgRating = $vendorReviewData->avg('rating');
 
             $vendorRattingStatusPositive = 0;
-            foreach($vendorReviewData->pluck('rating') as $singleRating) {
-                ($singleRating >= 4?($vendorRattingStatusPositive++):'');
+            foreach ($vendorReviewData->pluck('rating') as $singleRating) {
+                ($singleRating >= 4 ? ($vendorRattingStatusPositive++) : '');
             }
 
-            $positiveReview = $ratingCount != 0 ? ($vendorRattingStatusPositive*100)/ $ratingCount:0;
+            $positiveReview = $ratingCount != 0 ? ($vendorRattingStatusPositive * 100) / $ratingCount : 0;
 
             return view(VIEW_FILE_NAMES['products_details'], compact('product', 'wishlistStatus', 'countWishlist',
                 'countOrder', 'relatedProducts', 'dealOfTheDay', 'currentDate', 'sellerVacationStartDate', 'sellerVacationEndDate',
@@ -255,7 +258,7 @@ class ProductDetailsController extends Controller
     {
         $product = $this->productRepo->getWebFirstWhereActive(
             params: ['slug' => $slug, 'customer_id' => Auth::guard('customer')->user()->id ?? 0],
-            relations: ['reviews' => 'reviews', 'seller.shop' => 'seller.shop', 'wishList' => 'wishList', 'compareList' => 'compareList'],
+            relations: ['seoInfo', 'digitalVariation', 'reviews' => 'reviews', 'seller.shop' => 'seller.shop', 'wishList' => 'wishList', 'compareList' => 'compareList'],
             withCount: ['orderDetails' => 'orderDetails', 'wishList' => 'wishList']
         );
         if ($product != null) {
@@ -268,9 +271,9 @@ class ProductDetailsController extends Controller
             $compareList = $this->compareRepo->getCount(params: ['product_id' => $product->id, 'customer_id' => auth('customer')->id()]);
             $relatedProducts = $this->productRepo->getWebListWithScope(
                 scope: 'active',
-                filters: ['category_id' => $product['category_id'],'customer_id' => Auth::guard('customer')->user()->id ?? 0],
+                filters: ['category_id' => $product['category_id'], 'customer_id' => Auth::guard('customer')->user()->id ?? 0],
                 whereNotIn: ['id' => [$product['id']]],
-                relations: ['reviews'=>'reviews', 'flashDealProducts.flashDeal'=>'flashDealProducts.flashDeal', 'wishList'=>'wishList','compareList'=>'compareList'],
+                relations: ['reviews' => 'reviews', 'flashDealProducts.flashDeal' => 'flashDealProducts.flashDeal', 'wishList' => 'wishList', 'compareList' => 'compareList'],
                 dataLimit: 'all',
             )->count();
             $sellerVacationStartDate = ($product['added_by'] == 'seller' && isset($product->seller->shop->vacation_start_date)) ? date('Y-m-d', strtotime($product->seller->shop->vacation_start_date)) : null;
@@ -302,15 +305,16 @@ class ProductDetailsController extends Controller
             $productReviews = $this->reviewRepo->getListWhere(
                 orderBy: ['id' => 'desc'],
                 filters: ['product_id' => $product['id']],
+                relations: ['reply'],
                 dataLimit: 2, offset: 1
             );
             $decimalPointSettings = getWebConfig('decimal_point_settings');
             $moreProductFromSeller = $this->productRepo->getWebListWithScope(
                 orderBy: ['id' => 'desc'],
                 scope: 'active',
-                filters: ['added_by' => $product['added_by'] == 'admin' ? 'in_house' : $product['added_by'], 'seller_id' => $product['user_id'],'customer_id' => Auth::guard('customer')->user()->id ?? 0],
+                filters: ['added_by' => $product['added_by'] == 'admin' ? 'in_house' : $product['added_by'], 'seller_id' => $product['user_id'], 'customer_id' => Auth::guard('customer')->user()->id ?? 0],
                 whereNotIn: ['id' => [$product['id']]],
-                relations: ['wishList'=>'wishList'],
+                relations: ['wishList' => 'wishList'],
                 dataLimit: 5,
                 offset: 1
             );
@@ -340,17 +344,17 @@ class ProductDetailsController extends Controller
             $avgRating = $vendorReviewData->avg('rating');
 
             $vendorRattingStatusPositive = 0;
-            foreach($vendorReviewData->pluck('rating') as $singleRating) {
-                ($singleRating >= 4?($vendorRattingStatusPositive++):'');
+            foreach ($vendorReviewData->pluck('rating') as $singleRating) {
+                ($singleRating >= 4 ? ($vendorRattingStatusPositive++) : '');
             }
 
-            $positiveReview = $ratingCount != 0 ? ($vendorRattingStatusPositive*100)/ $ratingCount:0;
+            $positiveReview = $ratingCount != 0 ? ($vendorRattingStatusPositive * 100) / $ratingCount : 0;
 
             $sellerList = $this->sellerRepo->getListWithScope(
                 scope: 'active',
                 filters: ['category_id' => $product['category_id']],
-                relations: ['shop'=>'shop', 'product.reviews'=>'product.reviews'],
-                withCount: ['product'=>'product'],
+                relations: ['shop' => 'shop', 'product.reviews' => 'product.reviews'],
+                withCount: ['product' => 'product'],
                 dataLimit: 'all',
             );
             $sellerList?->map(function ($seller) {
@@ -379,11 +383,11 @@ class ProductDetailsController extends Controller
             $productsThisStoreTopRated = $this->productRepo->getWebListWithScope(
                 orderBy: ['reviews_count' => 'DESC'],
                 scope: 'active',
-                filters: ['added_by' => $product['added_by'] == 'admin' ? 'in_house' : $product['added_by'], 'seller_id' => $product['user_id'],'customer_id' => Auth::guard('customer')->user()->id ?? 0],
-                whereHas: ['reviews'=>'reviews'],
-                relations: ['category'=>'category', 'rating'=>'rating', 'reviews'=>'reviews','wishList'=>'wishList','compareList'=>'compareList'],
+                filters: ['added_by' => $product['added_by'] == 'admin' ? 'in_house' : $product['added_by'], 'seller_id' => $product['user_id'], 'customer_id' => Auth::guard('customer')->user()->id ?? 0],
+                whereHas: ['reviews' => 'reviews'],
+                relations: ['category' => 'category', 'rating' => 'rating', 'reviews' => 'reviews', 'wishList' => 'wishList', 'compareList' => 'compareList'],
                 withCount: ['reviews' => 'reviews'],
-                withSum: [['relation'=>'orderDetails', 'column'=>'qty', 'whereColumn'=>'delivery_status', 'whereValue'=>'delivered']],
+                withSum: [['relation' => 'orderDetails', 'column' => 'qty', 'whereColumn' => 'delivery_status', 'whereValue' => 'delivered']],
                 dataLimit: 12,
                 offset: 1
             );
@@ -392,7 +396,7 @@ class ProductDetailsController extends Controller
                 orderBy: ['reviews_count' => 'DESC'],
                 scope: 'active',
                 filters: ['category_id' => $product['category_id'], 'customer_id' => Auth::guard('customer')->user()->id ?? 0],
-                relations: ['wishList'=>'wishList', 'compareList'=>'compareList'],
+                relations: ['wishList' => 'wishList', 'compareList' => 'compareList'],
                 withCount: ['reviews' => 'reviews'],
                 dataLimit: 12,
                 offset: 1
@@ -403,7 +407,7 @@ class ProductDetailsController extends Controller
                 scope: 'active',
                 filters: ['category_id' => $product['category_id'], 'customer_id' => Auth::guard('customer')->user()->id ?? 0],
                 whereNotIn: ['id' => [$product['id']]],
-                relations: ['wishList'=>'wishList', 'compareList'=>'compareList'],
+                relations: ['wishList' => 'wishList', 'compareList' => 'compareList'],
                 dataLimit: 12,
                 offset: 1
             );
@@ -421,9 +425,9 @@ class ProductDetailsController extends Controller
 
     public function theme_all_purpose($slug): View|RedirectResponse
     {
-        $product = Product::active()->with(['reviews', 'seller.shop'])->withCount('reviews')->where('slug', $slug)->first();
-        if ($product != null) {
+        $product = Product::active()->with(['seoInfo', 'digitalVariation', 'reviews', 'seller.shop'])->withCount('reviews')->where('slug', $slug)->first();
 
+        if ($product != null) {
             $tags = ProductTag::where('product_id', $product->id)->pluck('tag_id');
             Tag::whereIn('id', $tags)->increment('visit_count');
 

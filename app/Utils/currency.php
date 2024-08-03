@@ -45,10 +45,10 @@ if (!function_exists('currencyConverter')) {
 if (!function_exists('usdToDefaultCurrency')) {
     /**
      * system usd currency to default convert
-     * @param float|int $amount
+     * @param float|int|null $amount
      * @return float|int
      */
-    function usdToDefaultCurrency(float|int $amount): float|int
+    function usdToDefaultCurrency(float|int|null $amount = 0): float|int
     {
         $currencyModel = getWebConfig('currency_model');
         if ($currencyModel == MULTI_CURRENCY) {
@@ -137,14 +137,14 @@ if (!function_exists('setCurrencySymbol')) {
      * @param string $currencyCode
      * @return string
      */
-    function setCurrencySymbol(string|int|float $amount, string $currencyCode=USD): string
+    function setCurrencySymbol(string|int|float $amount, string $currencyCode = USD): string
     {
-        $decimal_point_settings = getWebConfig('decimal_point_settings');
+        $decimalPointSettings = getWebConfig('decimal_point_settings');
         $position = getWebConfig('currency_symbol_position');
         if ($position === 'left') {
-            $string = getCurrencySymbol(currencyCode: $currencyCode) . '' . number_format($amount, (!empty($decimal_point_settings) ? $decimal_point_settings : 0));
+            $string = getCurrencySymbol(currencyCode: $currencyCode) . '' . number_format($amount, (!empty($decimalPointSettings) ? $decimalPointSettings : 0));
         } else {
-            $string = number_format($amount, !empty($decimal_point_settings) ? $decimal_point_settings : 0) . '' . getCurrencySymbol(currencyCode: $currencyCode);
+            $string = number_format($amount, !empty($decimalPointSettings) ? $decimalPointSettings : 0) . '' . getCurrencySymbol(currencyCode: $currencyCode);
         }
         return $string;
     }
@@ -155,14 +155,14 @@ if (!function_exists('getCurrencyCode')) {
      * @param string $type default,web
      * @return string
      */
-    function getCurrencyCode(string $type='default'): string
+    function getCurrencyCode(string $type = 'default'): string
     {
-        if($type == 'web'){
+        if ($type == 'web') {
             $currencyCode = session('currency_code');
-        }else{
-            if (session()->has('system_default_currency_info')){
+        } else {
+            if (session()->has('system_default_currency_info')) {
                 $currencyCode = session('system_default_currency_info')->code;
-            }else{
+            } else {
                 $currencyId = getWebConfig('system_default_currency');
                 $currencyCode = Currency::where('id', $currencyId)->first()->code;
             }
@@ -182,7 +182,7 @@ if (!function_exists('getFormatCurrency')) {
         foreach ($suffixes as $suffix => $factor) {
             if ($amount >= $factor) {
                 $div = $amount / $factor;
-                $formattedValue = number_format($div,1 ) . $suffix;
+                $formattedValue = number_format($div, 1) . $suffix;
                 break;
             }
         }

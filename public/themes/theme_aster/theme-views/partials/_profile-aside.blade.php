@@ -29,7 +29,7 @@
             <div class="d-flex flex-row flex-lg-column gap-2 gap-lg-4 align-items-center">
                 <div class="avatar overflow-hidden profile-sidebar-avatar border border-primary rounded-circle p-1">
                     <img class="img-fit dark-support rounded-circle"
-                         src="{{ getValidImage(path: 'storage/app/public/profile/'.$customer_info->image, type:'avatar') }}" alt="">
+                         src="{{ getStorageImages(path: $customer_info->image_full_url, type:'avatar') }}" alt="">
                 </div>
 
                 <div class="text-lg-center">
@@ -129,7 +129,7 @@
                         </a>
                     </li>
                 </ul>
-            </div>
+            </div><div class="aside-overlay"></div>
         </div>
     </div>
 </div>

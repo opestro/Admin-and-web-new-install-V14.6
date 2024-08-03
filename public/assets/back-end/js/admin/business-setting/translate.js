@@ -3,10 +3,10 @@ $(document).ready(function () {
 
     let getDataTable = $('#get-data-table-route-and-text');
     let dataTablePageLength = [getDataTable.data('page-length'), 10, 20, 50, 100];
-    dataTablePageLength.sort(function(a, b) {
+    dataTablePageLength.sort(function (a, b) {
         return a - b;
     });
-    let uniquePageLengths = dataTablePageLength.filter(function(value, index, self) {
+    let uniquePageLengths = dataTablePageLength.filter(function (value, index, self) {
         return self.indexOf(value) === index;
     });
 
@@ -44,14 +44,14 @@ $(document).ready(function () {
                 data: 'key'
             },
             {
-                "data":null,
+                "data": null,
                 className: "text-center",
                 render: function (data, type, full, meta) {
-                    return `<input class="form-control w-100" id="value-${meta.row + 1}" value="`+data.value+`">`;
+                    return `<input class="form-control w-100" id="value-${meta.row + 1}" value="` + data.value + `">`;
                 },
             },
             {
-                "data":null,
+                "data": null,
                 className: "text-center",
                 render: function (data, type, full, meta) {
                     return `<button type="button"  class="btn btn-ghost-success btn-block autoTranslate" data-key="${data.encode}" data-index="${meta.row + 1}">
@@ -59,7 +59,7 @@ $(document).ready(function () {
                 },
             },
             {
-                "data":null,
+                "data": null,
                 className: "text-center",
                 render: function (data, type, full, meta) {
                     return `<button type="button" class="btn btn--primary btn-block update-lang" data-key="${data.encode}" data-index="${meta.row + 1}">
@@ -85,7 +85,7 @@ $(document).ready(function () {
 
 
 function autoTranslateFunctionality() {
-    $('.autoTranslate').on('click', function (){
+    $('.autoTranslate').on('click', function () {
         let currentElement = $(this);
         let autoTranslate = $('#get-auto-translate-route-and-text');
         $.ajaxSetup({
@@ -104,7 +104,7 @@ function autoTranslateFunctionality() {
             },
             success: function (response) {
                 toastr.success(autoTranslate.data('success-text'));
-                $('#value-'+currentElement.data('index')).val(response.translated_data);
+                $('#value-' + currentElement.data('index')).val(response.translated_data);
             },
             complete: function () {
                 $('#loading').fadeOut();
@@ -112,14 +112,14 @@ function autoTranslateFunctionality() {
         });
     })
 
-    $('.update-lang').on('click',function (){
+    $('.update-lang').on('click', function () {
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
             }
         });
         const translate = $('#get-translate-route-and-text');
-        const value = $('#value-'+$(this).data('index')).val()
+        const value = $('#value-' + $(this).data('index')).val()
         $.ajax({
             url: translate.data('route'),
             method: 'POST',
@@ -139,4 +139,68 @@ function autoTranslateFunctionality() {
         });
     })
 }
+
 autoTranslateFunctionality()
+let totalMessagesOfCurrentLanguageElement = $('#total-messages-of-current-language');
+var needToTranslateCall = parseInt(totalMessagesOfCurrentLanguageElement.data('total')) / totalMessagesOfCurrentLanguageElement.data('message-group');
+var translateInitValue = 0;
+var translateInitSpeedValue = 1000;
+$('#translating-modal-start').on('click', function () {
+    $('.translating-modal-success-rate').html('0%');
+    $('.translating-modal-success-bar').attr('style', 'width:0%');
+    autoTranslationFunction()
+})
+
+function autoTranslationFunction() {
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
+        }
+    });
+    $.ajax({
+        url: $('#get-auto-translate-all-route-and-text').data('route'),
+        method: 'GET',
+        beforeSend: function () {
+            $('#translating-modal').modal('show')
+        },
+        success: function (response) {
+            if (response.due_message != 0) {
+                translateInitValue += Math.round((100 / needToTranslateCall) * 100) / 100;
+                translateInitValue = translateInitValue > 100 ? 100 : translateInitValue;
+                $('.translating-modal-success-bar').attr('style', 'width:' + translateInitValue + '%');
+                $('.translating-modal-success-rate').html(parseFloat(translateInitValue.toFixed(2)) + '%');
+                autoTranslationFunction()
+            } else {
+                toastr.success(response.message);
+                $('.translateCountSuccess').html(response.translate_success_message);
+                translateInitSpeedValue = 10;
+                translatingModalSuccessRate(translateInitSpeedValue);
+                translateInitSpeedValue = 1000;
+                setTimeout(() => {
+                    $('#translating-modal').modal('hide');
+                    setTimeout(() => {
+                        $('#complete-modal').modal('show');
+                    }, 500)
+                }, 2000)
+            }
+        },
+        complete: function () {
+
+        },
+        error: function (xhr, ajaxOption, thrownError) {
+        },
+    });
+}
+
+function translatingModalSuccessRate(SpeedValue) {
+    const translatingRateInterval = setInterval(() => {
+        if (translateInitValue < 100) {
+            $('.translating-modal-success-rate').html(translateInitValue + '%');
+            $('.translating-modal-success-bar').attr('style', 'width:' + translateInitValue + '%');
+            translateInitValue++;
+        }
+    }, SpeedValue)
+    if (SpeedValue !== translateInitSpeedValue) {
+        clearInterval(translatingRateInterval)
+    }
+}

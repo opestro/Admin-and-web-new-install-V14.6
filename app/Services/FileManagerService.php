@@ -2,23 +2,52 @@
 
 namespace App\Services;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Madnest\Madzipper\Facades\Madzipper;
-
+use ZipArchive;
 class FileManagerService
 {
 
     public function uploadImages(object $request): bool
     {
+        $storage = $request['storage'];
         if ($request->hasfile('images')) {
             $images = $request->file('images');
             foreach ($images as $image) {
                 $name = $image->getClientOriginalName();
-                Storage::disk('local')->put($request['path'] . '/' . $name, file_get_contents($image));
+                if($storage == 's3'){
+                    Storage::disk($storage)->putFileAs($request->path, $image, $name);
+                }else{
+                    Storage::disk('local')->put($request['path'] . '/' . $name, file_get_contents($image));
+                }
+
             }
         }
         if ($request->hasfile('file')) {
-            Madzipper::make($request->file('file'))->extractTo('storage/app/' . $request['path']);
+            $file = $request->file('file');
+            if ($storage === 's3') {
+                $zip = new ZipArchive;
+                if ($zip->open($file->path()) === true) {
+                    for ($i = 0; $i < $zip->numFiles; $i++) {
+                        $stat = $zip->statIndex($i);
+
+                        if (!$stat['name'] || $this->shouldSkip($stat['name'])) {
+                            continue;
+                        }
+                        $filename = $stat['name'];
+                        $fileContent = $zip->getFromIndex($i);
+                        $format = pathinfo($filename, PATHINFO_EXTENSION);
+                        $imageName = Carbon::now()->toDateString() . "-" . uniqid() . "." . $format;
+                        $s3 = Storage::disk('s3');
+                        $s3Path = $request->path . '/' . $imageName;
+                        $s3->put($s3Path, $fileContent, 'public');
+                    }
+                    $zip->close();
+                }
+            }else{
+                Madzipper::make($request->file('file'))->extractTo('storage/app/' . $request['path']);
+            }
         }
         return true;
     }
@@ -45,8 +74,8 @@ class FileManagerService
     {
         $data = [];
         foreach ($files as $file) {
-            $name = self::getFileName($file);
-            $ext = self::getFileExtension($name);
+            $name = $this->getFileName($file);
+            $ext = $this->getFileExtension($name);
             $path = '';
             if ($type == 'file') {
                 $path = $file;
@@ -58,10 +87,28 @@ class FileManagerService
                 $data[] = [
                     'name' => $name,
                     'path' => $path,
-                    'db_path' => self::getPathForDatabase($file),
+                    'db_path' => $this->getPathForDatabase($file),
                     'type' => $type
                 ];
         }
         return $data;
     }
+
+    private function shouldSkip($filename) {
+        $skipFiles = [
+            '__MACOSX/', // Skip macOS metadata files
+            '.DS_Store', // Skip .DS_Store files
+            'Thumbs.db', // Skip Thumbs.db files (Windows)
+            // Add more conditions as needed
+        ];
+
+        foreach ($skipFiles as $skipFile) {
+            if (strpos($filename, $skipFile) === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

@@ -4,37 +4,74 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
 
 if (!function_exists('translate')) {
-    function translate($key): string
+    function translate($key = null): string|null
     {
         $local = getDefaultLanguage();
-        App::setLocale($local);
+        if ($key) {
+            $local = getDefaultLanguage();
+            App::setLocale($local);
+            $key = getOrPutTranslateMessageValueByKey(local: $local, key: $key);
+        }
+        App::setLocale(getLanguageCode(country_code: $local));
+        return $key;
+    }
 
+    function getOrPutTranslateMessageValueByKey(string $local, string $key): array|string|null
+    {
         try {
-            $lang_array = include(base_path('resources/lang/' . $local . '/messages.php'));
-            $processed_key = ucfirst(str_replace('_', ' ', removeSpecialCharacters($key)));
-            $key = removeSpecialCharacters($key);
-            if (!array_key_exists($key, $lang_array)) {
-                $lang_array[$key] = $processed_key;
-                $str = "<?php return " . var_export($lang_array, true) . ";";
-                file_put_contents(base_path('resources/lang/' . $local . '/messages.php'), $str);
-                $result = $processed_key;
+            $translatedMessagesArray = include(base_path('resources/lang/' . $local . '/messages.php'));
+            $newMessagesArray = include(base_path('resources/lang/' . $local . '/new-messages.php'));
+            $key = str_replace('"', '', $key);
+            $processedKey = ucfirst(str_replace('_', ' ', removeSpecialCharacters(str_replace("\'", "'", $key))));
+
+            if (!array_key_exists($key, $translatedMessagesArray) && !array_key_exists($key, $newMessagesArray)) {
+                $newMessagesArray[$key] = $processedKey;
+
+                $languageFileContents = "<?php\n\nreturn [\n";
+                foreach ($newMessagesArray as $languageKey => $value) {
+                    $languageFileContents .= "\t\"" . $languageKey . "\" => \"" . $value . "\",\n";
+                }
+                $languageFileContents .= "];\n";
+
+                $targetPath = base_path('resources/lang/' . $local . '/new-messages.php');
+                file_put_contents($targetPath, $languageFileContents);
+                $message = $processedKey;
+            }
+
+            if (array_key_exists($key, $translatedMessagesArray)) {
+                $message = __('messages.' . $key);
+            } elseif (array_key_exists($key, $newMessagesArray)) {
+                $message = __('new-messages.' . $key);
             } else {
-                $result = __('messages.' . $key);
+                $message = __('messages.' . $key);
             }
         } catch (\Exception $exception) {
-            $result = __('messages.' . $key);
+            $message = __('messages.' . $key);
         }
+        return $message;
+    }
+}
 
-        return $result;
+if (!function_exists('getDirectoriesByGivenPath')) {
+    function getDirectoriesByGivenPath(string $path): array
+    {
+        $directories = [];
+        $items = scandir($path);
+        foreach ($items as $item) {
+            if ($item == '..' || $item == '.')
+                continue;
+            if (is_dir($path . '/' . $item))
+                $directories[] = $item;
+        }
+        return $directories;
     }
 }
 
 
 if (!function_exists('removeSpecialCharacters')) {
-
     function removeSpecialCharacters(string|null $text): string|null
     {
-        return str_ireplace(['\'', '"', ',', ';', '<', '>', '?'], ' ', preg_replace('/\s\s+/', ' ', $text));
+        return str_ireplace(['\'', '"', ',', ';', '<', '>', '?', '“', '”'], ' ', preg_replace('/\s\s+/', ' ', $text));
     }
 }
 

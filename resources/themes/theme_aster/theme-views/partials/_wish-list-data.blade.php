@@ -10,7 +10,7 @@
                         <div class="media gap-3 align-items-center mn-w200">
                             <div class="avatar border rounded size-3-437rem">
                                 <img class="img-fit dark-support rounded aspect-1" alt=""
-                                    src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'product') }}">
+                                    src="{{ getStorageImages(path: $product->thumbnail_full_url, type: 'product') }}">
                             </div>
                             <div class="media-body">
                                 <a href="{{route('product',$product['slug'])}}">
@@ -74,7 +74,7 @@
                 <div class="media gap-3 bg-light p-3 rounded">
                     <div class="avatar border rounded size-3-437rem">
                         <img
-                            src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'product') }}"
+                            src="{{ getStorageImages(path:$product->thumbnail_full_url, type: 'product') }}"
                             class="img-fit dark-support rounded" alt="">
                     </div>
                     <div class="media-body d-flex flex-column gap-1">

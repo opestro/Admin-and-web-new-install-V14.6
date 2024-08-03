@@ -43,7 +43,7 @@
                                             </span>
                                             <div class="img_area_with_preview position-absolute z-index-2">
                                                 <img id="view-bp-logo"
-                                                     src="{{getValidImage(path:'storage/app/public/vendor-registration-setting/'.$downloadVendorApp?->image ,type:'backend-basic')}}" class="bg-white {{$downloadVendorApp?->image ? '':'h-auto'}}" alt="">
+                                                     src="{{getStorageImages(path:imagePathProcessing(imageData: $downloadVendorApp?->image, path: 'vendor-registration-setting'),type: 'backend-banner')}}" class="bg-white" alt="">
                                             </div>
                                             <div
                                                 class="position-absolute h-100 top-0 w-100 d-flex align-content-center justify-content-center">

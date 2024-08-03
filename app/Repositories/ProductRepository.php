@@ -141,7 +141,7 @@ class ProductRepository implements ProductRepositoryInterface
                     }
                 })
                 ->when(isset($filters['added_by']) && !$this->isAddedByInHouse($filters['added_by']), function($query) use($filters, $product_ids) {
-                    $query->orWhereIn('id', $product_ids)
+                    $query->whereIn('id', $product_ids)
                         ->where(['added_by' => 'seller'])
                         ->when(isset($filters['seller_id']), function ($query) use ($filters) {
                             return $query->where(['user_id' => $filters['seller_id']]);
@@ -168,6 +168,8 @@ class ProductRepository implements ProductRepositoryInterface
             return $query->where(['status' => $filters['status']]);
         })->when(isset($filters['code']), function ($query) use ($filters) {
             return $query->where(['code' => $filters['code']]);
+        })->when(isset($filters['productIds']), function ($query) use ($filters) {
+            return $query->whereIn('id' , $filters['productIds']);
         })->when(!empty($orderBy), function ($query) use ($orderBy) {
             $query->orderBy(array_key_first($orderBy), array_values($orderBy)[0]);
         });
@@ -327,13 +329,13 @@ class ProductRepository implements ProductRepositoryInterface
     }
     public function update(string $id, array $data): bool
     {
-        return $this->product->where('id', $id)->update($data);
+        return $this->product->find($id)->update($data);
     }
+
     public function updateByParams(array $params, array $data): bool
     {
         return $this->product->where($params)->update($data);
     }
-
 
     public function getListWhereNotIn(array $filters = [], array $whereNotIn = [], array $relations = [], int|string $dataLimit = DEFAULT_DATA_LIMIT, int $offset = null): Collection|LengthAwarePaginator
     {

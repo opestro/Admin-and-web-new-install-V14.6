@@ -6,7 +6,7 @@ use App\Utils\Helpers;
 use App\Http\Controllers\Controller;
 use App\Models\ProductCompare;
 use App\Models\Wishlist;
-use App\User;
+use App\Models\User;
 use App\Utils\CartManager;
 use Brian2694\Toastr\Facades\Toastr;
 use Carbon\Carbon;
@@ -167,18 +167,18 @@ class LoginController extends Controller
 
             if (!$user->is_active) {
                 auth()->guard('customer')->logout();
-                if($request->ajax()) {
+                if ($request->ajax()) {
                     return response()->json([
-                        'status'=>'error',
-                        'message'=>translate('your_account_is_suspended'),
+                        'status' => 'error',
+                        'message' => translate('your_account_is_suspended'),
                     ]);
-                }else{
+                } else {
                     Toastr::error(translate('your_account_is_suspended'));
                     return back()->withInput();
                 }
             }
 
-            $wish_list = Wishlist::whereHas('wishlistProduct',function($q){
+            $wish_list = Wishlist::whereHas('wishlistProduct', function ($q) {
                 return $q;
             })->where('customer_id', auth('customer')->user()->id)->pluck('product_id')->toArray();
 
@@ -188,7 +188,7 @@ class LoginController extends Controller
             session()->forget('compare_list');
             session()->put('wish_list', $wish_list);
             session()->put('compare_list', $compare_list);
-            Toastr::info(translate('welcome_to') .' '. Helpers::get_business_settings('company_name') . '!');
+            Toastr::success(translate('welcome_to') . ' ' . Helpers::get_business_settings('company_name') . '!');
             CartManager::cart_to_db();
 
             $user->login_hit_count = 0;
@@ -201,37 +201,37 @@ class LoginController extends Controller
             $previous_url = url()->previous();
 
             if (
-                strpos($previous_url,'checkout-complete') !== false ||
-                strpos($previous_url,'offline-payment-checkout-complete') !== false ||
-                strpos($previous_url,'track-order') !== false
+                strpos($previous_url, 'checkout-complete') !== false ||
+                strpos($previous_url, 'offline-payment-checkout-complete') !== false ||
+                strpos($previous_url, 'track-order') !== false
             ) {
                 $redirect_url = route('home');
             }
 
-            if($request->ajax()) {
+            if ($request->ajax()) {
                 return response()->json([
-                    'status'=>'success',
-                    'message'=>translate('login_successful'),
-                    'redirect_url'=> $redirect_url,
+                    'status' => 'success',
+                    'message' => translate('login_successful'),
+                    'redirect_url' => $redirect_url,
                 ]);
-            }else{
+            } else {
                 return redirect(session('keep_return_url'));
             }
 
-        }else{
+        } else {
 
             //login attempt check start
-            if(isset($user->temp_block_time ) && Carbon::parse($user->temp_block_time)->diffInSeconds() <= $temp_block_time){
-                $time= $temp_block_time - Carbon::parse($user->temp_block_time)->diffInSeconds();
+            if (isset($user->temp_block_time) && Carbon::parse($user->temp_block_time)->diffInSeconds() <= $temp_block_time) {
+                $time = $temp_block_time - Carbon::parse($user->temp_block_time)->diffInSeconds();
 
                 $ajax_message = [
-                    'status'=>'error',
-                    'message'=> translate('please_try_again_after_') . CarbonInterval::seconds($time)->cascade()->forHumans(),
-                    'redirect_url'=>''
+                    'status' => 'error',
+                    'message' => translate('please_try_again_after_') . CarbonInterval::seconds($time)->cascade()->forHumans(),
+                    'redirect_url' => ''
                 ];
                 Toastr::error(translate('please_try_again_after_') . CarbonInterval::seconds($time)->cascade()->forHumans());
 
-            }elseif($user->is_temp_blocked == 1 && Carbon::parse($user->temp_block_time)->diffInSeconds() >= $temp_block_time){
+            } elseif ($user->is_temp_blocked == 1 && Carbon::parse($user->temp_block_time)->diffInSeconds() >= $temp_block_time) {
 
                 $user->login_hit_count = 0;
                 $user->is_temp_blocked = 0;
@@ -240,31 +240,31 @@ class LoginController extends Controller
                 $user->save();
 
                 $ajax_message = [
-                    'status'=>'error',
-                    'message'=> translate('credentials_doesnt_match'),
-                    'redirect_url'=>''
+                    'status' => 'error',
+                    'message' => translate('credentials_doesnt_match'),
+                    'redirect_url' => ''
                 ];
                 Toastr::error(translate('credentials_doesnt_match'));
 
-            }elseif($user->login_hit_count >= $max_login_hit &&  $user->is_temp_blocked == 0){
+            } elseif ($user->login_hit_count >= $max_login_hit && $user->is_temp_blocked == 0) {
                 $user->is_temp_blocked = 1;
                 $user->temp_block_time = now();
                 $user->updated_at = now();
                 $user->save();
 
-                $time= $temp_block_time - Carbon::parse($user->temp_block_time)->diffInSeconds();
+                $time = $temp_block_time - Carbon::parse($user->temp_block_time)->diffInSeconds();
 
                 $ajax_message = [
-                    'status'=>'error',
-                    'message'=> translate('too_many_attempts._please_try_again_after_'). CarbonInterval::seconds($time)->cascade()->forHumans(),
-                    'redirect_url'=>''
+                    'status' => 'error',
+                    'message' => translate('too_many_attempts._please_try_again_after_') . CarbonInterval::seconds($time)->cascade()->forHumans(),
+                    'redirect_url' => ''
                 ];
-                Toastr::error(translate('too_many_attempts._please_try_again_after_'). CarbonInterval::seconds($time)->cascade()->forHumans());
-            }else{
+                Toastr::error(translate('too_many_attempts._please_try_again_after_') . CarbonInterval::seconds($time)->cascade()->forHumans());
+            } else {
                 $ajax_message = [
-                    'status'=>'error',
-                    'message'=> translate('credentials_doesnt_match'),
-                    'redirect_url'=>''
+                    'status' => 'error',
+                    'message' => translate('credentials_doesnt_match'),
+                    'redirect_url' => ''
                 ];
                 Toastr::error(translate('credentials_doesnt_match'));
 
@@ -273,9 +273,9 @@ class LoginController extends Controller
             }
             //login attempt check end
 
-            if($request->ajax()) {
+            if ($request->ajax()) {
                 return response()->json($ajax_message);
-            }else{
+            } else {
                 return back()->withInput();
             }
         }
@@ -285,7 +285,7 @@ class LoginController extends Controller
     {
         auth()->guard('customer')->logout();
         session()->forget('wish_list');
-        Toastr::info(translate('come_back_soon').'!');
+        Toastr::success(translate('come_back_soon').'!');
         return redirect()->route('home');
     }
 

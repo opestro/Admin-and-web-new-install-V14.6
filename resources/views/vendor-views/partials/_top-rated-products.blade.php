@@ -15,7 +15,7 @@
                                  onclick="location.href='{{route('vendor.products.view',[$product['id']])}}'">
                                 <div class="">
                                     <img class="avatar avatar-bordered border-gold avatar-60 rounded"
-                                     src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'. $product['thumbnail'], type: 'backend-product') }}"
+                                     src="{{ getStorageImages(path: $product->thumbnail_full_url, type: 'backend-product') }}"
                                          alt="{{$product->name}} image">
                                 </div>
                                 <div class="fz-12 title-color text-center line--limit-1">

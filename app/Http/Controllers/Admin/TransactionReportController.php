@@ -15,7 +15,7 @@ use App\Models\OrderTransaction;
 use App\Models\Product;
 use App\Models\Seller;
 use App\Models\Shop;
-use App\User;
+use App\Models\User;
 use App\Utils\BackEndHelper;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -209,7 +209,7 @@ class TransactionReportController extends Controller
         $company_phone = BusinessSetting::where('type', 'company_phone')->first()->value;
         $company_email = BusinessSetting::where('type', 'company_email')->first()->value;
         $company_name = BusinessSetting::where('type', 'company_name')->first()->value;
-        $company_web_logo = BusinessSetting::where('type', 'company_web_logo')->first()->value;
+        $company_web_logo = getWebConfig('company_web_logo');
 
         $from = $request['from'];
         $to = $request['to'];
@@ -394,7 +394,7 @@ class TransactionReportController extends Controller
         $company_phone = BusinessSetting::where('type', 'company_phone')->first()->value;
         $company_email = BusinessSetting::where('type', 'company_email')->first()->value;
         $company_name = BusinessSetting::where('type', 'company_name')->first()->value;
-        $company_web_logo = BusinessSetting::where('type', 'company_web_logo')->first()->value;
+        $company_web_logo = getWebConfig('company_web_logo');
 
         $transaction = OrderTransaction::with(['seller.shop', 'customer', 'order', 'orderDetails'])
             ->withSum('orderDetails', 'price')
@@ -852,7 +852,7 @@ class TransactionReportController extends Controller
         $company_phone = BusinessSetting::where('type', 'company_phone')->first()->value;
         $company_email = BusinessSetting::where('type', 'company_email')->first()->value;
         $company_name = BusinessSetting::where('type', 'company_name')->first()->value;
-        $company_web_logo = BusinessSetting::where('type', 'company_web_logo')->first()->value;
+        $company_web_logo = getWebConfig('company_web_logo');
 
         $search = $request['search'];
         $from = $request['from'];
@@ -927,7 +927,7 @@ class TransactionReportController extends Controller
         $company_phone = BusinessSetting::where('type', 'company_phone')->first()->value;
         $company_email = BusinessSetting::where('type', 'company_email')->first()->value;
         $company_name = BusinessSetting::where('type', 'company_name')->first()->value;
-        $company_web_logo = BusinessSetting::where('type', 'company_web_logo')->first()->value;
+        $company_web_logo = getWebConfig('company_web_logo');
 
         $transaction = Order::with(['orderTransaction', 'coupon'])
             ->where('id', $request->id)->first();

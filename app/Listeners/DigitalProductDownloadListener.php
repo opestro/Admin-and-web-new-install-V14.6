@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 class DigitalProductDownloadListener
 {
     use EmailTemplateTrait;
+
     /**
      * Create the event listener.
      */
@@ -26,9 +27,10 @@ class DigitalProductDownloadListener
         $this->sendMail($event);
     }
 
-    private function sendMail(DigitalProductDownloadEvent $event):void{
+    private function sendMail(DigitalProductDownloadEvent $event): void
+    {
         $email = $event->email;
         $data = $event->data;
-        $this->sendingMail(sendMailTo: $email,userType: $data['userType'],templateName: $data['templateName'],data: $data);
+        $this->sendingMail(sendMailTo: $email, userType: $data['userType'], templateName: $data['templateName'], data: $data);
     }
 }

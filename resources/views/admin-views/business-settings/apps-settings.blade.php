@@ -316,7 +316,7 @@
                                 class="tio-clear"></i></button>
                 </div>
                 <div class="modal-body px-4 px-sm-5 pt-0">
-                    <div class="swiper mySwiper pb-3">
+                    <div class="swiper instruction-carousel pb-3">
                         <div class="swiper-wrapper">
                             <div class="swiper-slide">
                                 <div class="d-flex flex-column align-items-center gap-2">
@@ -339,11 +339,13 @@
                                     <ul class="d-flex flex-column px-4 gap-2 mb-4">
                                         <li>{{ translate('the_app_download_link_is_the_URL_that_allows_users_to_update_the_app_by_clicking_the_Update_App_button_within_the_app_itself') }} </li>
                                     </ul>
+                                    <button class="btn btn-primary px-10 mt-3 text-capitalize"
+                                            data-dismiss="modal">{{ translate('got_it') }}</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="swiper-pagination mb-4"></div>
+                    <div class="instruction-pagination-custom my-2"></div>
                 </div>
             </div>
         </div>

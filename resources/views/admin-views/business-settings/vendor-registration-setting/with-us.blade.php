@@ -46,7 +46,8 @@
                                         <i class="tio-delete"></i>
                                     </span>
                                     <div class="img_area_with_preview position-absolute z-index-2">
-                                        <img id="view-header-logo" src="{{getValidImage(path:'storage/app/public/vendor-registration-setting/'.$sellWithUs?->image,type: 'backend-banner')}}" class="bg-white {{empty($sellWithUs->image) ? '':'h-auto'}}" alt="">
+                                        @php($imagePath = imagePathProcessing(imageData:$sellWithUs?->image, path: 'vendor-registration-setting'))
+                                        <img id="view-header-logo" src="{{ getStorageImages(path:$imagePath,type: 'backend-banner')}}" class="bg-white" alt="">
                                     </div>
                                     <div
                                         class="position-absolute h-100 top-0 w-100 d-flex align-content-center justify-content-center">

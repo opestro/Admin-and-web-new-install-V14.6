@@ -28,20 +28,31 @@ class FileManagerController extends BaseController
      */
     public function index(Request|null $request, string $type = null): View
     {
-        return $this->getFoldersView();
+        return $this->getFoldersView($request);
     }
 
-    public function getFoldersView($folderPath = "cHVibGlj"): View
+    public function getFoldersView(Request $request,$folderPath = "cHVibGlj"): View
     {
-        $file = Storage::files(base64_decode($folderPath));
-        $directories = Storage::directories(base64_decode($folderPath));
+        $storage = $request['storage'] ?? 'public';
+        $storageConnectionType = getWebConfig(name: 'storage_connection_type');
+        if ($storage == 's3' && $storageConnectionType == 's3'){
+            Storage::disk('s3')->exists($folderPath);
+            $folderPath = $folderPath == "cHVibGlj" ? "" : $folderPath;
+            $directory = base64_decode($folderPath).'/';
+            $s3 = Storage::disk('s3');
+            $file = $directory == '/'?[] : $s3->allFiles($directory);
+            $directories = $s3->allDirectories($directory);
+        }else{
+            $file = Storage::files(base64_decode($folderPath));
+            $directories = Storage::directories(base64_decode($folderPath));
+        }
         $folders = $this->fileManagerService->formatFileAndFolders(files: $directories, type: 'folder');
         $files = $this->fileManagerService->formatFileAndFolders(files: $file, type: 'file');
         $data = array_merge($folders, $files);
         $currentFolder = explode('/', base64_decode($folderPath));
         $previousFolder = str_replace('/'.end($currentFolder), '', base64_decode($folderPath));
 
-        return view(FileManager::VIEW[VIEW], compact('data', 'folderPath', 'currentFolder', 'previousFolder'));
+        return view(FileManager::VIEW[VIEW], compact('data', 'folderPath', 'currentFolder', 'previousFolder','storage','storageConnectionType'));
     }
 
     public function upload(FileManagerUploadRequest $request, FileManagerService $fileManagerService): RedirectResponse
@@ -55,8 +66,8 @@ class FileManagerController extends BaseController
         return back()->with('success', translate('image_uploaded_successfully'));
     }
 
-    public function download($fileName): StreamedResponse
+    public function download(Request $request , $fileName): StreamedResponse
     {
-        return Storage::download(base64_decode($fileName));
+        return Storage::disk($request['storage']=='public' ? 'local' : $request['storage'])->download(base64_decode($fileName));
     }
 }

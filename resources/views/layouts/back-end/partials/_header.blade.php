@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Session;
                 @php($ecommerceLogo = getWebConfig('company_web_logo'))
                 <a class="navbar-brand" href="{{route('admin.dashboard.index')}}" aria-label="">
                     <img class="navbar-brand-logo"
-                         src="{{getValidImage('storage/app/public/company/'.$ecommerceLogo,type: 'backend-logo')}}" alt="{{ translate('logo') }}">
+                         src="{{ getStorageImages($ecommerceLogo, type: 'backend-logo')}}" alt="{{ translate('logo') }}">
                     <img class="navbar-brand-logo-mini"
-                         src="{{getValidImage('storage/app/public/company/'.$ecommerceLogo,type: 'backend-logo')}}"
+                         src="{{getStorageImages($ecommerceLogo, type: 'backend-logo')}}"
                          alt="{{ translate('logo') }}">
                 </a>
             </div>
@@ -147,7 +147,7 @@ use Illuminate\Support\Facades\Session;
                                 </div>
                                 <div class="avatar border avatar-circle">
                                     <img class="avatar-img"
-                                         src="{{getValidImage('storage/app/public/admin/'.auth('admin')->user()->image,type: 'backend-profile')}}"
+                                         src="{{getStorageImages(path: auth('admin')->user()->image_full_url,type: 'backend-profile')}}"
                                          alt="{{translate('image_description')}}">
                                     <span class="d-none avatar-status avatar-sm-status avatar-status-success"></span>
                                 </div>
@@ -157,7 +157,7 @@ use Illuminate\Support\Facades\Session;
                                 <div class="dropdown-item-text">
                                     <div class="media align-items-center text-break">
                                         <div class="avatar avatar-sm avatar-circle mr-2">
-                                            <img class="avatar-img" src="{{getValidImage('storage/app/public/admin/'.auth('admin')->user()->image,type: 'backend-profile')}}"
+                                            <img class="avatar-img" src="{{getStorageImages(path: auth('admin')->user()->image_full_url,type: 'backend-profile')}}"
                                                  alt="{{translate('image_description')}}">
                                         </div>
                                         <div class="media-body">

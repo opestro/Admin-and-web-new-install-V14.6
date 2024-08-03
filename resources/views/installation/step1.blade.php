@@ -48,16 +48,16 @@
                                 <img alt=""
                                      src="{{ dynamicAsset(path: 'public/assets/installation/assets/img/svg-icons/php-version.svg') }}">
                                 <div class="d-flex align-items-center gap-2 justify-content-between flex-grow-1">
-                                    {{ "PHP Version 8.0 +" }}
+                                    {{ "PHP Version 8.1 +" }}
                                     @php($phpVersion = number_format((float)phpversion(), 2, '.', ''))
-                                    @if ($phpVersion >= 8.0)
+                                    @if ($phpVersion >= 8.1)
                                         <img width="20" alt=""
                                              src="{{ dynamicAsset(path: 'public/assets/installation/assets/img/svg-icons/check.png') }}">
                                     @else
                                         <span class="cursor-pointer" data-bs-toggle="tooltip"
                                               data-bs-placement="top" data-bs-custom-class="custom-tooltip"
                                               data-bs-html="true" data-bs-delay='{"hide":1000}'
-                                              data-bs-title="Your php version in server is lower than 8.0 version
+                                              data-bs-title="Your php version in server is lower than 8.1 version
                                                    <a href='https://support.cpanel.net/hc/en-us/articles/360052624713-How-to-change-the-PHP-version-for-a-domain-in-cPanel-or-WHM'
                                                    class='d-block' target='_blank'>See how to update</a> ">
                                                 <img class="svg text-danger" alt=""
@@ -138,7 +138,7 @@
 
             <div class="text-center">
                 <p>{{ "All the permissions are provided successfully ?" }}</p>
-                @if ($permission['curl_enabled'] == 1 && $permission['db_file_write_perm'] == 1 && $permission['routes_file_write_perm'] == 1 && $phpVersion >= 8.0)
+                @if ($permission['curl_enabled'] == 1 && $permission['db_file_write_perm'] == 1 && $permission['routes_file_write_perm'] == 1 && $phpVersion >= 8.1)
                     <a href="{{ route('step2') }}" class="btn btn-dark px-sm-5">
                         {{ "Proceed Next" }}
                     </a>

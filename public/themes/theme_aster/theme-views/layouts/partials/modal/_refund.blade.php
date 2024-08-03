@@ -11,7 +11,7 @@
                     <div class="media align-items-center gap-3">
                         <div class="avatar avatar-xxl rounded border overflow-hidden">
                             <img class="d-block img-fit-contain"
-                                 src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'product') }}"
+                                 src="{{ getStorageImages(path: $detail?->productAllStatus?->thumbnail_full_url, type: 'product') }}"
                                  alt="" width="60">
                         </div>
                         <div class="media-body d-flex gap-1 flex-column">

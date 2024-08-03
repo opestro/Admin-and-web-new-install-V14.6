@@ -4,21 +4,21 @@
 
 @push('css_or_js')
     @if($shop['id'] != 0)
-        <meta property="og:image" content="{{dynamicStorage(path: 'storage/app/public/shop')}}/{{$shop->image}}"/>
+        <meta property="og:image" content="{{$shop->image_full_url['path']}}"/>
         <meta property="og:title" content="{{ $shop->name}} "/>
         <meta property="og:url" content="{{route('shopView',[$shop['id']])}}">
     @else
-        <meta property="og:image" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['fav_icon']->value}}"/>
+        <meta property="og:image" content="{{$web_config['fav_icon']['path']}}"/>
         <meta property="og:title" content="{{ $shop['name']}} "/>
         <meta property="og:url" content="{{route('shopView',[$shop['id']])}}">
     @endif
 
     @if($shop['id'] != 0)
-        <meta property="twitter:card" content="{{dynamicStorage(path: 'storage/app/public/shop')}}/{{$shop->image}}"/>
+        <meta property="twitter:card" content="{{$shop->image_full_url['path']}}"/>
         <meta property="twitter:title" content="{{route('shopView',[$shop['id']])}}"/>
         <meta property="twitter:url" content="{{route('shopView',[$shop['id']])}}">
     @else
-        <meta property="twitter:card" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['fav_icon']->value}}"/>
+        <meta property="twitter:card" content="{{$web_config['fav_icon']['path']}}"/>
         <meta property="twitter:title" content="{{route('shopView',[$shop['id']])}}"/>
         <meta property="twitter:url" content="{{route('shopView',[$shop['id']])}}">
     @endif
@@ -36,11 +36,11 @@
             <div class="bg-white __shop-banner-main">
                 @if($shop['id'] != 0)
                     <img class="__shop-page-banner" alt=""
-                         src="{{ getValidImage(path: 'storage/app/public/shop/banner/'.$shop->banner, type: 'wide-banner') }}">
+                         src="{{ getStorageImages(path: $shop->banner_full_url, type: 'wide-banner') }}">
                 @else
                     @php($banner=getWebConfig(name: 'shop_banner'))
                     <img class="__shop-page-banner" alt=""
-                         src="{{ getValidImage(path: 'storage/app/public/shop/'.($banner ?? 'banner'), type: 'wide-banner') }}">
+                         src="{{ getStorageImages(path: $banner, type: 'wide-banner') }}">
                 @endif
                 @include('web-views.seller-view.shop-info-card', ['displayClass' => 'd-none d-md-block max-width-500px'])
 
@@ -195,16 +195,11 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="{{route('messages_store')}}" method="post" id="shop-view-chat-form">
+                    <form action="{{route('messages')}}" method="post" id="shop-view-chat-form">
                         @csrf
-                        <input value="{{$shop['id']}}" name="shop_id" hidden>
-                        @if($shop['id'] != 0)
-                            <input value="{{$shop->seller_id}}}" name="seller_id" hidden>
-                        @endif
-
+                        <input value="{{$shop['id'] != 0 ? $shop['id'] : 0}}" name="vendor_id" hidden>
                         <textarea name="message" class="form-control min-height-100px max-height-200px" required placeholder="{{ translate('Write_here') }}..."></textarea>
                         <br>
-
                         <div class="justify-content-end gap-2 d-flex flex-wrap">
                             <a href="{{route('chat', ['type' => 'vendor'])}}" class="btn btn-soft-primary bg--secondary border">
                                 {{translate('go_to_chatbox')}}

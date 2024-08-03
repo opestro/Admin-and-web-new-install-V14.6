@@ -25,13 +25,14 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <h4 class="mb-4 d-flex align-items-center gap-2">
-                            <img src="{{dynamicAsset(path: 'public/assets/back-end/img/vendor-information.png')}}" alt="">
+                            <img src="{{dynamicAsset(path: 'public/assets/back-end/img/vendor-information.png')}}"
+                                 alt="">
                             {{translate('customer').' # '.$customer['id']}}
                         </h4>
 
                         <div class="customer-details-new-card">
-                            <img src="{{ getValidImage(path: 'storage/app/public/profile/'. $customer['image'] , type: 'backend-profile') }}"
-                                alt="{{translate('image')}}">
+                            <img src="{{ getStorageImages(path: $customer->image_full_url , type: 'backend-profile') }}"
+                                alt="{{translate('image')}}" class="aspect-1">
                             <div class="customer-details-new-card-content">
                                 <h6 class="name line--limit-2" data-toggle="tooltip" data-placement="top" title="{{$customer['f_name'].' '.$customer['l_name']}}">{{$customer['f_name'].' '.$customer['l_name']}}</h6>
                                 <ul class="customer-details-new-card-content-list">

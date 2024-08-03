@@ -95,7 +95,7 @@
                                         <div class="text-center mx-auto">
                                             <img class="upload-img-view"
                                                  id="viewer"
-                                                 src="{{ getValidImage(path: 'storage/app/public/category/'. $category['icon'] , type: 'backend-basic') }}"
+                                                 src="{{ getStorageImages(path: $category->icon_full_url , type: 'backend-basic') }}"
                                                  alt=""/>
                                         </div>
                                     </div>

@@ -6,13 +6,15 @@ use App\Models\ShippingAddress;
 use App\Models\Order;
 use App\Models\ProductCompare;
 use App\Models\Wishlist;
+use App\Traits\StorageTrait;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use Notifiable, HasApiTokens;
+    use Notifiable, HasApiTokens,StorageTrait;
 
     public mixed $email;
 
@@ -71,6 +73,39 @@ class User extends Authenticatable
     public function compare_list()
     {
         return $this->hasMany(ProductCompare::class, 'user_id');
+    }
+    public function getImageFullUrlAttribute():array
+    {
+        $value = $this->image;
+        if (count($this->storage) > 0 && $this->storageConnectionCheck() == 's3') {
+            foreach ($this->storage as $storage) {
+                if ($storage['key'] == 'image') {
+                    return $this->storageLink('profile',$value,$storage['value']);
+                }
+            }
+        }
+        return $this->storageLink('profile',$value,'public');
+    }
+    protected $with = ['storage'];
+    protected $appends = ['image_full_url'];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::saved(function ($model) {
+            if($model->isDirty('image')){
+                $value = getWebConfig(name: 'storage_connection_type') ?? 'public';
+                DB::table('storages')->updateOrInsert([
+                    'data_type' => get_class($model),
+                    'data_id' => $model->id,
+                    'key' => 'image',
+                ], [
+                    'value' => $value,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        });
     }
 
 }

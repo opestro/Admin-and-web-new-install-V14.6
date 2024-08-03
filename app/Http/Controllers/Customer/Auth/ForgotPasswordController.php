@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Customer\Auth;
 use App\Events\PasswordResetEvent;
 use App\Http\Controllers\Controller;
 use App\Models\PasswordReset;
-use App\User;
+use App\Models\User;
 use App\Utils\Helpers;
 use App\Utils\SMS_module;
 use Brian2694\Toastr\Facades\Toastr;

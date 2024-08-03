@@ -24,7 +24,7 @@
                     <div class="col-md-auto mb-3 mb-md-0">
                         <div class="d-flex align-items-center">
                             <img class="avatar avatar-xxl avatar-4by3 {{Session::get('direction') === "rtl" ? 'ml-4' : 'mr-4'}}"
-                                src="{{getValidImage(path:'storage/app/public/delivery-man/'.$deliveryMan['image'],type: 'backend-profile')}}"
+                                src="{{getStorageImages(path:$deliveryMan->image_full_url,type: 'backend-profile')}}"
                                 alt="Image Description">
                             <div class="d-block">
                                 <h4 class="display-2 text-dark mb-0">
@@ -183,7 +183,7 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="avatar avatar-circle">
-                                        <img class="avatar-img" src="{{getValidImage(path: 'storage/app/public/profile/'.$review->customer->image,type: 'backend-profile')}}"
+                                        <img class="avatar-img" src="{{getStorageImages(path: $review->customer->image_full_url,type: 'backend-profile')}}"
                                             alt="{{translate('image_description')}}">
                                     </div>
                                     <div class="{{Session::get('direction') === "rtl" ? 'mr-3' : 'ml-3'}}">

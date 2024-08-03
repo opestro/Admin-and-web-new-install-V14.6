@@ -1,9 +1,12 @@
 <?php
 
 namespace App\Exports;
+use GuzzleHttp\Client;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\WithDrawings;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -11,6 +14,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -69,10 +73,20 @@ class BrandListExport implements FromView, ShouldAutoSize, WithStyles,WithColumn
     }
     public function setImage($workSheet) {
         $this->data['brands']->each(function($item,$index) use($workSheet) {
-            $drawing = new Drawing();
+            $tempImagePath = null;
+            $filePath = 'brand/'.$item->image_full_url['key'];
+            $fileCheck = fileCheck(disk:'public',path: $filePath);
+            if($item->image_full_url['path'] && !$fileCheck){
+                $tempImagePath = getTemporaryImageForExport($item->image_full_url['path']);
+                $imagePath = getImageForExport($item->image_full_url['path']);
+                $drawing = new MemoryDrawing();
+                $drawing->setImageResource($imagePath);
+            }else{
+                $drawing = new Drawing();
+                $drawing->setPath(is_file(storage_path('app/public/'.$filePath)) ? storage_path('app/public/'.$filePath) : public_path('assets/back-end/img/brand.png'));
+            }
             $drawing->setName($item->name);
             $drawing->setDescription($item->name);
-            $drawing->setPath(file_exists(storage_path('app/public/brand/'.$item->image))? storage_path('app/public/brand/'.$item->image) : public_path('assets/back-end/img/brand.png'));
             $drawing->setHeight(50);
             $drawing->setOffsetX(40);
             $drawing->setOffsetY(7);
@@ -80,9 +94,12 @@ class BrandListExport implements FromView, ShouldAutoSize, WithStyles,WithColumn
             $index+=5;
             $drawing->setCoordinates("B$index");
             $drawing->setWorksheet($workSheet);
-
+            if($tempImagePath){
+                imagedestroy($tempImagePath);
+            }
         });
     }
+
 
     public function registerEvents(): array
     {
@@ -112,7 +129,6 @@ class BrandListExport implements FromView, ShouldAutoSize, WithStyles,WithColumn
                     $event->sheet->getRowDimension(3)->setRowHeight(30);
                     $event->sheet->getRowDimension(4)->setRowHeight(30);
                     $event->sheet->getDefaultRowDimension()->setRowHeight(50);
-
                     $workSheet = $event->sheet->getDelegate();
                     $this->setImage($workSheet);
             },

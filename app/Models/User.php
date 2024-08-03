@@ -3,10 +3,14 @@
 namespace App\Models;
 
 use App\Models\ShippingAddress;
+use App\Traits\StorageTrait;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 use Laravel\Passport\HasApiTokens;
 
 /**
@@ -52,7 +56,7 @@ use Laravel\Passport\HasApiTokens;
  */
 class User extends Authenticatable
 {
-    use Notifiable, HasApiTokens;
+    use Notifiable, HasApiTokens,StorageTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -182,6 +186,43 @@ class User extends Authenticatable
     public function compareList(): hasMany
     {
         return $this->hasMany(ProductCompare::class, 'user_id');
+    }
+    public function compare_list()
+    {
+        return $this->hasMany(ProductCompare::class, 'user_id');
+    }
+    public function wish_list()
+    {
+        return $this->hasMany(Wishlist::class, 'customer_id');
+    }
+
+    public function getImageFullUrlAttribute():array
+    {
+        $value = $this->image;
+        if (count($this->storage) > 0 ) {
+            $storage = $this->storage->where('key','image')->first();
+        }
+        return $this->storageLink('profile',$value,$storage['value'] ?? 'public');
+    }
+    protected $appends = ['image_full_url'];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::saved(function ($model) {
+            if($model->isDirty('image')){
+                $storage = config('filesystems.disks.default') ?? 'public';
+                DB::table('storages')->updateOrInsert([
+                    'data_type' => get_class($model),
+                    'data_id' => $model->id,
+                    'key' => 'image',
+                ], [
+                    'value' => $storage,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        });
     }
 
 }

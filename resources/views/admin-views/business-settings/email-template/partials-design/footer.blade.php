@@ -3,7 +3,7 @@
 </p>
 <p>{{translate('Thanks_&_Regards')}}, <br> {{getWebConfig('company_name')}}</p>
 <div class="d-flex justify-content-center mb-3 ">
-    <img width="76" class="mx-auto" id="view-mail-logo" src="{{$template['logo'] ? dynamicStorage('storage/app/public/email-template/'.$template['logo']) : getValidImage(path: "storage/app/public/company/".$companyLogo, type:'backend-logo')}}" alt="">
+    <img width="76" class="mx-auto" id="view-mail-logo" src="{{$template->logo_full_url['path'] ?? getStorageImages(path: $companyLogo, type:'backend-logo')}}" alt="">
 </div>
 <div class="d-flex justify-content-center gap-2">
     <ul class="email-list-inline gap-3 mx-auto" id="selected-pages">

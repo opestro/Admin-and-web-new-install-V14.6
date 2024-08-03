@@ -36,7 +36,7 @@
                         <div class="modal-body px-4 px-sm-5 pt-0 text-center">
                             <div class="row g-2 g-sm-3 mt-lg-0">
                                 <div class="col-12">
-                                    <div class="swiper mySwiper pb-3">
+                                    <div class="swiper instruction-carousel pb-3">
                                         <div class="swiper-wrapper">
                                             <div class="swiper-slide">
                                                 <img
@@ -73,7 +73,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="swiper-pagination"></div>
+                                    <div class="instruction-pagination-custom my-2"></div>
                                 </div>
                             </div>
                         </div>
@@ -271,7 +271,7 @@
                         <div class="p-2 p-sm-3">
                             <div class="aspect-ration-3:2 border border-color-primary-light radius-10">
                                 <img class="img-fit radius-10" alt=""
-                                     src="{{ getValidImage(path: $addon.'/public/addon.png', type: 'backend-basic') }}">
+                                     src="{{ getStorageImages(path: null, type: 'backend-basic',source: $addon.'/public/addon.png') }}">
                             </div>
                         </div>
                     </div>

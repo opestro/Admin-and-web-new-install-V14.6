@@ -26,6 +26,7 @@ use App\Enums\ViewPaths\Admin\EmailTemplate;
 use App\Enums\ViewPaths\Admin\EmergencyContact;
 use App\Enums\ViewPaths\Admin\Employee;
 use App\Enums\ViewPaths\Admin\EnvironmentSettings;
+use App\Enums\ViewPaths\Admin\ErrorLogs;
 use App\Enums\ViewPaths\Admin\FeatureDeal;
 use App\Enums\ViewPaths\Admin\FeaturesSection;
 use App\Enums\ViewPaths\Admin\FileManager;
@@ -39,6 +40,7 @@ use App\Enums\ViewPaths\Admin\Language;
 use App\Enums\ViewPaths\Admin\Mail;
 use App\Enums\ViewPaths\Admin\MostDemanded;
 use App\Enums\ViewPaths\Admin\Notification;
+use App\Enums\ViewPaths\Admin\NotificationSetup;
 use App\Enums\ViewPaths\Admin\OfflinePaymentMethod;
 use App\Enums\ViewPaths\Admin\Order;
 use App\Enums\ViewPaths\Admin\Pages;
@@ -53,6 +55,8 @@ use App\Enums\ViewPaths\Admin\Recaptcha;
 use App\Enums\ViewPaths\Admin\RefundRequest;
 use App\Enums\ViewPaths\Admin\RefundTransaction;
 use App\Enums\ViewPaths\Admin\Review;
+use App\Enums\ViewPaths\Admin\RobotsMetaContent;
+use App\Enums\ViewPaths\Admin\SEOSettings;
 use App\Enums\ViewPaths\Admin\ShippingMethod;
 use App\Enums\ViewPaths\Admin\ShippingType;
 use App\Enums\ViewPaths\Admin\SiteMap;
@@ -61,6 +65,7 @@ use App\Enums\ViewPaths\Admin\SocialLoginSettings;
 use App\Enums\ViewPaths\Admin\SocialMedia;
 use App\Enums\ViewPaths\Admin\SocialMediaChat;
 use App\Enums\ViewPaths\Admin\SoftwareUpdate;
+use App\Enums\ViewPaths\Admin\StorageConnectionSettings;
 use App\Enums\ViewPaths\Admin\SubCategory;
 use App\Enums\ViewPaths\Admin\SubSubCategory;
 use App\Enums\ViewPaths\Admin\SupportTicket;
@@ -88,6 +93,7 @@ use App\Http\Controllers\Admin\HelpAndSupport\HelpTopicController;
 use App\Http\Controllers\Admin\HelpAndSupport\SupportTicketController;
 use App\Http\Controllers\Admin\InhouseProductSaleController;
 use App\Http\Controllers\Admin\Notification\NotificationController;
+use App\Http\Controllers\Admin\Notification\NotificationSetupController;
 use App\Http\Controllers\Admin\Notification\PushNotificationSettingsController;
 use App\Http\Controllers\Admin\Order\OrderController;
 use App\Http\Controllers\Admin\Order\RefundController;
@@ -123,6 +129,7 @@ use App\Http\Controllers\Admin\Settings\DatabaseSettingController;
 use App\Http\Controllers\Admin\Settings\DeliverymanSettingsController;
 use App\Http\Controllers\Admin\Settings\DeliveryRestrictionController;
 use App\Http\Controllers\Admin\Settings\EnvironmentSettingsController;
+use App\Http\Controllers\Admin\Settings\ErrorLogsController;
 use App\Http\Controllers\Admin\Settings\FeaturesSectionController;
 use App\Http\Controllers\Admin\Settings\FileManagerController;
 use App\Http\Controllers\Admin\Settings\InhouseShopController;
@@ -131,9 +138,12 @@ use App\Http\Controllers\Admin\Settings\LanguageController;
 use App\Http\Controllers\Admin\Settings\OrderSettingsController;
 use App\Http\Controllers\Admin\Settings\PagesController;
 use App\Http\Controllers\Admin\Settings\PrioritySetupController;
+use App\Http\Controllers\Admin\Settings\RobotsMetaContentController;
+use App\Http\Controllers\Admin\Settings\SEOSettingsController;
 use App\Http\Controllers\Admin\Settings\SiteMapController;
 use App\Http\Controllers\Admin\Settings\SocialMediaSettingsController;
 use App\Http\Controllers\Admin\Settings\SoftwareUpdateController;
+use App\Http\Controllers\Admin\Settings\StorageConnectionSettingsController;
 use App\Http\Controllers\Admin\Settings\ThemeController;
 use App\Http\Controllers\Admin\Settings\VendorRegistrationReasonController;
 use App\Http\Controllers\Admin\Settings\VendorRegistrationSettingController;
@@ -155,7 +165,7 @@ use App\Http\Controllers\SharedController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::post('change-language', [SharedController::class,'changeLanguage'])->name('change-language');
+Route::post('change-language', [SharedController::class, 'changeLanguage'])->name('change-language');
 
 Route::group(['prefix' => 'login'], function () {
     Route::get('{loginUrl}', [LoginController::class, 'index']);
@@ -175,7 +185,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
     });
 
     Route::get('logout', [LoginController::class, 'logout'])->name('logout');
-    Route::group(['prefix' => 'pos', 'as' => 'pos.','middleware'=>['module:pos_management']], function () {
+
+    Route::group(['prefix' => 'pos', 'as' => 'pos.', 'middleware' => ['module:pos_management']], function () {
         Route::controller(POSController::class)->group(function () {
             Route::get(POS::INDEX[URI], 'index')->name('index');
             Route::any(POS::CHANGE_CUSTOMER[URI], 'changeCustomer')->name('change-customer');
@@ -184,6 +195,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
             Route::get(POS::QUICK_VIEW[URI], 'getQuickView')->name('quick-view');
             Route::get(POS::SEARCH[URI], 'getSearchedProductsView')->name('search-product');
         });
+
         Route::controller(CartController::class)->group(function () {
             Route::post(Cart::VARIANT[URI], 'getVariantPrice')->name('get-variant-price');
             Route::post(Cart::QUANTITY_UPDATE[URI], 'updateQuantity')->name('update-quantity');
@@ -191,17 +203,19 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
             Route::get(Cart::CLEAR_CART_IDS[URI], 'clearSessionCartIds')->name('clear-cart-ids');
             Route::post(Cart::ADD[URI], 'addToCart')->name('add-to-cart');
             Route::post(Cart::REMOVE[URI], 'removeCart')->name('remove-cart');
-            Route::any(Cart::CART_EMPTY[URI],'emptyCart')->name('empty-cart');
+            Route::any(Cart::CART_EMPTY[URI], 'emptyCart')->name('empty-cart');
             Route::any(Cart::CHANGE_CART[URI], 'changeCart')->name('change-cart');
             Route::get(Cart::NEW_CART_ID[URI], 'addNewCartId')->name('new-cart-id');
         });
+
         Route::controller(POSOrderController::class)->group(function () {
-            Route::post(POSOrder::ORDER_DETAILS[URI].'/{id}', 'index')->name('order-details');
+            Route::post(POSOrder::ORDER_DETAILS[URI] . '/{id}', 'index')->name('order-details');
             Route::post(POSOrder::ORDER_PLACE[URI], 'placeOrder')->name('place-order');
-            Route::any(POSOrder::CANCEL_ORDER[URI],'cancelOrder')->name('cancel-order');
-            Route::any(POSOrder::HOLD_ORDERS[URI],'getAllHoldOrdersView')->name('view-hold-orders');
+            Route::any(POSOrder::CANCEL_ORDER[URI], 'cancelOrder')->name('cancel-order');
+            Route::any(POSOrder::HOLD_ORDERS[URI], 'getAllHoldOrdersView')->name('view-hold-orders');
         });
     });
+
     Route::group(['prefix' => 'profile', 'as' => 'profile.'], function () {
         Route::controller(ProfileController::class)->group(function () {
             Route::get(Profile::INDEX[URI], 'index')->name('index');
@@ -217,6 +231,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
             Route::post(Product::ADD[URI], 'add')->name('store');
             Route::get(Product::VIEW[URI].'/{addedBy}/{id}', 'getView')->name('view');
             Route::post(Product::SKU_COMBINATION[URI], 'getSkuCombinationView')->name('sku-combination');
+            Route::post(Product::DIGITAL_VARIATION_COMBINATION[URI], 'getDigitalVariationCombinationView')->name('digital-variation-combination');
+            Route::post(Product::DIGITAL_VARIATION_FILE_DELETE[URI], 'deleteDigitalVariationFile')->name('digital-variation-file-delete');
             Route::post(Product::FEATURED_STATUS[URI], 'updateFeaturedStatus')->name('featured-status');
             Route::get(Product::GET_CATEGORIES[URI], 'getCategories')->name('get-categories');
             Route::post(Product::UPDATE_STATUS[URI], 'updateStatus')->name('status-update');
@@ -236,6 +252,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
             Route::post(Product::DENY[URI], 'deny')->name('deny');
             Route::post(Product::APPROVE_STATUS[URI], 'approveStatus')->name('approve-status');
             Route::get(Product::SEARCH[URI], 'getSearchedProductsView')->name('search-product');
+            Route::get(Product::MULTIPLE_PRODUCT_DETAILS[URI], 'getMultipleProductDetailsView')->name('multiple-product-details');
             Route::get(Product::PRODUCT_GALLERY[URI], 'getProductGalleryView')->name('product-gallery');
             Route::get(Product::STOCK_LIMIT_STATUS[URI] . '/{type}', 'getStockLimitStatus')->name('stock-limit-status');
 
@@ -431,7 +448,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
         Route::controller(EmployeeController::class)->group(function (){
             Route::get(Employee::LIST[URI], 'index')->name('list');
             Route::get(Employee::ADD[URI], 'getAddView')->name('add-new');
-            Route::post(Employee::ADD[URI], 'add')->name('add-new');
+            Route::post(Employee::ADD[URI], 'add')->name('add-new-post');
             Route::get(Employee::EXPORT[URI], 'exportList')->name('export');
             Route::get(Employee::VIEW[URI].'/{id}', 'getView')->name('view');
             Route::get(Employee::UPDATE[URI].'/{id}', 'getUpdateView')->name('update');
@@ -521,15 +538,15 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
         });
     });
 
-    /*  end report */
     // Reviews
-    Route::group(['prefix' => 'reviews', 'as' => 'reviews.','middleware'=>['module:user_section']], function () {
-        Route::controller(ReviewController::class)->group(function (){
+    Route::group(['prefix' => 'reviews', 'as' => 'reviews.', 'middleware' => ['module:user_section']], function () {
+        Route::controller(ReviewController::class)->group(function () {
             Route::get(Review::LIST[URI], 'index')->name('list')->middleware('actch');
             Route::get(Review::STATUS[URI], 'updateStatus')->name('status');
             Route::get(Review::EXPORT[URI], 'exportList')->name('export')->middleware('actch');
-            Route::get(Review::SEARCH[URI],'getCustomerList')->name('customer-list-search');
+            Route::get(Review::SEARCH[URI], 'getCustomerList')->name('customer-list-search');
             Route::any(Review::SEARCH_PRODUCT[URI], 'search')->name('search-product');
+            Route::post(Review::REVIEW_REPLY[URI], 'addReviewReply')->name('add-review-reply');
         });
     });
 
@@ -553,7 +570,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
             Route::get(FlashDeal::LIST[URI], 'index')->name('flash');
             Route::post(FlashDeal::LIST[URI], 'add');
             Route::get(FlashDeal::UPDATE[URI].'/{id}', 'getUpdateView')->name('update');
-            Route::post(FlashDeal::UPDATE[URI].'/{id}', 'update')->name('update');
+            Route::post(FlashDeal::UPDATE[URI].'/{id}', 'update')->name('update-data');
             Route::post(FlashDeal::STATUS[URI], 'updateStatus')->name('status-update');
             Route::post(FlashDeal::DELETE[URI], 'delete')->name('delete-product');
             Route::get(FlashDeal::ADD_PRODUCT[URI].'/{deal_id}', 'getAddProductView')->name('add-product');
@@ -587,6 +604,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
             Route::post(PushNotification::FIREBASE_CONFIGURATION[URI], 'getFirebaseConfigurationUpdate');
         });
     });
+
     Route::group(['prefix' => 'notification', 'as' => 'notification.','middleware'=>['module:promotion_management']], function () {
         Route::controller(NotificationController::class)->group(function (){
             Route::get(Notification::INDEX[URI], 'index')->name('index');
@@ -598,7 +616,14 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
             Route::post(Notification::RESEND_NOTIFICATION[URI], 'resendNotification')->name('resend-notification');
         });
     });
+
+    Route::group(['prefix' => 'notification-setup', 'as' => 'notification-setup.','middleware'=>['module:promotion_management']], function () {
+        Route::controller(NotificationSetupController::class)->group(function (){
+            Route::get(NotificationSetup::INDEX[URI].'/{type}', 'index')->name('index');
+        });
+    });
     /* end notification */
+
     Route::group(['prefix' => 'support-ticket', 'as' => 'support-ticket.','middleware'=>['module:support_section']], function () {
         Route::controller(SupportTicketController::class)->group(function (){
             Route::get(SupportTicket::LIST[URI], 'index')->name('view');
@@ -607,6 +632,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
             Route::post(SupportTicket::VIEW[URI].'/{id}', 'reply')->name('replay');
         });
     });
+
     Route::group(['prefix' => 'messages', 'as' => 'messages.'], function () {
         Route::controller(ChattingController::class)->group(function () {
             Route::get(Chatting::INDEX[URI] . '/{type}', 'index')->name('index');
@@ -659,6 +685,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
             Route::get(DeliverymanWithdraw::VIEW[URI].'/{withdraw_id}', 'getView')->name('withdraw-view');
             Route::post(DeliverymanWithdraw::UPDATE[URI].'/{id}', 'updateStatus')->name('withdraw-update-status');
         });
+
         Route::group(['prefix' => 'emergency-contact', 'as' => 'emergency-contact.'], function (){
             Route::controller(EmergencyContactController::class)->group(function (){
                 Route::get(EmergencyContact::LIST[URI], 'index')->name('index');
@@ -701,7 +728,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
                 Route::post(Pages::TERMS_CONDITION[URI], 'updateTermsCondition')->name('update-terms');
 
                 Route::get(Pages::PRIVACY_POLICY[URI], 'getPrivacyPolicyView')->name('privacy-policy');
-                Route::post(Pages::PRIVACY_POLICY[URI], 'updatePrivacyPolicy')->name('privacy-policy');
+                Route::post(Pages::PRIVACY_POLICY[URI], 'updatePrivacyPolicy')->name('privacy-policy-update');
 
                 Route::get(Pages::ABOUT_US[URI], 'getAboutUsView')->name('about-us');
                 Route::post(Pages::ABOUT_US[URI], 'updateAboutUs')->name('about-update');
@@ -766,6 +793,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
                 Route::post(Language::TRANSLATE_ADD[URI].'/{lang}', 'updateTranslate')->name('translate-submit');
                 Route::post(Language::TRANSLATE_REMOVE[URI].'/{lang}', 'deleteTranslateKey')->name('remove-key');
                 Route::any(Language::TRANSLATE_AUTO[URI].'/{lang}', 'getAutoTranslate')->name('auto-translate');
+                Route::any(Language::TRANSLATE_AUTO_ALL[URI].'/{lang}', 'getAutoTranslateAllMessages')->name('auto-translate-all');
             });
         });
 
@@ -791,11 +819,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
             Route::controller(EnvironmentSettingsController::class)->group(function (){
                 Route::get(EnvironmentSettings::VIEW[URI], 'index')->name('environment-setup');
                 Route::post(EnvironmentSettings::VIEW[URI], 'update');
-            });
-
-            Route::controller(SiteMapController::class)->group(function (){
-                Route::get(SiteMap::VIEW[URI],'index')->name('mysitemap');
-                Route::get(SiteMap::DOWNLOAD[URI],'getFile')->name('mysitemap-download');
             });
 
             Route::controller(DatabaseSettingController::class)->group(function (){
@@ -829,6 +852,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
                 Route::get(VendorRegistrationSetting::FAQ[URI], 'getFAQView')->name('faq');
             });
         });
+
         Route::group(['prefix' => 'vendor-registration-reason', 'as' => 'vendor-registration-reason.','middleware'=>['module:system_settings']], function () {
             Route::controller(VendorRegistrationReasonController::class)->group(function (){
                 Route::post(VendorRegistrationReason::ADD[URI], 'add')->name('add');
@@ -848,7 +872,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
                 Route::put(SMSModule::UPDATE[URI], 'update')->name('addon-sms-set');
             });
         });
-
 
         Route::group(['prefix' => 'shipping-method', 'as' => 'shipping-method.','middleware'=>['module:system_settings']], function () {
             Route::controller(ShippingMethodController::class)->group(function (){
@@ -910,6 +933,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
                 Route::put(PaymentMethod::UPDATE_CONFIG[URI], 'UpdatePaymentConfig')->name('addon-payment-set');
             });
         });
+
         Route::group(['prefix' => 'offline-payment-method', 'as' => 'offline-payment-method.','middleware'=>['module:system_settings']], function () {
             Route::controller(OfflinePaymentMethodController::class)->group(function (){
                 Route::get(OfflinePaymentMethod::INDEX[URI], 'index')->name('index')->middleware('actch');
@@ -921,7 +945,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
                 Route::post(OfflinePaymentMethod::UPDATE_STATUS[URI], 'updateStatus')->name('update-status')->middleware('actch');
             });
         });
-
 
         Route::group(['prefix' => 'delivery-restriction', 'as' => 'delivery-restriction.', 'middleware' =>['module:system_settings']], function (){
             Route::controller(DeliveryRestrictionController::class)->group(function () {
@@ -990,6 +1013,14 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
         });
     });
 
+    Route::group(['prefix' => 'storage-connection-settings', 'as' => 'storage-connection-settings.', 'middleware' => ['module:system_settings']], function () {
+        Route::controller(StorageConnectionSettingsController::class)->group(function () {
+            Route::get(StorageConnectionSettings::INDEX[URI], 'index')->name('index');
+            Route::post(StorageConnectionSettings::STORAGE_TYPE[URI], 'updateStorageType')->name('update-storage-type');
+            Route::post(StorageConnectionSettings::S3_STORAGE_CREDENTIAL[URI], 'updateS3Credential')->name('s3-credential');
+        });
+    });
+
     Route::group(['prefix' => 'social-media-chat', 'as' => 'social-media-chat.','middleware'=>['module:system_settings']], function () {
         Route::controller(SocialMediaChatController::class)->group(function (){
             Route::get(SocialMediaChat::VIEW[URI], 'index')->name('view');
@@ -1011,10 +1042,47 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
         });
     });
 
-    Route::group(['prefix' => 'business-settings', 'as' => 'business-settings.','middleware'=>['module:promotion_management']], function () {
-        Route::controller(BusinessSettingsController::class)->group(function (){
+    Route::group(['prefix' => 'business-settings', 'as' => 'business-settings.', 'middleware' => ['module:promotion_management']], function () {
+        Route::controller(BusinessSettingsController::class)->group(function () {
             Route::get(BusinessSettings::ANNOUNCEMENT[URI], 'getAnnouncementView')->name('announcement');
             Route::post(BusinessSettings::ANNOUNCEMENT[URI], 'updateAnnouncement');
+        });
+    });
+
+    Route::group(['prefix' => 'seo-settings', 'as' => 'seo-settings.'], function () {
+        Route::controller(SEOSettingsController::class)->group(function () {
+            Route::get(SEOSettings::WEB_MASTER_TOOL[URI], 'index')->name('web-master-tool');
+            Route::post(SEOSettings::WEB_MASTER_TOOL[URI], 'updateWebMasterTool');
+            Route::get(SEOSettings::ROBOT_TXT[URI], 'getRobotTxtView')->name('robot-txt');
+            Route::post(SEOSettings::ROBOT_TXT[URI], 'updateRobotText');
+        });
+
+        Route::group(['prefix' => 'robots-meta-content', 'as' => 'robots-meta-content.'], function () {
+            Route::controller(RobotsMetaContentController::class)->group(function () {
+                Route::get(RobotsMetaContent::ROBOTS_META_CONTENT[URI], 'index')->name('index');
+                Route::post(RobotsMetaContent::ADD_PAGE[URI], 'addPage')->name('add-page');
+                Route::get(RobotsMetaContent::DELETE_PAGE[URI], 'getPageDelete')->name('delete-page');
+                Route::get(RobotsMetaContent::PAGE_CONTENT_VIEW[URI], 'getPageAddContentView')->name('page-content-view');
+                Route::post(RobotsMetaContent::PAGE_CONTENT_UPDATE[URI], 'getPageContentUpdate')->name('page-content-update');
+            });
+        });
+
+        Route::controller(SiteMapController::class)->group(function () {
+            Route::get(SiteMap::SITEMAP[URI], 'index')->name('sitemap');
+            Route::get(SiteMap::GENERATE_AND_DOWNLOAD[URI], 'getGenerateAndDownload')->name('sitemap-generate-download');
+            Route::get(SiteMap::GENERATE_AND_UPLOAD[URI], 'getGenerateAndUpload')->name('sitemap-generate-upload');
+            Route::post(SiteMap::UPLOAD[URI], 'getUpload')->name('sitemap-manual-upload');
+            Route::get(SiteMap::DOWNLOAD[URI], 'getDownload')->name('sitemap-download');
+            Route::get(SiteMap::DELETE[URI], 'getDelete')->name('sitemap-delete');
+        });
+    });
+
+    Route::group(['prefix' => 'error-logs', 'as' => 'error-logs.'], function () {
+        Route::controller(ErrorLogsController::class)->group(function () {
+            Route::get(ErrorLogs::INDEX[URI], 'index')->name('index');
+            Route::post(ErrorLogs::INDEX[URI], 'update');
+            Route::delete(ErrorLogs::INDEX[URI], 'delete');
+            Route::delete(ErrorLogs::DELETE_SELECTED_ERROR_LOGS[URI], 'deleteSelectedErrorLogs')->name('delete-selected-error-logs');
         });
     });
 

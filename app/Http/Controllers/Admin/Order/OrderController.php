@@ -236,7 +236,7 @@ class OrderController extends BaseController
         return Excel::download(new OrderExport($data), 'Orders.xlsx');
     }
 
-    public function getView(string|int $id, DeliveryCountryCodeService $service, OrderService $orderService): View
+    public function getView(string|int $id, DeliveryCountryCodeService $service, OrderService $orderService): View|RedirectResponse
     {
         $countryRestrictStatus = getWebConfig(name: 'delivery_country_restriction');
         $zipRestrictStatus = getWebConfig(name: 'delivery_zip_code_area_restriction');
@@ -247,41 +247,46 @@ class OrderController extends BaseController
         $companyWebLogo = getWebConfig(name: 'company_web_logo');
         $order = $this->orderRepo->getFirstWhere(params: ['id' => $id], relations: ['details.productAllStatus', 'verificationImages', 'shipping', 'seller.shop', 'offlinePayments', 'deliveryMan']);
 
-        $physicalProduct = false;
-        if (isset($order->details)) {
-            foreach ($order->details as $product) {
-                if (isset($product->product) && $product->product->product_type == 'physical') {
-                    $physicalProduct = true;
+        if ($order) {
+            $physicalProduct = false;
+            if (isset($order->details)) {
+                foreach ($order->details as $product) {
+                    if (isset($product->product) && $product->product->product_type == 'physical') {
+                        $physicalProduct = true;
+                    }
                 }
             }
-        }
 
-        $whereNotIn = [
-            'order_group_id' => ['def-order-group'],
-            'id' => [$order['id']],
-        ];
-        $linkedOrders = $this->orderRepo->getListWhereNotIn(filters: ['order_group_id' => $order['order_group_id']], whereNotIn: $whereNotIn, dataLimit: 'all');
-        $totalDelivered = $this->orderRepo->getListWhere(filters: ['seller_id' => $order['seller_id'], 'order_status' => 'delivered', 'order_type' => 'default_type'], dataLimit: 'all')->count();
-        $shippingMethod = getWebConfig('shipping_method');
+            $whereNotIn = [
+                'order_group_id' => ['def-order-group'],
+                'id' => [$order['id']],
+            ];
+            $linkedOrders = $this->orderRepo->getListWhereNotIn(filters: ['order_group_id' => $order['order_group_id']], whereNotIn: $whereNotIn, dataLimit: 'all');
+            $totalDelivered = $this->orderRepo->getListWhere(filters: ['seller_id' => $order['seller_id'], 'order_status' => 'delivered', 'order_type' => 'default_type'], dataLimit: 'all')->count();
+            $shippingMethod = getWebConfig('shipping_method');
 
-        $sellerId = 0;
-        if ($order['seller_is'] == 'seller' && $shippingMethod == 'sellerwise_shipping') {
-            $sellerId = $order['seller_id'];
-        }
-        $filters = [
-            'is_active' => 1,
-            'seller_id' => $sellerId,
-        ];
-        $deliveryMen = $this->deliveryManRepo->getListWhere(filters: $filters, dataLimit: 'all');
-        $isOrderOnlyDigital = $orderService->getCheckIsOrderOnlyDigital(order: $order);
-        if ($order['order_type'] == 'default_type') {
-            $orderCount = $this->orderRepo->getListWhereCount(filters: ['customer_id' => $order['customer_id']]);
-            return view(Order::VIEW[VIEW], compact('order', 'linkedOrders',
-                'deliveryMen', 'totalDelivered', 'companyName', 'companyWebLogo', 'physicalProduct',
-                'countryRestrictStatus', 'zipRestrictStatus', 'countries', 'zipCodes', 'orderCount', 'isOrderOnlyDigital'));
+            $sellerId = 0;
+            if ($order['seller_is'] == 'seller' && $shippingMethod == 'sellerwise_shipping') {
+                $sellerId = $order['seller_id'];
+            }
+            $filters = [
+                'is_active' => 1,
+                'seller_id' => $sellerId,
+            ];
+            $deliveryMen = $this->deliveryManRepo->getListWhere(filters: $filters, dataLimit: 'all');
+            $isOrderOnlyDigital = $orderService->getCheckIsOrderOnlyDigital(order: $order);
+            if ($order['order_type'] == 'default_type') {
+                $orderCount = $this->orderRepo->getListWhereCount(filters: ['customer_id' => $order['customer_id']]);
+                return view(Order::VIEW[VIEW], compact('order', 'linkedOrders',
+                    'deliveryMen', 'totalDelivered', 'companyName', 'companyWebLogo', 'physicalProduct',
+                    'countryRestrictStatus', 'zipRestrictStatus', 'countries', 'zipCodes', 'orderCount', 'isOrderOnlyDigital'));
+            } else {
+                $orderCount = $this->orderRepo->getListWhereCount(filters: ['customer_id' => $order['customer_id'], 'order_type' => 'POS']);
+                return view(Order::VIEW_POS[VIEW], compact('order', 'companyName', 'companyWebLogo', 'orderCount'));
+            }
         } else {
-            $orderCount = $this->orderRepo->getListWhereCount(filters: ['customer_id' => $order['customer_id'], 'order_type' => 'POS']);
-            return view(Order::VIEW_POS[VIEW], compact('order', 'companyName', 'companyWebLogo', 'orderCount'));
+            Toastr::error(translate('Order_not_found'));
+            return back();
         }
     }
 

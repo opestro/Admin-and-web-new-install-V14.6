@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\StorageTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class OrderDetail
@@ -36,6 +38,8 @@ use Illuminate\Support\Carbon;
  */
 class OrderDetail extends Model
 {
+    use StorageTrait;
+
     protected $fillable = [
         'product_id',
         'order_id',
@@ -56,6 +60,7 @@ class OrderDetail extends Model
         'variant',
         'variation'
     ];
+
     protected $casts = [
         'product_id' => 'integer',
         'order_id' => 'integer',
@@ -68,7 +73,7 @@ class OrderDetail extends Model
         'seller_id' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'refund_request'=>'integer',
+        'refund_request' => 'integer',
     ];
 
     public function product(): BelongsTo
@@ -106,11 +111,42 @@ class OrderDetail extends Model
     //verification_images
     public function verificationImages(): HasMany
     {
-        return $this->hasMany(OrderDeliveryVerification::class,'order_id','order_id');
+        return $this->hasMany(OrderDeliveryVerification::class, 'order_id', 'order_id');
     }
 
     public function orderStatusHistory(): HasMany
     {
-        return $this->hasMany(OrderStatusHistory::class,'order_id','order_id');
+        return $this->hasMany(OrderStatusHistory::class, 'order_id', 'order_id');
+    }
+
+    public function getDigitalFileAfterSellFullUrlAttribute(): string|null|array
+    {
+        $value = $this->digital_file_after_sell;
+        if (count($this->storage) > 0 ) {
+            $storage = $this->storage->where('key','digital_file_after_sell')->first();
+        }
+        return $this->storageLink('product/digital-product', $value, $storage['value'] ?? 'public');
+    }
+
+    protected $with = ['storage'];
+    protected $appends = ['digital_file_after_sell_full_url'];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::saved(function ($model) {
+            if ($model->isDirty('digital_file_after_sell')) {
+                $storage = config('filesystems.disks.default') ?? 'public';
+                DB::table('storages')->updateOrInsert([
+                    'data_type' => get_class($model),
+                    'data_id' => $model->id,
+                    'key' => 'digital_file_after_sell',
+                ], [
+                    'value' => $storage,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        });
     }
 }

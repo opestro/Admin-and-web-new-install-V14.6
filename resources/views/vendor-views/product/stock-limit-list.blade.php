@@ -87,7 +87,7 @@
                                     <td>
                                         <a href="{{route('vendor.products.view',[$product['id']]) }}"
                                            class="media align-items-center gap-2">
-                                            <img src="{{ getValidImage(path:'storage/app/public/product/thumbnail/'.$product['thumbnail'],type: 'backend-product')}}"
+                                            <img src="{{ getStorageImages(path:$product->thumbnail_full_url,type: 'backend-product')}}"
                                                 data-onerror="{{ dynamicAsset(path: '/public/assets/back-end/img/brand-logo.png') }}"
                                                 class="avatar border onerror-image" alt="">
                                             <span class="media-body title-color hover-c1">

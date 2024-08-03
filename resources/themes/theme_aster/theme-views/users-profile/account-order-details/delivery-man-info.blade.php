@@ -17,7 +17,7 @@
                                         @if($order->delivery_type == 'self_delivery' && isset($order->deliveryMan))
                                             <div class="media gap-2 gap-sm-3">
                                                 <div class="avatar overflow-hidden rounded store-avatar2 d-flex align-items-center">
-                                                         <img src="{{ getValidImage(path: 'storage/app/public/delivery-man/'.($order?->deliveryMan->image), type:'avatar') }}"
+                                                         <img src="{{ getStorageImages(path: $order?->deliveryMan->image_full_url, type:'avatar') }}"
                                                          class="dark-support rounded img-fit" alt="">
                                                 </div>
                                                 <div class="media-body d-flex flex-column gap-2">
@@ -63,7 +63,7 @@
                                                             <h1 class="modal-title fs-5">{{translate('Write_something')}}</h1>
                                                         </div>
                                                         <div class="modal-body px-sm-5">
-                                                            <form action="{{route('messages_store')}}" method="post" id="chat-form">
+                                                            <form action="{{route('messages')}}" method="post" id="chat-form">
                                                                 @csrf
                                                                 @if($order->deliveryMan->id != 0)
                                                                     <input value="{{$order->deliveryMan->id}}" name="delivery_man_id" hidden>
@@ -171,9 +171,9 @@
 
                                                 <div class="d-flex flex-wrap gap-3 custom-image-popup-init">
                                                     @foreach ($order->verificationImages as $image)
-                                                        <a href="{{ getValidImage(path: 'storage/app/public/delivery-man/verification-image/'.($image->image), type:'product') }}" class="custom-image-popup">
+                                                        <a href="{{ getStorageImages(path: $image->image_full_url, type:'product') }}" class="custom-image-popup">
                                                                 <img class="height-100 rounded remove-mask-img" alt=""
-                                                                src="{{ getValidImage(path: 'storage/app/public/delivery-man/verification-image/'.($image->image), type:'product') }}">
+                                                                src="{{ getStorageImages(path: $image->image_full_url, type:'product') }}">
                                                         </a>
                                                     @endforeach
                                                 </div>

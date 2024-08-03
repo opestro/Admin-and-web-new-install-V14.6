@@ -64,7 +64,7 @@
                                     <td>
                                         <a href="{{route('admin.products.view',['addedBy'=>($product['added_by']=='seller'?'vendor' : 'in-house'),'id'=>$product['id']])}}"
                                            class="media align-items-center gap-2">
-                                            <img src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'backend-product') }}"
+                                            <img src="{{ getStorageImages(path:$product->thumbnail_full_url, type: 'backend-product') }}"
                                                  class="avatar border" alt="">
                                             <span class="media-body title-color hover-c1">
                                             {{Str::limit($product['name'],20)}}

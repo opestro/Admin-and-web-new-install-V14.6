@@ -18,7 +18,7 @@
                         <td>
                             <div class="media align-items-center gap-10">
                                 <img class="avatar avatar-sm"
-                                     src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$item['image'], type: 'backend-product') }}"
+                                     src="{{ getStorageImages(path:$item['image'], type: 'backend-product') }}"
                                      alt="{{$item['name'].translate('image')}} ">
                                 <div class="media-body">
                                     <h5 class="text-hover-primary mb-0">
@@ -60,7 +60,7 @@
         <dl>
             <div class="d-flex gap-2 justify-content-between">
                 <dt class="title-color text-capitalize font-weight-normal">{{ translate('sub_total') }} : </dt>
-                <dd>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount:$cartItems['subtotal']+$cartItems['discountOnProduct']), currencyCode: getCurrencyCode())}}</dd>
+                <dd>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: $cartItems['subtotal'] + $cartItems['discountOnProduct']), currencyCode: getCurrencyCode())}}</dd>
             </div>
 
             <div class="d-flex gap-2 justify-content-between">
@@ -90,12 +90,12 @@
 
             <div class="d-flex gap-2 justify-content-between">
                 <dt class="title-color text-capitalize font-weight-normal">{{ translate('tax') }} : </dt>
-                <dd>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount:round($cartItems['totalTax'],2)), currencyCode: getCurrencyCode())}}</dd>
+                <dd>{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: round($cartItems['totalTax'],2) ), currencyCode: getCurrencyCode())}}</dd>
             </div>
 
             <div class="d-flex gap-2 border-top justify-content-between pt-2">
                 <dt class="title-color text-capitalize font-weight-bold title-color">{{ translate('total') }} : </dt>
-                <dd class="font-weight-bold title-color">{{setCurrencySymbol(amount: usdToDefaultCurrency(amount:round($cartItems['total']+$cartItems['totalTax']-$cartItems['couponDiscount'], 2)), currencyCode: getCurrencyCode())}}</dd>
+                <dd class="font-weight-bold title-color">{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: ($cartItems['total'] + $cartItems['totalTax'] - $cartItems['couponDiscount'])), currencyCode: getCurrencyCode())}}</dd>
             </div>
         </dl>
 

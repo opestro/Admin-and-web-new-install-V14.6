@@ -104,6 +104,10 @@ class LoyaltyPointTransactionRepository implements LoyaltyPointTransactionReposi
         } else if ($transactionType == 'refund_order') {
             $debit = $amount;
         }
+
+        if($credit == 0 && $debit == 0){
+            return false;
+        }
         $currentBalance = $user['loyalty_point'] + $credit - $debit;
 
         $loyaltyPointTransaction = [

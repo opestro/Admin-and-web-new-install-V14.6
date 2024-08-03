@@ -3,23 +3,23 @@
 @section('title',translate('shop_Page').' | '.$web_config['name']->value.' '.translate('ecommerce'))
 @push('css_or_js')
     @if($shop['id'] != 0)
-        <meta property="og:image" content="{{dynamicStorage(path: 'storage/app/public/shop')}}/{{$shop->image}}"/>
+        <meta property="og:image" content="{{$shop->image_full_url['path']}}"/>
         <meta property="og:title" content="{{ $shop->name}} "/>
         <meta property="og:url" content="{{route('shopView',[$shop['id']])}}">
     @else
-        <meta property="og:image" content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['fav_icon']->value}}"/>
+        <meta property="og:image" content="{{$web_config['fav_icon']['path']}}"/>
         <meta property="og:title" content="{{ $shop['name']}} "/>
         <meta property="og:url" content="{{route('shopView',[$shop['id']])}}">
     @endif
     <meta property="og:description"
           content="{{ substr(strip_tags(str_replace('&nbsp;', ' ', $web_config['about']->value)),0,160) }}">
     @if($shop['id'] != 0)
-        <meta property="twitter:card" content="{{dynamicStorage(path: 'storage/app/public/shop')}}/{{$shop->image}}"/>
+        <meta property="twitter:card" content="{{$shop->image_full_url['path']}}"/>
         <meta property="twitter:title" content="{{route('shopView',[$shop['id']])}}"/>
         <meta property="twitter:url" content="{{route('shopView',[$shop['id']])}}">
     @else
         <meta property="twitter:card"
-              content="{{dynamicStorage(path: 'storage/app/public/company')}}/{{$web_config['fav_icon']->value}}"/>
+              content="{{$web_config['fav_icon']['path']}}"/>
         <meta property="twitter:title" content="{{route('shopView',[$shop['id']])}}"/>
         <meta property="twitter:url" content="{{route('shopView',[$shop['id']])}}">
     @endif
@@ -33,13 +33,13 @@
                 @if($shop['id'] != 0)
                     <div class="store-banner dark-support bg-badge overflow-hidden" data-bg-img="">
                         <img class="w-100" alt=""
-                             src="{{ getValidImage(path: 'storage/app/public/shop/banner/'.$shop->banner, type:'shop-banner') }}">
+                             src="{{ getStorageImages(path: $shop->banner_full_url, type:'shop-banner') }}">
                     </div>
                 @else
                     @php($banner=getWebConfig(name: 'shop_banner'))
                     <div class="store-banner dark-support bg-badge overflow-hidden" data-bg-img="">
                         <img class="w-100" alt=""
-                             src="{{ getValidImage(path: 'storage/app/public/shop/'.($banner ?? ""), type: 'shop-banner') }}">
+                             src="{{ getStorageImages(path: $banner, type: 'shop-banner') }}">
                     </div>
                 @endif
                 <div class="bg-primary-light p-3">
@@ -48,7 +48,7 @@
                             <div class="media gap-3">
                                 <div class="avatar rounded store-avatar overflow-hidden">
                                     <div class="position-relative">
-                                        <img src="{{ getValidImage(path: 'storage/app/public/shop/'.$shop->image, type:'shop') }}"
+                                        <img src="{{ getStorageImages(path:$shop->image_full_url, type:'shop') }}"
                                              class="dark-support rounded img-fit" alt="">
                                         @if($seller_temporary_close || $inhouse_temporary_close)
                                             <span class="temporary-closed position-absolute">
@@ -94,7 +94,7 @@
                                 <div class="avatar rounded store-avatar overflow-hidden">
                                     <div class="position-relative">
                                         <img class="dark-support rounded img-fit" alt=""
-                                            src="{{ getValidImage(path: 'storage/app/public/company/'.$web_config['fav_icon']->value, type:'shop') }}">
+                                            src="{{ getStorageImages(path: $web_config['fav_icon'], type:'shop') }}">
 
                                         @if($seller_temporary_close || $inhouse_temporary_close)
                                             <span class="temporary-closed position-absolute">
@@ -181,14 +181,14 @@
             </div>
             @if($shop['id'] != 0 && $shop->bottom_banner)
                 <div class="">
-                    <img src="{{ getValidImage(path: 'storage/app/public/shop/banner/'.$shop->bottom_banner, type:'shop-banner') }}"
+                    <img src="{{ getStorageImages(path: $shop->bottom_banner_full_url, type:'shop-banner') }}"
                          class="dark-support rounded img-fit" alt="">
                 </div>
             @elseif($shop['id'] == 0)
-                @php($bottom_banner=getWebConfig(name: 'bottom_banner'))
-                @if($bottom_banner)
+                @php($bottomBanner=getWebConfig(name: 'bottom_banner'))
+                @if($bottomBanner)
                     <div>
-                        <img src="{{ getValidImage(path: 'storage/app/public/shop/'.$bottom_banner, type:'shop-banner') }}"
+                        <img src="{{ getStorageImages(path: $bottomBanner, type:'shop-banner') }}"
                              class="dark-support rounded img-fit" alt="">
                     </div>
                 @endif

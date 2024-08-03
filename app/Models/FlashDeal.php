@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\StorageTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class YourModel
@@ -31,6 +33,7 @@ use Illuminate\Support\Facades\App;
  */
 class FlashDeal extends Model
 {
+    use StorageTrait;
     /**
      * The attributes that are mass assignable.
      *
@@ -80,7 +83,15 @@ class FlashDeal extends Model
 
         return $this->translations[0]->value??$title;
     }
-
+    public function getBannerFullUrlAttribute():string|null|array
+    {
+        $value = $this->banner;
+        if (count($this->storage) > 0 && $this->storageConnectionCheck() == 's3') {
+            $storage = $this->storage->where('key', 'banner')->first();
+        }
+        return $this->storageLink('deal',$value,$storage['value'] ?? 'public');
+    }
+    protected $appends = ['banner_full_url'];
     protected static function boot(): void
     {
         parent::boot();
@@ -92,6 +103,20 @@ class FlashDeal extends Model
                     return $query->where('locale', getDefaultLanguage());
                 }
             }]);
+        });
+        static::saved(function ($model) {
+            if($model->isDirty('banner')){
+                $storage = config('filesystems.disks.default') ?? 'public';
+                DB::table('storages')->updateOrInsert([
+                    'data_type' => get_class($model),
+                    'data_id' => $model->id,
+                    'key' => 'banner',
+                ], [
+                    'value' => $storage,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
         });
     }
 }

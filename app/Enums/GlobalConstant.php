@@ -1275,4 +1275,12 @@ enum GlobalConstant{
         ["value" => "Pacific/Fiji", "name" => "(GMT+12:00) Fiji, Kamchatka, Marshall Is."],
         ["value" => "Pacific/Tongatapu", "name" => "(GMT+13:00) Nuku'alofa"],
     ];
+
+
+    const DOCUMENT_EXTENSION = [
+        '.doc', '.docx', '.txt', '.csv', '.xls', '.xlsx', '.rar', '.tar', '.tar.gz', '.zip', '.pdf'
+    ];
+    const IMAGE_EXTENSION = [
+       '.jpg', '.jpeg', '.jpe', '.jif', '.jfif', '.jfi','.png','.gif','.webp','.tiff','.tif','.bmp','.svg',
+    ];
 }

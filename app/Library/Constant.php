@@ -466,7 +466,7 @@ const TELEPHONE_CODES = [
     ["name" => 'Zimbabwe (+263)', "code" => '263'],
 ];
 
-const SOFTWARE_VERSION = '14.6';
+const SOFTWARE_VERSION = '14.7';
 
 const THEME_RATIO = [
     'default' => [

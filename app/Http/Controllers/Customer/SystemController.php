@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Customer;
 
-use App\User;
+use App\Models\User;
 use App\Utils\Helpers;
 use App\Http\Controllers\Controller;
 use App\Models\ShippingAddress;

@@ -70,7 +70,7 @@
                                                 @endif
                                             @endif
                                         @endforeach
-                                        <table class="table align-middle">
+                                        <table class="table align-middle order-details-table">
                                             <thead class="table-light">
                                             <tr>
                                                 <th class="border-0 text-capitalize">{{translate('product_details')}}</th>
@@ -92,18 +92,10 @@
                                                     <tr>
                                                         <td>
                                                             <div class="media gap-3">
-                                                                <div
-                                                                    class="avatar avatar-xxl rounded border overflow-hidden">
-
-                                                                    @if($detail->product_all_status)
-                                                                        <img class="d-block img-fit" alt="" width="60"
-                                                                             src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$detail->product_all_status['thumbnail'], type: 'product') }}">
-                                                                    @else
-                                                                        <img class="d-block img-fit"
-                                                                             src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'product') }}"
-                                                                             alt="" width="60">
-                                                                    @endif
-
+                                                                <div class="avatar avatar-xxl rounded border overflow-hidden">
+                                                                    <img class="d-block img-fit"
+                                                                         src="{{ getStorageImages(path: $detail?->productAllStatus?->thumbnail_full_url, type: 'product') }}"
+                                                                         alt="" width="60">
                                                                 </div>
                                                                 <div class="media-body d-flex gap-1 flex-column">
                                                                     <h6>
@@ -125,9 +117,9 @@
                                                                         @endif<br>
                                                                     </h6>
                                                                     @if($detail->variant)
-                                                                        <small>{{translate('variant')}}
-                                                                            :{{$detail->variant}} </small>
-
+                                                                        <small>
+                                                                            {{translate('variant')}} :{{$detail->variant}}
+                                                                        </small>
                                                                     @endif
                                                                 </div>
                                                             </div>
@@ -139,7 +131,7 @@
                                                         @php($length = $detail->created_at->diffInDays($current_date))
                                                         <td>
                                                             <div class="d-flex justify-content-center gap-2">
-                                                                @if($detail->product && $order->payment_status == 'paid' && $detail->product->digital_product_type == 'ready_product')
+                                                                @if($detail?->product && $order->payment_status == 'paid' && $detail?->product->digital_product_type == 'ready_product')
                                                                     <a href="javascript:"
                                                                        data-action="{{ route('digital-product-download', $detail->id) }}"
                                                                        class="btn btn-primary rounded-pill mb-1 digital-product-download"
@@ -148,7 +140,7 @@
                                                                        data-bs-title="{{translate('download')}}">
                                                                         <i class="bi bi-download"></i>
                                                                     </a>
-                                                                @elseif($detail->product && $order->payment_status == 'paid' && $detail->product->digital_product_type == 'ready_after_sell')
+                                                                @elseif($detail?->product && $order->payment_status == 'paid' && $detail?->product->digital_product_type == 'ready_after_sell')
                                                                     @if($detail->digital_file_after_sell)
                                                                         <a href="javascript:"
                                                                            data-action="{{ route('digital-product-download', $detail->id) }}"
@@ -204,67 +196,79 @@
                                                     </tr>
                                                 @endif
                                             @endforeach
-                                            @php($summary=OrderManager::order_summary($order))
-                                            <?php
-                                            if ($order['extra_discount_type'] == 'percent') {
-                                                $extra_discount = ($summary['subtotal'] / 100) * $order['extra_discount'];
-                                            } else {
-                                                $extra_discount = $order['extra_discount'];
-                                            }
-                                            ?>
                                             </tbody>
                                         </table>
                                     </div>
 
+                                    @php($orderTotalPriceSummary = \App\Utils\OrderManager::getOrderTotalPriceSummary(order: $order))
                                     <div class="row justify-content-end mt-2">
                                         <div class="col-xl-6 col-lg-7 col-md-8 col-sm-10">
                                             <div class="d-flex flex-column gap-3 text-dark">
                                                 <div
                                                     class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                                                     <div>{{translate('item')}}</div>
-                                                    <div>{{$order->details->count()}}</div>
+                                                    <div>
+                                                        {{ $orderTotalPriceSummary['totalItemQuantity'] }}
+                                                    </div>
                                                 </div>
                                                 <div
                                                     class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                                                     <div>{{translate('subtotal')}}</div>
-                                                    <div>{{Helpers::currency_converter($summary['subtotal'])}}</div>
+                                                    <div>
+                                                        {{ webCurrencyConverter(amount:  $orderTotalPriceSummary['subTotal'] + $orderTotalPriceSummary['itemDiscount']) }}
+                                                    </div>
                                                 </div>
                                                 <div
                                                     class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                                                     <div>{{translate('tax_fee')}}</div>
-                                                    <div>{{Helpers::currency_converter($summary['total_tax'])}}</div>
+                                                    <div>
+                                                        {{ webCurrencyConverter(amount:  $orderTotalPriceSummary['taxTotal']) }}
+                                                    </div>
                                                 </div>
-                                                @if($order->order_type == 'default_type')
+                                                @if($order->order_type == 'default_type' && $order?->is_shipping_free == 0)
                                                     <div
                                                         class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                                                         <div class="text-capitalize">{{translate('shipping_fee')}}</div>
-                                                        <div>{{Helpers::currency_converter($summary['total_shipping_cost'] - ($order['is_shipping_free'] ? $order['extra_discount'] : 0))}}</div>
+                                                        <div>
+                                                            {{ webCurrencyConverter(amount:  $orderTotalPriceSummary['shippingTotal']) }}
+                                                        </div>
                                                     </div>
                                                 @endif
                                                 <div
                                                     class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                                                     <div class="text-capitalize">{{translate('discount_on_product')}}</div>
-                                                    <div> {{Helpers::currency_converter($summary['total_discount_on_product'])}}</div>
+                                                    <div>
+                                                        {{ webCurrencyConverter(amount:  $orderTotalPriceSummary['itemDiscount']) }}
+                                                    </div>
                                                 </div>
-                                                <div
-                                                    class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                                                     <div class="text-capitalize">{{translate('coupon_discount')}}</div>
                                                     <div>
-                                                        -{{Helpers::currency_converter($order->discount_amount)}}</div>
+                                                        - {{ webCurrencyConverter(amount:  $orderTotalPriceSummary['couponDiscount']) }}
+                                                    </div>
                                                 </div>
                                                 @if($order->order_type != 'default_type')
-                                                    <div
-                                                        class="d-flex flex-wrap justify-content-between align-`item`s-center gap-2">
+                                                    <div class="d-flex flex-wrap justify-content-between align-`item`s-center gap-2">
                                                         <div class="text-capitalize">{{translate('extra_discount')}}</div>
                                                         <div>
-                                                            -{{Helpers::currency_converter($extra_discount)}}</div>
+                                                            - {{ webCurrencyConverter(amount:  $orderTotalPriceSummary['extraDiscount']) }}
+                                                        </div>
                                                     </div>
                                                 @endif
                                                 <div
                                                     class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                                                     <h4 class="text-capitalize">{{translate('total')}}</h4>
-                                                    <h2 class="text-primary">{{Helpers::currency_converter($order->order_amount)}}</h2>
+                                                    <h2 class="text-primary">
+                                                        {{ webCurrencyConverter(amount:  $orderTotalPriceSummary['totalAmount']) }}
+                                                    </h2>
                                                 </div>
+                                                @if ($order['order_status']=='pending' && $order['payment_method']=='cash_on_delivery')
+                                                    <button class="btn btn-sm  text-capitalize btn-danger mt-3 delete-action"
+                                                            data-action="{{route('order-cancel',[$order->id])}}"
+                                                            data-message="{{translate('want_to_cancel_this_order').'?'}}">
+                                                        {{translate('cancel_order')}}
+                                                    </button>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>

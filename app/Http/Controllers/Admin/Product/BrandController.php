@@ -45,7 +45,11 @@ class BrandController extends BaseController
 
     public function getList(Request $request): Application|Factory|View
     {
-        $brands = $this->brandRepo->getListWhere(orderBy:['id'=>'desc'],searchValue:$request->get('searchValue'), dataLimit: getWebConfig(name: 'pagination_limit'));
+        $brands = $this->brandRepo->getListWhere(
+            orderBy:['id'=>'desc'],
+            searchValue:$request->get('searchValue'),
+            relations: ['storage'],
+            dataLimit: getWebConfig(name: 'pagination_limit'));
         return view(Brand::LIST[VIEW], compact('brands'));
     }
 
@@ -58,7 +62,7 @@ class BrandController extends BaseController
 
     public function getUpdateView(string|int $id): View|RedirectResponse
     {
-        $brand = $this->brandRepo->getFirstWhere(params:['id'=>$id], relations: ['translations']);
+        $brand = $this->brandRepo->getFirstWhere(params:['id'=>$id], relations: ['translations','storage']);
         $language = getWebConfig(name: 'pnc_language') ?? null;
         $defaultLanguage = $language[0];
         return view(Brand::UPDATE[VIEW], compact('brand', 'language', 'defaultLanguage'));
@@ -97,7 +101,7 @@ class BrandController extends BaseController
 
     public function update(BrandUpdateRequest $request, $id, BrandService $brandService): RedirectResponse
     {
-        $brand = $this->brandRepo->getFirstWhere(params:['id'=>$request['id']]);
+        $brand = $this->brandRepo->getFirstWhere(params:['id'=>$request['id']],relations: ['storage']);
         $dataArray = $brandService->getUpdateData(request: $request, data:$brand);
         $this->brandRepo->update(id:$request['id'], data:$dataArray);
         $this->translationRepo->update(request:$request, model:'App\Models\Brand', id:$request['id']);

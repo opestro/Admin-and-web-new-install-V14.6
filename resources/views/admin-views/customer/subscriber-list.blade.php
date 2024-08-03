@@ -27,19 +27,21 @@
                             <button type="submit" class="btn btn--primary">{{ translate('search')}}</button>
                         </div>
                     </form>
-                    <button type="button" class="btn btn-outline--primary text-nowrap" data-toggle="dropdown">
-                        <i class="tio-download-to"></i>
-                        {{ translate('export') }}
-                        <i class="tio-chevron-down"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-right">
-                        <li>
-                            <a class="dropdown-item" href="{{route('admin.customer.subscriber-list.export',['searchValue'=>request('searchValue')])}}">
-                                <img width="14" src="{{dynamicAsset(path: 'public/assets/back-end/img/excel.png')}}" alt="">
-                                {{ translate('excel') }}
-                            </a>
-                        </li>
-                    </ul>
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-outline--primary text-nowrap" data-toggle="dropdown">
+                            <i class="tio-download-to"></i>
+                            {{ translate('export') }}
+                            <i class="tio-chevron-down"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li>
+                                <a class="dropdown-item" href="{{route('admin.customer.subscriber-list.export',['searchValue'=>request('searchValue')])}}">
+                                    <img width="14" src="{{dynamicAsset(path: 'public/assets/back-end/img/excel.png')}}" alt="">
+                                    {{ translate('excel') }}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="table-responsive">

@@ -14,7 +14,7 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <form action="{{route('admin.employee.add-new')}}" method="post" enctype="multipart/form-data" class="text-start">
+                <form action="{{route('admin.employee.add-new-post')}}" method="post" enctype="multipart/form-data" class="text-start">
                     @csrf
                     <div class="card">
                         <div class="card-body">

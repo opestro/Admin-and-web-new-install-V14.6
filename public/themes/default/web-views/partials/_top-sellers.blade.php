@@ -1,7 +1,7 @@
 <div class="container rtl pt-4 px-0 px-md-3">
     <div class="seller-card">
         <div class="card __shadow h-100">
-            <div class="card-body pb-1">
+            <div class="card-body">
                 <div class="row d-flex justify-content-between">
                     <div class="seller-list-title">
                         <h5 class="font-bold m-0 text-capitalize">
@@ -23,24 +23,14 @@
                         @foreach ($topVendorsList as $vendorData)
                             <a href="{{route('shopView',['id'=> $vendorData['id']])}}" class="others-store-card text-capitalize">
                                 <div class="overflow-hidden other-store-banner">
-                                    @if($vendorData['id'] != 0)
-                                        <img class="w-100 h-100 object-cover" alt=""
-                                         src="{{ getValidImage(path: 'storage/app/public/shop/banner/'.($vendorData->banner), type: 'shop-banner') }}">
-                                    @else
-                                        <img class="w-100 h-100 object-cover" alt=""
-                                             src="{{ getValidImage(path: 'storage/app/public/shop/'.($vendorData->banner), type: 'shop-banner') }}">
-                                    @endif
+                                    <img class="w-100 h-100 object-cover" alt=""
+                                         src="{{ getStorageImages(path: $vendorData->banner_full_url, type: 'shop-banner') }}">
                                 </div>
                                 <div class="name-area">
                                     <div class="position-relative">
                                         <div class="overflow-hidden other-store-logo rounded-full">
-                                            @if($vendorData['id'] != 0)
-                                                <img class="rounded-full" alt="{{ translate('store') }}"
-                                                     src="{{ getValidImage(path: 'storage/app/public/shop/'.($vendorData->image), type: 'shop') }}">
-                                            @else
-                                                <img class="rounded-full" alt="{{ translate('store') }}"
-                                                     src="{{ getValidImage(path: 'storage/app/public/company/'.($vendorData->image), type: 'shop') }}">
-                                            @endif
+                                            <img class="rounded-full" alt="{{ translate('store') }}"
+                                                 src="{{ getStorageImages(path: $vendorData->image_full_url, type: 'shop') }}">
                                         </div>
 
                                         @if($vendorData->temporary_close)

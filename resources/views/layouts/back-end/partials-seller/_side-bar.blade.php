@@ -10,6 +10,7 @@
     use App\Models\RefundRequest;
     use App\Models\Shop;
     use App\Enums\ViewPaths\Vendor\Order as OrderEnum;
+    $shop=Shop::where(['seller_id'=>auth('seller')->id()])->first();
 @endphp
 <div id="sidebarMain" class="d-none">
     <aside style="text-align: {{Session::get('direction') === "rtl" ? 'right' : 'left'}};"
@@ -17,11 +18,10 @@
         <div class="navbar-vertical-container">
             <div class="navbar-vertical-footer-offset pb-0">
                 <div class="navbar-brand-wrapper justify-content-between side-logo">
-                    @php($shop=Shop::where(['seller_id'=>auth('seller')->id()])->first())
                     <a class="navbar-brand" href="{{route('vendor.dashboard.index')}}" aria-label="Front">
                         @if (isset($shop))
                             <img class="navbar-brand-logo-mini for-seller-logo"
-                                 src="{{getValidImage(path: 'storage/app/public/shop/'.$shop->image,type:'backend-logo')}}" alt="{{translate('logo')}}">
+                                 src="{{getStorageImages(path:$shop->image_full_url,type:'backend-logo')}}" alt="{{translate('logo')}}">
                         @else
                             <img class="navbar-brand-logo-mini for-seller-logo"
                                  src="{{dynamicAsset(path: 'public/assets/back-end/img/900x400/img1.jpg')}}"

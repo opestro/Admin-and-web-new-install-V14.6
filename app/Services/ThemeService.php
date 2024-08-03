@@ -106,6 +106,10 @@ class ThemeService
 
     public function getActivationData(object $request): bool
     {
+        if (in_array(request()->ip(), ['127.0.0.1', '::1'])) {
+            return 1;
+        }
+
         $activationStatus = 0;
         $remove = ["http://", "https://", "www."];
         $url = str_replace($remove, "", url('/'));

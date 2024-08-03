@@ -80,12 +80,12 @@
                     </div>
                 </div>
 
-                <div class="pt-10 rounded bg-position-center bg-soft-secondary"
-                     data-bg-img="{{ getValidImage(path: 'storage/app/public/shop/'. getWebConfig(name: 'shop_banner'), type:'backend-banner') }}">
+                <div class="pt-10 rounded bg-position-center bg-soft-secondary admin-inhouse-banner"
+                     data-bg-img="{{ getStorageImages(path:getWebConfig(name: 'shop_banner'), type:'backend-banner') }}">
                     <div class="media flex-wrap align-items-end gap-3 p-2">
                         <div class="bg-white rounded py-4 px-5 shadow-lg">
                             <img width="80"
-                                 src="{{ getValidImage(path: 'storage/app/public/company/'.getWebConfig(name: 'company_fav_icon'), type: 'backend-logo') }}"
+                                 src="{{ getStorageImages(path: getWebConfig(name: 'company_fav_icon'), type: 'backend-logo') }}"
                                  alt="">
                         </div>
                         <div class="media-body">

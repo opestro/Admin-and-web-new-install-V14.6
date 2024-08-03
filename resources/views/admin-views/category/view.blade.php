@@ -120,7 +120,7 @@
                                                 class="btn btn--primary">{{ translate('search') }}</button>
                                     </div>
                                 </form>
-                                <div>
+                                <div class="dropdown">
                                     <button type="button" class="btn btn-outline--primary text-nowrap btn-block"
                                             data-toggle="dropdown">
                                         <i class="tio-download-to"></i>
@@ -163,7 +163,7 @@
                                     <td class="d-flex justify-content-center">
                                         <div class="avatar-60 d-flex align-items-center rounded">
                                             <img class="img-fluid" alt=""
-                                                 src="{{ getValidImage(path: 'storage/app/public/category/'.$category['icon'], type: 'backend-category') }}">
+                                                 src="{{ getStorageImages(path: $category->icon_full_url, type: 'backend-category') }}">
                                         </div>
                                     </td>
                                     <td>{{ $category['defaultname'] }}</td>

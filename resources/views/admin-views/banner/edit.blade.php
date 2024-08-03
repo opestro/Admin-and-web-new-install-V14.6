@@ -112,8 +112,8 @@
                                         <div class="mx-auto text-center">
                                             <div class="uploadDnD">
                                                 <div class="form-group inputDnD input_image input_image_edit"
-                                                     data-bg-img="{{ dynamicStorage(path: 'storage/app/public/banner') }}/{{$banner['photo']}}"
-                                                     data-title="{{ file_exists('storage/app/public/banner/'.$banner['photo']) ? '': 'Drag and drop file or Browse file'}}">
+                                                     data-bg-img="{{ getStorageImages(path:$banner['photo_full_url'],type: 'banner' ) }}"
+                                                     data-title="{{ $banner['photo_full_url']['path'] ? '': 'Drag and drop file or Browse file'}}">
                                                     <input type="file" name="image" class="form-control-file text--primary font-weight-bold" id="banner"  accept=".jpg, .png, .jpeg, .gif, .bmp, .webp |image/*">
                                                 </div>
                                             </div>
@@ -141,7 +141,6 @@
                                 </div>
 
                                 <div class="col-md-12 d-flex justify-content-end gap-3">
-                                    <button type="reset" class="btn btn-secondary px-4">{{ translate('reset') }}</button>
                                     <button type="submit" class="btn btn--primary px-4">{{ translate('update') }}</button>
                                 </div>
                             </div>

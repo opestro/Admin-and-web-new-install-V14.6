@@ -61,8 +61,9 @@
                                                 <i class="tio-delete"></i>
                                             </span>
                                             <div class="img_area_with_preview position-absolute z-index-2">
+                                                @php($imagePath = imagePathProcessing(imageData:isset($businessProcessStep[$index-1]) ? $businessProcessStep[$index-1]?->image : null, path: 'vendor-registration-setting'))
                                                 <img id="view-bp-logo-{{$index}}"
-                                                     src="{{getValidImage(path:'storage/app/public/vendor-registration-setting/'.(isset($businessProcessStep[$index-1])? $businessProcessStep[$index-1]->image : ''),type:'backend-basic')}}" class="bg-white {{isset($businessProcessStep[$index-1]) &&  $businessProcessStep[$index-1]->image ? '':'h-auto'}}" alt="">
+                                                     src="{{getStorageImages(path:$imagePath,type: 'backend-banner')}}" class="bg-white" alt="">
                                             </div>
                                             <div
                                                 class="position-absolute h-100 top-0 w-100 d-flex align-content-center justify-content-center">

@@ -79,7 +79,7 @@ class DeliveryManRepository implements DeliveryManRepositoryInterface
 
     public function update(string $id, array $data): bool
     {
-        return $this->deliveryMan->where('id', $id)->update($data);
+        return $this->deliveryMan->find($id)->update($data);
     }
 
     public function delete(array $params): bool

@@ -79,7 +79,6 @@ class BusinessSettingsController extends BaseController
             'loader_gif' => $this->getSettings(object: $web, type: 'loader_gif')->value ?? '',
             'default_location' => $this->getSettings(object: $web, type: 'default_location')->value ?? '',
         ];
-
         $CurrencyList = $this->currencyRepo->getListWhere(dataLimit: 'all');
 
         return view(BusinessSettings::INDEX[VIEW], [
@@ -124,33 +123,51 @@ class BusinessSettingsController extends BaseController
 
         $webLogo = $this->businessSettingRepo->getFirstWhere(params: ['type'=>'company_web_logo']);
         if ($request->has('company_web_logo')) {
-            $webLogoImage = $this->updateFile(dir: 'company/', oldImage: $webLogo['value'], format: 'webp', image: $request->file('company_web_logo'));
+
+            $webLogoImage = [
+                'image_name' =>  $this->updateFile(dir: 'company/', oldImage: (is_array($webLogo['value']) ? $webLogo['value']['image_name'] : $webLogo['value'] ), format: 'webp', image: $request->file('company_web_logo')),
+                'storage' => config('filesystems.disks.default') ?? 'public'
+            ];
             $this->businessSettingRepo->updateWhere(params: ['type'=>'company_web_logo'], data: ['value' => $webLogoImage]);
         }
 
         $mobileLogo = $this->businessSettingRepo->getFirstWhere(params: ['type'=>'company_mobile_logo']);
         if ($request->has('company_mobile_logo')) {
-            $mobileLogoImage = $this->updateFile(dir: 'company/', oldImage: $mobileLogo['value'], format: 'webp', image: $request->file('company_mobile_logo'));
+            $mobileLogoImage = [
+                'image_name' =>  $this->updateFile(dir: 'company/', oldImage: (is_array($mobileLogo['value']) ? $mobileLogo['value']['image_name'] : $mobileLogo['value'] ), format: 'webp', image: $request->file('company_mobile_logo')),
+                'storage' => config('filesystems.disks.default') ?? 'public'
+            ];
             $this->businessSettingRepo->updateWhere(params: ['type'=>'company_mobile_logo'], data: ['value' => $mobileLogoImage]);
         }
 
         $webFooterLogo = $this->businessSettingRepo->getFirstWhere(params: ['type'=>'company_footer_logo']);
         if ($request->has('company_footer_logo')) {
-            $webFooterLogoImage = $this->updateFile(dir: 'company/', oldImage: $webFooterLogo['value'], format: 'webp', image: $request->file('company_footer_logo'));
+            $webFooterLogoImage = [
+                'image_name' =>  $this->updateFile(dir: 'company/', oldImage: (is_array($webFooterLogo['value']) ? $webFooterLogo['value']['image_name'] : $webFooterLogo['value'] ), format: 'webp', image: $request->file('company_footer_logo')),
+                'storage' => config('filesystems.disks.default') ?? 'public'
+            ];
             $this->businessSettingRepo->updateWhere(params: ['type'=>'company_footer_logo'], data: ['value' => $webFooterLogoImage]);
         }
 
         $favIcon = $this->businessSettingRepo->getFirstWhere(params: ['type'=>'company_fav_icon']);
         if ($request->has('company_fav_icon')) {
-            $favIconImage = $this->updateFile(dir: 'company/', oldImage: $favIcon['value'], format: 'webp', image: $request->file('company_fav_icon'));
+            $favIconImage = [
+                'image_name' =>  $this->updateFile(dir: 'company/', oldImage: (is_array($favIcon['value']) ? $favIcon['value']['image_name'] : $favIcon['value'] ), format: 'webp', image: $request->file('company_fav_icon')),
+                'storage' => config('filesystems.disks.default') ?? 'public'
+            ];
             $this->businessSettingRepo->updateWhere(params: ['type'=>'company_fav_icon'], data: ['value' => $favIconImage]);
         }
 
         $loaderGif = $this->businessSettingRepo->getFirstWhere(params: ['type'=>'loader_gif']);
         if ($request->has('loader_gif')) {
-            $loaderGifImage = $loaderGif ? $this->updateFile(dir: 'company/', oldImage: $loaderGif['value'], format: 'webp', image: $request->file('loader_gif'))
+            $loaderGifImage = $loaderGif ? $this->updateFile(dir: 'company/', oldImage: (is_array($loaderGif['value']) ? $loaderGif['value']['image_name'] : $loaderGif['value'] ), format: 'webp', image: $request->file('loader_gif'))
             : $this->upload(dir: 'company/', format: 'webp', image: $request->file('loader_gif'));
-            $this->businessSettingRepo->updateOrInsert(type: 'loader_gif', value: $loaderGifImage);
+
+            $loaderGifImageArray = [
+                'image_name' =>  $loaderGifImage,
+                'storage' => config('filesystems.disks.default') ?? 'public'
+            ];
+            $this->businessSettingRepo->updateOrInsert(type: 'loader_gif', value: $loaderGifImageArray);
         }
 
         $language = $this->businessSettingRepo->getFirstWhere(params: ['type'=>'language']);

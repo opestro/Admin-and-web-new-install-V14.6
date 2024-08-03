@@ -134,7 +134,7 @@
                         {{translate('total_Earnings')}}
                         <span class="badge badge-soft-dark radius-50 fz-12">{{ count($inhouse_earn) }}</span>
                     </h4>
-                    <div>
+                    <div class="dropdown">
                         <button type="button" class="btn btn-outline--primary text-nowrap btn-block"
                                 data-toggle="dropdown">
                             <i class="tio-download-to"></i>

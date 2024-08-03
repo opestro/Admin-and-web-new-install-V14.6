@@ -18,7 +18,7 @@
     <div class="d-flex">
         <div class="d-flex align-items-center justify-content-center p-3">
             <div class="flash-deals-background-image image-default-bg-color">
-                <img class="__img-125px" alt="" src="{{ getValidImage(path: 'storage/app/public/product/thumbnail/'.$product['thumbnail'], type: 'product') }}">
+                <img class="__img-125px" alt="" src="{{ getStorageImages(path: $product->thumbnail_full_url, type: 'product') }}">
             </div>
         </div>
         <div class=" flash_deal_product_details pl-3 pr-3 pr-1 d-flex align-items-center">

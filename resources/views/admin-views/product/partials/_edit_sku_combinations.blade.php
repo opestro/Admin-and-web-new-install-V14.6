@@ -52,7 +52,8 @@
                            class="form-control" required placeholder="{{ translate('ex').': 100'}}">
                 </td>
                 <td>
-                    <input type="text" name="sku_{{ $combination['type'] }}" value="{{ $combination['sku'] }}" class="form-control  store-keeping-unit">
+                    <input type="text" name="sku_{{ $combination['type'] }}" value="{{ $combination['sku'] }}"
+                           class="form-control store-keeping-unit" required>
                 </td>
                 <td>
                     <input type="number" name="qty_{{ $combination['type'] }}"

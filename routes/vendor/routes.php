@@ -59,25 +59,25 @@ Route::group(['prefix' => 'vendor', 'as' => 'vendor.'], function () {
     /* authentication */
     Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () {
         Route::controller(LoginController::class)->group(function () {
-            Route::get(Auth::VENDOR_LOGIN[URI],'getLoginView');
-            Route::get(Auth::RECAPTURE[URI].'/{tmp}', 'generateReCaptcha')->name('recaptcha');
+            Route::get(Auth::VENDOR_LOGIN[URI], 'getLoginView');
+            Route::get(Auth::RECAPTURE[URI] . '/{tmp}', 'generateReCaptcha')->name('recaptcha');
             Route::post(Auth::VENDOR_LOGIN[URI], 'login')->name('login');
             Route::get(Auth::VENDOR_LOGOUT[URI], 'logout')->name('logout');
         });
         Route::group(['prefix' => 'forgot-password', 'as' => 'forgot-password.'], function () {
             Route::controller(ForgotPasswordController::class)->group(function () {
-                Route::get(ForgotPassword::INDEX[URI],'index')->name('index');
-                Route::post(ForgotPassword::INDEX[URI],'getPasswordResetRequest');
-                Route::get(ForgotPassword::OTP_VERIFICATION[URI],'getOTPVerificationView')->name('otp-verification');
-                Route::post(ForgotPassword::OTP_VERIFICATION[URI],'submitOTPVerificationCode');
-                Route::get(ForgotPassword::RESET_PASSWORD[URI],'getPasswordResetView')->name('reset-password');
-                Route::post(ForgotPassword::RESET_PASSWORD[URI],'resetPassword');
+                Route::get(ForgotPassword::INDEX[URI], 'index')->name('index');
+                Route::post(ForgotPassword::INDEX[URI], 'getPasswordResetRequest');
+                Route::get(ForgotPassword::OTP_VERIFICATION[URI], 'getOTPVerificationView')->name('otp-verification');
+                Route::post(ForgotPassword::OTP_VERIFICATION[URI], 'submitOTPVerificationCode');
+                Route::get(ForgotPassword::RESET_PASSWORD[URI], 'getPasswordResetView')->name('reset-password');
+                Route::post(ForgotPassword::RESET_PASSWORD[URI], 'resetPassword');
             });
         });
         Route::group(['prefix' => 'registration', 'as' => 'registration.'], function () {
             Route::controller(RegisterController::class)->group(function () {
-                Route::get(Auth::VENDOR_REGISTRATION[URI],'index')->name('index');
-                Route::post(Auth::VENDOR_REGISTRATION[URI],'add');
+                Route::get(Auth::VENDOR_REGISTRATION[URI], 'index')->name('index');
+                Route::post(Auth::VENDOR_REGISTRATION[URI], 'add');
             });
         });
     });
@@ -108,15 +108,15 @@ Route::group(['prefix' => 'vendor', 'as' => 'vendor.'], function () {
                 Route::get(Cart::CLEAR_CART_IDS[URI], 'clearSessionCartIds')->name('clear-cart-ids');
                 Route::post(Cart::ADD[URI], 'addToCart')->name('add-to-cart');
                 Route::post(Cart::REMOVE[URI], 'removeCart')->name('cart-remove');
-                Route::any(Cart::CART_EMPTY[URI],'emptyCart')->name('cart-empty');
+                Route::any(Cart::CART_EMPTY[URI], 'emptyCart')->name('cart-empty');
                 Route::any(Cart::CHANGE_CART[URI], 'changeCart')->name('change-cart');
                 Route::get(Cart::NEW_CART_ID[URI], 'addNewCartId')->name('new-cart-id');
             });
             Route::controller(POSOrderController::class)->group(function () {
-                Route::post(POSOrder::ORDER_DETAILS[URI].'/{id}', 'index')->name('order-details');
+                Route::post(POSOrder::ORDER_DETAILS[URI] . '/{id}', 'index')->name('order-details');
                 Route::post(POSOrder::ORDER_PLACE[URI], 'placeOrder')->name('order-place');
-                Route::any(POSOrder::CANCEL_ORDER[URI],'cancelOrder')->name('cancel-order');
-                Route::any(POSOrder::HOLD_ORDERS[URI],'getAllHoldOrdersView')->name('view-hold-orders');
+                Route::any(POSOrder::CANCEL_ORDER[URI], 'cancelOrder')->name('cancel-order');
+                Route::any(POSOrder::HOLD_ORDERS[URI], 'getAllHoldOrdersView')->name('view-hold-orders');
             });
         });
         Route::group(['prefix' => 'refund', 'as' => 'refund.'], function () {
@@ -124,19 +124,21 @@ Route::group(['prefix' => 'vendor', 'as' => 'vendor.'], function () {
                 Route::get(Refund::INDEX[URI] . '/{status}', 'index')->name('index');
                 Route::get(Refund::DETAILS[URI] . '/{id}', 'getDetailsView')->name('details');
                 Route::post(Refund::UPDATE_STATUS[URI], 'updateStatus')->name('update-status');
-                Route::get(Refund::EXPORT[URI].'/{status}', 'exportList')->name('export');
+                Route::get(Refund::EXPORT[URI] . '/{status}', 'exportList')->name('export');
             });
         });
         /* product */
         Route::group(['prefix' => 'products', 'as' => 'products.'], function () {
             Route::controller(ProductController::class)->group(function () {
-                Route::get(Product::LIST[URI]. '/{type}', 'index')->name('list');
+                Route::get(Product::LIST[URI] . '/{type}', 'index')->name('list');
                 Route::get(Product::ADD[URI], 'getAddView')->name('add');
                 Route::post(Product::ADD[URI], 'add');
                 Route::get(Product::GET_CATEGORIES[URI], 'getCategories')->name('get-categories');
                 Route::post(Product::SKU_COMBINATION[URI], 'getSkuCombinationView')->name('sku-combination');
+                Route::post(Product::DIGITAL_VARIATION_COMBINATION[URI], 'getDigitalVariationCombinationView')->name('digital-variation-combination');
+                Route::post(Product::DIGITAL_VARIATION_FILE_DELETE[URI], 'deleteDigitalVariationFile')->name('digital-variation-file-delete');
                 Route::post(Product::UPDATE_STATUS[URI], 'updateStatus')->name('status-update');
-                Route::get(Product::EXPORT_EXCEL[URI]. '/{type}', 'exportList')->name('export-excel');
+                Route::get(Product::EXPORT_EXCEL[URI] . '/{type}', 'exportList')->name('export-excel');
                 Route::get(Product::VIEW[URI] . '/{id}', 'getView')->name('view');
                 Route::get(Product::BARCODE_VIEW[URI] . '/{id}', 'getBarcodeView')->name('barcode');
                 Route::delete(Product::DELETE[URI] . '/{id}', 'delete')->name('delete');
@@ -157,13 +159,13 @@ Route::group(['prefix' => 'vendor', 'as' => 'vendor.'], function () {
             Route::controller(OrderController::class)->group(function () {
                 Route::get(Order::LIST[URI] . '/{status}', 'index')->name('list');
                 Route::get(Order::CUSTOMERS[URI], 'getCustomers')->name('customers');
-                Route::get(Order::EXPORT_EXCEL[URI].'/{status}', 'exportList')->name('export-excel');
-                Route::get(Order::GENERATE_INVOICE[URI].'/{id}', 'generateInvoice')->name('generate-invoice');
-                Route::get(Order::VIEW[URI].'/{id}', 'getView')->name('details');
+                Route::get(Order::EXPORT_EXCEL[URI] . '/{status}', 'exportList')->name('export-excel');
+                Route::get(Order::GENERATE_INVOICE[URI] . '/{id}', 'generateInvoice')->name('generate-invoice');
+                Route::get(Order::VIEW[URI] . '/{id}', 'getView')->name('details');
                 Route::post(Order::UPDATE_ADDRESS[URI], 'updateAddress')->name('address-update');// update address from order details
                 Route::post(Order::PAYMENT_STATUS[URI], 'updatePaymentStatus')->name('payment-status');
-                Route::post(Order::UPDATE_DELIVERY_INFO[URI],'updateDeliverInfo')->name('update-deliver-info');
-                Route::get(Order::ADD_DELIVERY_MAN[URI].'/{order_id}/{d_man_id}', 'addDeliveryMan')->name('add-delivery-man');
+                Route::post(Order::UPDATE_DELIVERY_INFO[URI], 'updateDeliverInfo')->name('update-deliver-info');
+                Route::get(Order::ADD_DELIVERY_MAN[URI] . '/{order_id}/{d_man_id}', 'addDeliveryMan')->name('add-delivery-man');
                 Route::post(Order::UPDATE_AMOUNT_DATE[URI], 'updateAmountDate')->name('amount-date-update');
                 Route::post(Order::DIGITAL_FILE_UPLOAD_AFTER_SELL[URI], 'uploadDigitalFileAfterSell')->name('digital-file-upload-after-sell');
                 Route::post(Order::UPDATE_STATUS[URI], 'updateStatus')->name('status');
@@ -173,8 +175,8 @@ Route::group(['prefix' => 'vendor', 'as' => 'vendor.'], function () {
 
         Route::group(['prefix' => 'customer', 'as' => 'customer.'], function () {
             Route::controller(CustomerController::class)->group(function () {
-                Route::get(Customer::LIST[URI],'getList')->name('list');
-                Route::post(Customer::ADD[URI],'add')->name('add');
+                Route::get(Customer::LIST[URI], 'getList')->name('list');
+                Route::post(Customer::ADD[URI], 'add')->name('add');
             });
         });
 
@@ -183,6 +185,7 @@ Route::group(['prefix' => 'vendor', 'as' => 'vendor.'], function () {
                 Route::get(Review::INDEX[URI], 'index')->name('index');
                 Route::get(Review::UPDATE_STATUS[URI] . '/{id}/{status}', 'updateStatus')->name('update-status');
                 Route::get(Review::EXPORT[URI], 'exportList')->name('export')->middleware('actch')->middleware('actch');
+                Route::post(Review::REVIEW_REPLY[URI], 'addReviewReply')->name('add-review-reply');
             });
         });
 
@@ -225,30 +228,30 @@ Route::group(['prefix' => 'vendor', 'as' => 'vendor.'], function () {
             });
             Route::group(['prefix' => 'wallet', 'as' => 'wallet.'], function () {
                 Route::controller(DeliveryManWalletController::class)->group(function () {
-                    Route::get(DeliveryManWallet::INDEX[URI].'/{id}', 'index')->name('index');
-                    Route::get(DeliveryManWallet::ORDER_HISTORY[URI].'/{id}','getOrderHistory')->name('order-history');
-                    Route::get(DeliveryManWallet::ORDER_STATUS_HISTORY[URI].'/{order}','getOrderStatusHistory')->name('order-status-history');
-                    Route::get(DeliveryManWallet::EARNING[URI].'/{id}','getEarningListView')->name('earning');
-                    Route::get(DeliveryManWallet::CASH_COLLECT[URI].'/{id}', 'getCashCollectView')->name('cash-collect');
-                    Route::post(DeliveryManWallet::CASH_COLLECT[URI].'/{id}', 'collectCash');
+                    Route::get(DeliveryManWallet::INDEX[URI] . '/{id}', 'index')->name('index');
+                    Route::get(DeliveryManWallet::ORDER_HISTORY[URI] . '/{id}', 'getOrderHistory')->name('order-history');
+                    Route::get(DeliveryManWallet::ORDER_STATUS_HISTORY[URI] . '/{order}', 'getOrderStatusHistory')->name('order-status-history');
+                    Route::get(DeliveryManWallet::EARNING[URI] . '/{id}', 'getEarningListView')->name('earning');
+                    Route::get(DeliveryManWallet::CASH_COLLECT[URI] . '/{id}', 'getCashCollectView')->name('cash-collect');
+                    Route::post(DeliveryManWallet::CASH_COLLECT[URI] . '/{id}', 'collectCash');
                 });
             });
 
             Route::group(['prefix' => 'withdraw', 'as' => 'withdraw.'], function () {
                 Route::controller(DeliveryManWithdrawController::class)->group(function () {
-                    Route::get(DeliveryManWithdraw::INDEX[URI],'index')->name('index');
-                    Route::post(DeliveryManWithdraw::INDEX[URI],'getFiltered');
-                    Route::get(DeliveryManWithdraw::DETAILS[URI].'/{withdrawId}','getDetails')->name('details');
-                    Route::post(DeliveryManWithdraw::UPDATE_STATUS[URI].'/{withdrawId}', 'updateStatus')->name('update-status');
-                    Route::any(DeliveryManWithdraw::EXPORT[URI],'exportList')->name('export');
+                    Route::get(DeliveryManWithdraw::INDEX[URI], 'index')->name('index');
+                    Route::post(DeliveryManWithdraw::INDEX[URI], 'getFiltered');
+                    Route::get(DeliveryManWithdraw::DETAILS[URI] . '/{withdrawId}', 'getDetails')->name('details');
+                    Route::post(DeliveryManWithdraw::UPDATE_STATUS[URI] . '/{withdrawId}', 'updateStatus')->name('update-status');
+                    Route::any(DeliveryManWithdraw::EXPORT[URI], 'exportList')->name('export');
                 });
             });
             Route::group(['prefix' => 'emergency-contact', 'as' => 'emergency-contact.'], function () {
                 Route::controller(EmergencyContactController::class)->group(function () {
                     Route::get(EmergencyContact::INDEX[URI], 'index')->name('index');
                     Route::post(EmergencyContact::INDEX[URI], 'add');
-                    Route::get(EmergencyContact::UPDATE[URI].'/{id}', 'getUpdateView')->name('update');
-                    Route::post(EmergencyContact::UPDATE[URI].'/{id}', 'update');
+                    Route::get(EmergencyContact::UPDATE[URI] . '/{id}', 'getUpdateView')->name('update');
+                    Route::post(EmergencyContact::UPDATE[URI] . '/{id}', 'update');
                     Route::patch(EmergencyContact::INDEX[URI], 'updateStatus');
                     Route::delete(EmergencyContact::INDEX[URI], 'delete');
                 });
@@ -311,7 +314,7 @@ Route::group(['prefix' => 'vendor', 'as' => 'vendor.'], function () {
         });
 
         Route::group(['prefix' => 'report', 'as' => 'report.'], function () {
-            Route::controller(ProductReportController::class)->group(function (){
+            Route::controller(ProductReportController::class)->group(function () {
                 Route::get('all-product', 'all_product')->name('all-product');
                 Route::get('all-product-excel', 'allProductExportExcel')->name('all-product-excel');
 
@@ -319,7 +322,7 @@ Route::group(['prefix' => 'vendor', 'as' => 'vendor.'], function () {
                 Route::get('product-stock-export', 'productStockExport')->name('product-stock-export');
             });
 
-            Route::controller(OrderReportController::class)->group(function (){
+            Route::controller(OrderReportController::class)->group(function () {
                 Route::get('order-report', 'order_report')->name('order-report');
                 Route::get('order-report-excel', 'orderReportExportExcel')->name('order-report-excel');
                 Route::get('order-report-pdf', 'exportOrderReportInPDF')->name('order-report-pdf');
