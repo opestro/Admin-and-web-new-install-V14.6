@@ -158,7 +158,7 @@
                     }
                 },
             });
-        }, 5000);
+        }, 10000 * 20);
 </script>
 @endif
 @if(env('APP_MODE') == 'demo')

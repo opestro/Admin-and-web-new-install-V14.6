@@ -21,9 +21,11 @@ use App\Models\User;
 use App\Utils\CartManager;
 use App\Utils\OrderManager;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 
 class Helpers
 {
@@ -1082,7 +1084,144 @@ class Helpers
 
         return $bonuses->max('applied_bonus_amount') ?? 0;
     }
+
+    public static function points_actions($request = null)
+    {
+        try {
+            $userId = $request->userId;
+            $storeId = $request->storeId;
+            $action = $request->action;
+            $points = $request->points??1;
+            $sumPoints = $points;
+
+            if($action == 'add_points'){
+
+                $validator = Validator::make($request->all(), [
+                    'userId' => 'required|integer|exists:users,id',
+                    'storeId' => 'required|integer|exists:shops,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
+                // Check if the record exists
+                $record = DB::table('store_user')
+                ->where('store_id', $storeId)
+                ->where('user_id', $userId)
+                ->first();
+                if ($record) {
+                // Update existing record
+                DB::table('store_user')
+                ->where('store_id', $storeId)
+                ->where('user_id', $userId)
+                ->increment('points', $points);
+                } else {
+                // Insert new record with initial points
+                    $store_user = DB::table('store_user')->insert([
+                        'points' => $points,
+                        'store_id' => $storeId,
+                        'user_id' => $userId
+                    ]);
+                }
+            } elseif($action == 'remove_points'){
+
+                $validator = Validator::make($request->all(), [
+                    'userId' => 'required|integer|exists:users,id',
+                    'storeId' => 'required|integer|exists:shops,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
+                // Check if the record exists
+                $record = DB::table('store_user')
+                ->where('store_id', $storeId)
+                ->where('user_id', $userId)
+                ->first();
+
+                if ($record) {
+                // Decrement existing record
+                DB::table('store_user')
+                ->where('store_id', $storeId)
+                ->where('user_id', $userId)
+                ->decrement('points', $points);
+                } else {
+                    // Insert new record with initial points set to 1 (or any other logic)
+                    $store_user = DB::table('store_user')->insert([
+                        'points' => $points,
+                        'store_id' => $storeId,
+                        'user_id' => $userId
+                ]);
+                }
+            } elseif($action == 'get_store_points'){
+                $sumPoints = DB::table('store_user')
+                        ->where('store_id', $storeId)
+                        ->sum('points');
+            } elseif($action == 'get_user_points'){
+                $sumPoints = DB::table('store_user')
+                        ->where('user_id', $userId)
+                        ->sum('points');
+            } elseif($action == 'get_store_nich'){
+                $sumPoints = DB::table('store_user')
+                        ->where('store_id', $storeId)
+                        ->count();
+            } elseif($action == 'get_user_nich'){
+                $sumPoints = DB::table('store_user')
+                        ->where('user_id', $userId)
+                        ->count();
+            } else{
+                $sumPoints = DB::table('store_user')
+                        ->where('store_id', $storeId)
+                        ->sum('points');
+            }
+
+            return ['success' => true, 'message' => $action, 'data' => $sumPoints] ;
+
+        } catch (Exception $e) {
+            // Handle any exceptions that occur
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+            ];
+        }
+    }
+
+    public static function account_actions($request = null)
+    {
+        try {
+            $action = $request->action;
+            $remember_token = $request->remember_token;
+            if($action == 'create_account'){
+                $validator = Validator::make($request->all(), [
+                    'remember_token' => 'required|string|unique:users,remember_token',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
+                $user = DB::table('users')->insert([
+                    'remember_token' => $remember_token
+                ]);
+            }elseif($action == 'get_account'){
+                $validator = Validator::make($request->all(), [
+                    'remember_token' => 'required|string|exists:users,remember_token',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
+                $user = DB::table('users')->where([
+                    'remember_token' => $remember_token
+                ])->first();
+            }
+            return ['success' => true, 'message' => $action, 'data' => $user] ;
+
+        } catch (Exception $e) {
+            // Handle any exceptions that occur
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+            ];
+        }
+    }
 }
+
 
 
 if (!function_exists('currency_symbol')) {
@@ -1472,6 +1611,7 @@ if (!function_exists('currency_converter')) {
 
         return Helpers::set_symbol(round($amount * $rate, 2));
     }
+
 }
 
 
