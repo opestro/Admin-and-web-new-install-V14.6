@@ -9,16 +9,16 @@ Method: POST
 
 Request Parameters
 
-$userId : (integer, required): ID of the user.
-$storeId : (integer, required): ID of the store.
-$action : (string, required): The action to be performed. Valid values:
+$userId => (integer, required): ID of the user.
+$storeId => (integer, required): ID of the store.
+$action => (string, required): The action to be performed. Valid values:
     -add_points
     -remove_points
     -get_store_points
     -get_user_points
     -get_store_nich
     -get_user_nich
-$points : (integer, optional, default: 1): Number of points to add or remove. Only required for add_points and remove_points actions.
+$points => (integer, optional, default: 1): Number of points to add or remove. Only required for add_points and remove_points actions.
 
 Response
 
@@ -37,8 +37,8 @@ Method: POST
 
 Request Parameters
 
-$remember_token : (string, required): Token for user identification.
-$action : (string, required): The action to be performed. Valid values:
+$remember_token => (string, required): Token for user identification.
+$action => (string, required): The action to be performed. Valid values:
     -create_account
     -get_account
 
