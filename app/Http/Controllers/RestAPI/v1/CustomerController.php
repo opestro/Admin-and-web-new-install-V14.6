@@ -586,4 +586,19 @@ class CustomerController extends Controller
 
         return response()->json(['message' => 'Successfully change'], 200);
     }
+
+    public function points_actions(Request $request)
+    {
+
+            $result = Helpers::points_actions($request);
+            return response()->json($result, 200);
+
+    }
+    public function account_actions(Request $request)
+    {
+
+            $result = Helpers::account_actions($request);
+            return response()->json($result, 200);
+
+    }
 }

@@ -74,6 +74,12 @@ Route::group(['namespace' => 'RestAPI\v1', 'prefix' => 'v1', 'middleware' => ['a
         Route::get('get-order-by-id', 'CustomerController@get_order_by_id');
     });
 
+    Route::group(['prefix' => 'customer/actions'], function () {
+        Route::post('point-action', 'CustomerController@points_actions');
+        Route::post('account-action', 'CustomerController@account_actions');
+    });
+
+
     Route::get('faq', 'GeneralController@faq');
 
     Route::group(['prefix' => 'notifications'], function () {
