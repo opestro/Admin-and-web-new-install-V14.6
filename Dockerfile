@@ -37,7 +37,7 @@ RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 # Install Composer if needed
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Uncomment the following line if you need to run composer install
-# RUN composer install
+RUN composer install
 
 # Expose port 80
 EXPOSE 80
