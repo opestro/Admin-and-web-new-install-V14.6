@@ -1,5 +1,5 @@
-# Use the official PHP image with FPM
-FROM php:8.3-fpm
+# Use the official PHP image with Apache
+FROM php:8.1-apache
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
+    libicu-dev \
     zip \
     unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -15,7 +16,10 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install intl
 
 # Install PHP extensions
- RUN docker-php-ext-install pdo_mysql
+RUN docker-php-ext-install pdo_mysql
+
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
 
 # Set working directory
 WORKDIR /var/www/html
@@ -29,9 +33,10 @@ COPY --chown=www-data:www-data . /var/www/html
 # Install Composer if needed
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Uncomment the following line if you need to run composer install
-RUN composer install
+# RUN composer install
 
-# Expose port 9000 for PHP-FPM
-EXPOSE 9000
+# Expose port 80
+EXPOSE 80
 
-CMD ["php-fpm"]
+# Start Apache in the foreground
+CMD ["apache2-foreground"]
