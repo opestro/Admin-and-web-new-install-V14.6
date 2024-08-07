@@ -28,7 +28,7 @@ COPY --chown=www-data:www-data . /var/www/html
 # Install Composer if needed
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Uncomment the following line if you need to run composer install
-# RUN composer install
+RUN composer install
 
 # Expose port 9000 for PHP-FPM
 EXPOSE 9000
