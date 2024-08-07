@@ -1,7 +1,7 @@
 # Use the official PHP image with Apache for PHP 8.2
 FROM php:8.2-apache
 
-# Install system dependencies and PHP extensions
+# Install common system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     libfreetype6-dev \
     libicu-dev \
+    libzip-dev \
     zip \
     unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -35,7 +36,7 @@ RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-RUN composer install --ignore-platform-req=ext-mysqli --ignore-platform-req=ext-zip
+RUN composer install
 
 # Expose port 80
 EXPOSE 80
