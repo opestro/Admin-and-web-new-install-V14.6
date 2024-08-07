@@ -1199,6 +1199,8 @@ class Helpers
                 $user = DB::table('users')->insert([
                     'referral_code' => $referral_code
                 ]);
+                $token = $user->createToken('LaravelAuthApp')->accessToken;
+                $user['token'] = $token ;
             }elseif($action == 'get_account'){
                 $validator = Validator::make($request->all(), [
                     'referral_code' => 'required|string|exists:users,referral_code',
@@ -1209,8 +1211,7 @@ class Helpers
                 $user = DB::table('users')->where([
                     'referral_code' => $referral_code
                 ])->first();
-                $token = $user->createToken('LaravelAuthApp')->accessToken;
-                $user['token'] = $token ;
+
 
             }
             return ['success' => true, 'message' => $action, 'data' => $user] ;
