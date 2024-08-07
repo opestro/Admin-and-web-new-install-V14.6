@@ -1152,22 +1152,52 @@ class Helpers
                 ]);
                 }
             } elseif($action == 'get_store_points'){
+                $validator = Validator::make($request->all(), [
+                    'storeId' => 'required|integer|exists:shops,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
                 $sumPoints = DB::table('store_user')
                         ->where('store_id', $storeId)
                         ->sum('points');
             } elseif($action == 'get_user_points'){
+                $validator = Validator::make($request->all(), [
+                    'userId' => 'required|integer|exists:users,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
                 $sumPoints = DB::table('store_user')
                         ->where('user_id', $userId)
                         ->sum('points');
             } elseif($action == 'get_store_nich'){
+                $validator = Validator::make($request->all(), [
+                    'storeId' => 'required|integer|exists:shops,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
                 $sumPoints = DB::table('store_user')
                         ->where('store_id', $storeId)
                         ->count();
             } elseif($action == 'get_user_nich'){
+                $validator = Validator::make($request->all(), [
+                    'userId' => 'required|integer|exists:users,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
                 $sumPoints = DB::table('store_user')
                         ->where('user_id', $userId)
                         ->count();
             } else{
+                $validator = Validator::make($request->all(), [
+                    'storeId' => 'required|integer|exists:shops,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
                 $sumPoints = DB::table('store_user')
                         ->where('store_id', $storeId)
                         ->sum('points');
