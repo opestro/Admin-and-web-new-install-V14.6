@@ -11,10 +11,11 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd
+    && docker-php-ext-install gd \
+    && docker-php-ext-install intl
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_mysql
+ RUN docker-php-ext-install pdo_mysql
 
 # Set working directory
 WORKDIR /var/www/html
