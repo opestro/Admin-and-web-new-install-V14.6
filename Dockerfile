@@ -30,6 +30,10 @@ COPY . /var/www/html
 # Copy existing application directory permissions
 COPY --chown=www-data:www-data . /var/www/html
 
+# Set permissions for storage and cache directories
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
 # Install Composer if needed
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Uncomment the following line if you need to run composer install
