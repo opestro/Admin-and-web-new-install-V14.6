@@ -1188,26 +1188,26 @@ class Helpers
     {
         try {
             $action = $request->action;
-            $remember_token = $request->remember_token;
+            $referral_code = $request->referral_code;
             if($action == 'create_account'){
                 $validator = Validator::make($request->all(), [
-                    'remember_token' => 'required|string|unique:users,remember_token',
+                    'referral_code' => 'required|string|unique:users,referral_code',
                 ]);
                 if ($validator->fails()) {
                     return ['success' => false, 'message' => self::error_processor($validator)];
                 }
                 $user = DB::table('users')->insert([
-                    'remember_token' => $remember_token
+                    'referral_code' => $referral_code
                 ]);
             }elseif($action == 'get_account'){
                 $validator = Validator::make($request->all(), [
-                    'remember_token' => 'required|string|exists:users,remember_token',
+                    'referral_code' => 'required|string|exists:users,referral_code',
                 ]);
                 if ($validator->fails()) {
                     return ['success' => false, 'message' => self::error_processor($validator)];
                 }
                 $user = DB::table('users')->where([
-                    'remember_token' => $remember_token
+                    'referral_code' => $referral_code
                 ])->first();
             }
             return ['success' => true, 'message' => $action, 'data' => $user] ;
