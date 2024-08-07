@@ -275,7 +275,7 @@
                                     </button>
                                 </span>
                                 </div>
-                                <input type="hidden" class="product-generated-variation-code" name="product_variation_code" data-product-id="{{ $product['id'] }}">
+                                <input type="hidden" class="product-generated-variation-code" name="product_variation_code">
                                 <input type="hidden" value="" class="in_cart_key form-control w-50" name="key">
                             </div>
                             <div id="chosen_price_div">
@@ -294,7 +294,6 @@
                         </div>
                     </div>
 
-                    @php($guestCheckout = getWebConfig(name: 'guest_checkout'))
                     <div class="__btn-grp align-items-center mb-2">
                         @if(($product->added_by == 'seller' && ($seller_temporary_close || (isset($product->seller->shop) &&
                         $product->seller->shop->vacation_status && $currentDate >= $seller_vacation_start_date && $currentDate
@@ -311,10 +310,7 @@
                             </button>
                         @else
                             <button class="btn btn-secondary action-buy-now-this-product"
-                                type="button"
-                                data-auth-status="{{($guestCheckout == 1 || Auth::guard('customer')->check() ? 'true':'false')}}"
-                                data-route="{{ route('shop-cart') }}"
-                            >
+                            type="button">
                                 {{translate('buy_now')}}
                             </button>
                             <button class="btn btn--primary string-limit action-add-to-cart-form" type="button" data-update-text="{{ translate('update_cart') }}" data-add-text="{{ translate('add_to_cart') }}">

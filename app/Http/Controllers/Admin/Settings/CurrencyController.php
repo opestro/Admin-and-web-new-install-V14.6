@@ -108,17 +108,13 @@ class CurrencyController extends BaseController
 
     public function add(Request $request): RedirectResponse
     {
-        $currencyExist = $this->currencyRepo->getFirstWhere(params: ['code' => $request['code']]);
-        if ($currencyExist) {
-            Toastr::warning(translate('Currency_already_exist'));
-            return redirect()->back();
-        }
-        $this->currencyRepo->add([
+        $currency = [
             'name' => $request['name'],
             'symbol' => $request['symbol'],
             'code' => $request['code'],
             'exchange_rate' => $request->has('exchange_rate') ? $request['exchange_rate'] : 1,
-        ]);
+        ];
+        $this->currencyRepo->add($currency);
         Toastr::success(translate('New_Currency_inserted_successfully'));
         return redirect()->back();
     }

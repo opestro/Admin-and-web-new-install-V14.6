@@ -104,9 +104,7 @@ class Product extends Model
         'meta_description',
         'meta_image',
         'thumbnail_storage_type',
-        'digital_file_ready_storage_type',
-        'is_shipping_cost_updated',
-        'temp_shipping_cost',
+        'digital_file_ready_storage_type'
     ];
 
     /**

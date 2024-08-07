@@ -69,12 +69,12 @@ $orderTotalPriceSummary = \App\Utils\OrderManager::getOrderTotalPriceSummary(ord
                         @endif
 
                         {{ translate('discount') }}
-                        : {{ setCurrencySymbol(amount: usdToDefaultCurrency(amount: $detail['discount']), currencyCode: getCurrencyCode()) }}
+                        : {{setCurrencySymbol(amount: usdToDefaultCurrency(amount:round($detail['discount'],2)), currencyCode: getCurrencyCode()) }}
                     </td>
                     <td class="text-right">
                         @php($amount=($detail['price']*$detail['qty'])-$detail['discount'])
                         @php($product_price = $detail['price']*$detail['qty'])
-                        {{ setCurrencySymbol(amount: usdToDefaultCurrency(amount: $amount), currencyCode: getCurrencyCode()) }}
+                        {{setCurrencySymbol(amount: usdToDefaultCurrency(amount:round($amount,2)), currencyCode: getCurrencyCode()) }}
                     </td>
                 </tr>
                 @php($sub_total+=$amount)

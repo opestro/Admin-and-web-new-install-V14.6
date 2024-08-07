@@ -74,7 +74,7 @@ function getProductTypeFunctionality() {
         $('#digital_file_ready').val('');
         $('.digitalProductVariationSetupSection').hide();
 
-        elementProductColorSwitcherByIDFunctionality('reset')
+        elementProductColorSwitcherByIDFunctionality()
     } else if (productType && productType.toString() === 'digital') {
         $('#digital_product_type_show').show();
         $('.physical_product_show').hide();
@@ -82,7 +82,7 @@ function getProductTypeFunctionality() {
 
         elementProductColorSwitcherByID.prop('checked', false);
         $('#color-wise-image-section').empty().html('')
-        elementProductColorSwitcherByIDFunctionality('reset')
+        elementProductColorSwitcherByIDFunctionality()
     }
     try {
         if (productType && productType.toString() === 'physical') {
@@ -105,8 +105,7 @@ elementProductColorSwitcherByID.on('click', function () {
     elementProductColorSwitcherByIDFunctionality()
 });
 
-let pageLoadFirstTime = true;
-function elementProductColorSwitcherByIDFunctionality(action = null) {
+function elementProductColorSwitcherByIDFunctionality() {
     if (elementProductColorSwitcherByID.prop('checked')) {
         $('.color_image_column').removeClass('d-none');
         elementAdditionalImageColumn.removeClass('col-md-9');
@@ -118,10 +117,7 @@ function elementProductColorSwitcherByIDFunctionality(action = null) {
         let choiceAttributes = $('#choice_attributes');
 
         colors.val(null).trigger('change');
-        if (pageLoadFirstTime === false && action === 'reset') {
-            choiceAttributes.val(null).trigger('change');
-            pageLoadFirstTime = false;
-        }
+        choiceAttributes.val(null).trigger('change');
 
         $('.color_image_column').addClass('d-none');
         elementAdditionalImageColumn.addClass('col-md-9');
@@ -160,12 +156,15 @@ $('input[name="colors_active"]').on('change', function () {
 });
 
 $('#choice_attributes').on('change', function () {
-    $('#sku_combination').empty().html('');
+    let colors = $('#colors-selector').val();
+    let choiceAttributes = $('#choice_attributes').val();
+    if (colors.length === 0 && choiceAttributes.length === 0 || (!$('#product-color-switcher').prop('checked') && choiceAttributes.length === 0)) {
+        $('#sku_combination').empty().html('');
+    }
     $('#customer_choice_options').empty().html('');
     $.each($("#choice_attributes option:selected"), function () {
         addMoreCustomerChoiceOption($(this).val(), $(this).text());
     });
-    getUpdateSKUFunctionality();
 })
 
 $('#colors-selector').on('change', function () {

@@ -257,7 +257,7 @@
                     success: function (data) {
                         if (data.errors) {
                             for (let index = 0; index < data.errors.length; index++) {
-                                toastr.error(data.errors[index].message, {
+                                toastr.error(data.errors[index], {
                                     CloseButton: true,
                                     ProgressBar: true
                                 });

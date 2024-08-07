@@ -51,10 +51,10 @@ if (!function_exists('getWebConfig')) {
 
     function imagePathProcessing($imageData, $path)
     {
-        if ($imageData) {
+        if($imageData){
             $imageData = is_string($imageData) ? $imageData : (array)$imageData;
             $imageArray = [
-                'image_name' => is_array($imageData) ? $imageData['image_name'] : $imageData,
+                'image_name' =>is_array($imageData) ? $imageData['image_name'] : $imageData,
                 'storage' => $imageData['storage'] ?? 'public',
             ];
             return storageLink($path, $imageArray['image_name'], $imageArray['storage']);
@@ -75,15 +75,9 @@ if (!function_exists('getWebConfig')) {
             }
         } else {
             if (fileCheck(disk: 'public', path: $path . '/' . $data) && !empty($data)) {
-
-                $resultPath = asset('storage/app/public/' . $path . '/' . $data);
-                if (DOMAIN_POINTED_DIRECTORY == 'public') {
-                    $resultPath = asset('storage/' . $path . '/' . $data);
-                }
-
                 return [
                     'key' => $data,
-                    'path' => $resultPath,
+                    'path' => asset('storage/app/public') . '/' . $path . '/' . $data,
                     'status' => 200,
                 ];
             }
@@ -94,7 +88,6 @@ if (!function_exists('getWebConfig')) {
             'status' => 404,
         ];
     }
-
     function storageLinkForGallery($path, $type): string|null
     {
         if ($type == 's3' && config('filesystems.disks.default') == 's3') {
@@ -103,13 +96,12 @@ if (!function_exists('getWebConfig')) {
                 return Storage::disk('s3')->url($fullPath);
             }
         } else {
-            if (fileCheck(disk: 'public', path: $path)) {
+            if (fileCheck(disk: 'public', path: $path) ) {
                 return asset('storage/app/public') . '/' . $path;
             }
         }
         return null;
     }
-
     function fileCheck($disk, $path): bool
     {
         return Storage::disk($disk)->exists($path);

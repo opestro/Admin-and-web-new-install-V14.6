@@ -29,11 +29,6 @@ enum Product
         VIEW => 'admin-views.product.partials._sku_combinations'
     ];
 
-    const SKU_EDIT_COMBINATION = [
-        URI => 'sku-combination',
-        VIEW => 'admin-views.product.partials._edit_sku_combinations'
-    ];
-
     const DIGITAL_VARIATION_COMBINATION = [
         URI => 'digital-variation-combination',
         VIEW => 'admin-views.product.partials._digital-variation-combination'

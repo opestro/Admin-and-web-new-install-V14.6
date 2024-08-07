@@ -21,17 +21,20 @@ trait FileManagerTrait
         $storage = config('filesystems.disks.default') ?? 'public';
 
         if (!is_null($image)) {
+            $isOriginalImage = in_array($image->getClientOriginalExtension(), ['gif', 'svg']);
+            if ($isOriginalImage) {
+                $imageName = Carbon::now()->toDateString() . "-" . uniqid() . "." . $image->getClientOriginalExtension();
+            } else {
+                $image_webp = Image::make($image)->encode($format);
+                $imageName = Carbon::now()->toDateString() . "-" . uniqid() . "." . $format;
+            }
             if (!$this->checkFileExists($dir)['status']) {
                 Storage::disk($storage)->makeDirectory($dir);
             }
 
-            $isOriginalImage = in_array($image->getClientOriginalExtension(), ['gif', 'svg']);
             if ($isOriginalImage) {
-                $imageName = Carbon::now()->toDateString() . "-" . uniqid() . "." . $image->getClientOriginalExtension();
                 Storage::disk($storage)->put($dir . $imageName, file_get_contents($image));
             } else {
-                $image_webp = Image::make($image)->encode($format);
-                $imageName = Carbon::now()->toDateString() . "-" . uniqid() . "." . $format;
                 Storage::disk($storage)->put($dir . $imageName, $image_webp);
                 $image_webp->destroy();
             }

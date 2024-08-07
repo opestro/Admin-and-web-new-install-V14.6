@@ -38,12 +38,12 @@
                                            value="1"
                                            data-modal-id = "toggle-status-modal"
                                            data-toggle-id = "storage-connection-local"
-                                           data-on-image = "local-storage.png"
-                                           data-off-image = "local-storage.png"
-                                           data-on-title = "{{translate('want_To_Turn_ON_Local_Storage').'?'}}"
-                                           data-off-title = "{{translate('want_To_Turn_OFF_Local_Storage').'?'}}"
-                                           data-on-message = "<p>{{translate('system_will _store_all_files_and_images_to_local_storage')}}</p>"
-                                           data-off-message = "<p>{{translate('system_will_store_all_files_and_images_to_3rd_party_storage')}}</p>">
+                                           data-on-image = "delivery-available-country-on.png"
+                                           data-off-image = "delivery-available-country-off.png"
+                                           data-on-title = "{{translate('want_to_Turn_ON_Delivery_Available_Country').'?'}}"
+                                           data-off-title = "{{translate('want_to_Turn_OFF_Delivery_Available_Country').'?'}}"
+                                           data-on-message = "<p>{{translate('if_enabled_the_admin_or_vendor_can_deliver_orders_to_the_selected_countries')}}</p>"
+                                           data-off-message = "<p>{{translate('if_disabled_there_will_be_no_delivery_restrictions_for_admin_or_vendors')}}</p>">
                                     <span class="switcher_control"></span>
                                 </label>
                             </form>
@@ -67,12 +67,12 @@
                                            value="1"
                                            data-modal-id="toggle-status-modal"
                                            data-toggle-id="storage-connection-s3"
-                                           data-on-image="3rd-party-storage.png"
-                                           data-off-image="3rd-party-storage.png"
-                                           data-on-title="{{translate('want_To_Turn_ON_3rd_Party_Storage').'?'}}"
-                                           data-off-title="{{translate('want_To_Turn_OFF_3rd_Party_Storage').'?'}}"
-                                           data-on-message="<p>{{translate('system_will_store_all_files_and_images_to_3rd_party_storage')}}</p>"
-                                           data-off-message="<p>{{translate('system_will_store_all_files_and_images_to_local_storage')}}</p>">
+                                           data-on-image="delivery-available-country-on.png"
+                                           data-off-image="delivery-available-country-off.png"
+                                           data-on-title="{{translate('want_to_Turn_ON_Delivery_Available_Country').'?'}}"
+                                           data-off-title="{{translate('want_to_Turn_OFF_Delivery_Available_Country').'?'}}"
+                                           data-on-message="<p>{{translate('if_enabled_the_admin_or_vendor_can_deliver_orders_to_the_selected_countries')}}</p>"
+                                           data-off-message="<p>{{translate('if_disabled_there_will_be_no_delivery_restrictions_for_admin_or_vendors')}}</p>">
                                     <span class="switcher_control"></span>
                                 </label>
                             </form>
@@ -91,7 +91,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <form action="{{ route('admin.storage-connection-settings.s3-credential') }}" method="POST" id="get-storage-connection-route">
+                <form action="{{ route('admin.storage-connection-settings.s3-credential') }}" method="POST">
                     @csrf
                     <div class="row g-3">
                         <div class="col-12">
@@ -99,12 +99,12 @@
                                 <div class="row align-items-center">
                                     <div class="col-xl-3 col-lg-4 col-sm-6">
                                         <label class="form-label h4 text-capitalize m-0" for="key-cred">
-                                            {{ translate('access_key')}}
+                                            {{ translate('key_credential').'.' }}
                                         </label>
                                     </div>
                                     <div class="col-xl-9 col-lg-8 col-sm-6">
                                         <div >
-                                            <input type="text" class="form-control" placeholder="{{translate('enter_your_access_key')}}" id="key-cred" name="s3_key"
+                                            <input type="text" class="form-control" placeholder="{{translate('Enter your key')}}" id="key-cred" name="s3_key"
                                                    value="{{ $storageConnectionS3Credential['key'] ?? '' }}">
                                         </div>
                                     </div>
@@ -116,12 +116,12 @@
                                 <div class="row align-items-center">
                                     <div class="col-xl-3 col-lg-4 col-sm-6">
                                         <label class="form-label h4 text-capitalize m-0" for="key-secret-cred">
-                                            {{ translate('secret_access_kay') }}
+                                            {{ translate('secret_credential') }}
                                         </label>
                                     </div>
                                     <div class="col-xl-9 col-lg-8 col-sm-6">
                                         <div >
-                                            <input type="text" class="form-control" placeholder="{{translate('enter_your_secret_access_kay')}}" id="key-secret-cred" name="s3_secret"
+                                            <input type="text" class="form-control" placeholder="{{translate('Enter your secret credential')}}" id="key-secret-cred" name="s3_secret"
                                                    value="{{ $storageConnectionS3Credential['secret'] ?? '' }}">
                                         </div>
                                     </div>
@@ -132,11 +132,11 @@
                             <div class="border border-D0DBE966 radius-10 p-4">
                                 <div class="row align-items-center">
                                     <div class="col-xl-3 col-lg-4 col-sm-6">
-                                        <label class="form-label h4 text-capitalize m-0" for="key-region">{{translate('region')}}</label>
+                                        <label class="form-label h4 text-capitalize m-0" for="key-region">{{translate('region_credential')}}</label>
                                     </div>
                                     <div class="col-xl-9 col-lg-8 col-sm-6">
                                         <div >
-                                            <input type="text" class="form-control" placeholder="{{translate('enter_your_region')}}" id="key-region" name="s3_region"
+                                            <input type="text" class="form-control" placeholder="{{translate('enter_your_region_credential')}}" id="key-region" name="s3_region"
                                                    value="{{ $storageConnectionS3Credential['region'] ?? '' }}">
                                         </div>
                                     </div>
@@ -148,12 +148,12 @@
                                 <div class="row align-items-center">
                                     <div class="col-xl-3 col-lg-4 col-sm-6">
                                         <label class="form-label h4 text-capitalize m-0" for="key-bucket">
-                                            {{ translate('bucket') }}
+                                            {{ translate('bucket_credential') }}
                                         </label>
                                     </div>
                                     <div class="col-xl-9 col-lg-8 col-sm-6">
                                         <div >
-                                            <input type="text" class="form-control" placeholder="{{translate('enter_your_bucket')}}" id="key-bucket" name="s3_bucket"
+                                            <input type="text" class="form-control" placeholder="{{translate('Enter your bucket credential')}}" id="key-bucket" name="s3_bucket"
                                                    value="{{ $storageConnectionS3Credential['bucket'] ?? '' }}">
                                         </div>
                                     </div>
@@ -165,7 +165,7 @@
                                 <div class="row align-items-center">
                                     <div class="col-xl-3 col-lg-4 col-sm-6">
                                         <label class="form-label h4 m-0" for="key-url">
-                                            {{ translate('URL') }}
+                                            {{ translate('Url_Credential') }}
                                         </label>
                                     </div>
                                     <div class="col-xl-9 col-lg-8 col-sm-6">
@@ -182,13 +182,13 @@
                                 <div class="row align-items-center">
                                     <div class="col-xl-3 col-lg-4 col-sm-6">
                                         <label class="form-label h4 m-0" for="key-endpoint">
-                                            {{ translate('endpoint') }}
+                                            {{ translate('Endpoint_Credential') }}
                                         </label>
                                     </div>
                                     <div class="col-xl-9 col-lg-8 col-sm-6">
                                         <div>
                                             <input type="text" class="form-control"
-                                                   placeholder="{{translate('enter_your_endpoint')}}"
+                                                   placeholder="{{translate('enter_your_endpoint_credential')}}"
                                                    id="key-endpoint" name="s3_endpoint"
                                                    value="{{ $storageConnectionS3Credential['endpoint'] ?? '' }}">
                                         </div>
@@ -199,7 +199,7 @@
                         <div class="col-12">
                             <div class="d-flex flex-wrap justify-content-end gap-3">
                                 <button type="reset" class="btn btn-secondary px-5">{{translate('reset')}}</button>
-                                <button type="button" class="btn btn--primary px-5 {{env('APP_MODE')!= 'demo'? 'form-submit' : 'call-demo'}}" data-form-id="get-storage-connection-route">{{translate('save')}}</button>
+                                <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}" class="btn btn--primary px-5 {{env('APP_MODE')!='demo'? '' : 'call-demo'}}">{{translate('save')}}</button>
                             </div>
                         </div>
                     </div>

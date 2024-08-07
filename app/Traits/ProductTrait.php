@@ -33,8 +33,8 @@ trait ProductTrait
             } elseif ($shippingType->shipping_type == "product_wise") {
                 $deliveryCost = $product->multiply_qty != 0 ? ($product->shipping_cost * $quantity) : $product->shipping_cost;
             } elseif ($shippingType->shipping_type == 'order_wise') {
-                $maxOrderWiseShippingCost = ShippingMethod::where(['creator_type' => 'admin', 'status' => 1])->max('cost');
-                $minOrderWiseShippingCost = ShippingMethod::where(['creator_type' => 'admin', 'status' => 1])->min('cost');
+                $maxOrderWiseShippingCost = ShippingMethod::where(['creator_id' => 1, 'creator_type' => 'admin', 'status' => 1])->max('cost');
+                $minOrderWiseShippingCost = ShippingMethod::where(['creator_id' => 1, 'creator_type' => 'admin', 'status' => 1])->min('cost');
             }
         } elseif ($shippingModel == "sellerwise_shipping") {
 
@@ -60,13 +60,8 @@ trait ProductTrait
                 } elseif ($shippingType->shipping_type == "product_wise") {
                     $deliveryCost = $product->multiply_qty != 0 ? ($product->shipping_cost * $quantity) : $product->shipping_cost;
                 } elseif ($shippingType->shipping_type == 'order_wise') {
-                    if ($product->added_by == 'admin') {
-                        $maxOrderWiseShippingCost = ShippingMethod::where(['creator_type' => 'admin', 'status' => 1])->max('cost');
-                        $minOrderWiseShippingCost = ShippingMethod::where(['creator_type' => 'admin', 'status' => 1])->min('cost');
-                    } else {
-                        $maxOrderWiseShippingCost = ShippingMethod::where(['creator_id' => $product->user_id, 'creator_type' => $product->added_by, 'status' => 1])->max('cost');
-                        $minOrderWiseShippingCost = ShippingMethod::where(['creator_id' => $product->user_id, 'creator_type' => $product->added_by, 'status' => 1])->min('cost');
-                    }
+                    $maxOrderWiseShippingCost = ShippingMethod::where(['creator_id' => $product->user_id, 'creator_type' => $product->added_by, 'status' => 1])->max('cost');
+                    $minOrderWiseShippingCost = ShippingMethod::where(['creator_id' => $product->user_id, 'creator_type' => $product->added_by, 'status' => 1])->min('cost');
                 }
             }
         }

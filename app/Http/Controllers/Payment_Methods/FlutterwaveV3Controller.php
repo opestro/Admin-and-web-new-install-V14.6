@@ -54,19 +54,11 @@ class FlutterwaveV3Controller extends Controller
         }
         $payer = json_decode($data['payer_information']);
 
-        $supportedCurrencies = [
-            "NGN", "GHS", "KES", "ZAR", "USD", "EUR", "GBP", "CAD",
-            "XAF", "CLP", "COP", "EGP", "GNF", "MWK", "MAD", "RWF",
-            "SLL", "STD", "TZS", "UGX", "XOF", "ZMW"
-        ];
-
-        $currencyCode = in_array($data->currency_code, $supportedCurrencies) ? $data->currency_code : 'NGN';
-
         //* Prepare our rave request
         $request = [
             'tx_ref' => (string)time(),
             'amount' => $data->payment_amount,
-            'currency' => $currencyCode,
+            'currency' => $data->currency_code ?? 'NGN',
             'payment_options' => 'card',
             'redirect_url' => route('flutterwave-v3.callback', ['payment_id' => $data->id]),
             'customer' => [
@@ -114,7 +106,7 @@ class FlutterwaveV3Controller extends Controller
 
     public function callback(Request $request)
     {
-        if ($request['status'] == 'successful' || $request['status'] =='completed') {
+        if ($request['status'] == 'successful') {
             $txid = $request['transaction_id'];
             $curl = curl_init();
             curl_setopt_array($curl, array(

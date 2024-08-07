@@ -182,7 +182,7 @@ class ProductController extends BaseController
 
     public function getDigitalProductUpdateProcess($request, $product): void
     {
-        if ($request->has('digital_product_variant_key') && !$request->hasFile('digital_file_ready')) {
+        if ($request['digital_product_type'] == 'ready_product' && $request->has('digital_product_variant_key') && !$request->hasFile('digital_file_ready')) {
             $getAllVariation = $this->digitalProductVariationRepo->getListWhere(filters: ['product_id' => $product['id']]);
             $getAllVariationKey = $getAllVariation->pluck('variant_key')->toArray();
             $getRequestVariationKey = $request['digital_product_variant_key'];
@@ -193,11 +193,7 @@ class ProductController extends BaseController
             foreach ($newCombinations as $newCombination) {
                 if (in_array($newCombination, $request['digital_product_variant_key'])) {
                     $uniqueKey = strtolower(str_replace('-', '_', $newCombination));
-
-                    $fileItem = null;
-                    if ($request['digital_product_type'] == 'ready_product') {
-                        $fileItem = $request->file('digital_files.' . $uniqueKey);
-                    }
+                    $fileItem = $request->file('digital_files.' . $uniqueKey);
                     $uploadedFile = '';
                     if ($fileItem) {
                         $uploadedFile = $this->fileUpload(dir: 'product/digital-product/', format: $fileItem->getClientOriginalExtension(), file: $fileItem);
@@ -223,11 +219,7 @@ class ProductController extends BaseController
             foreach ($getAllVariation as $variation) {
                 if (in_array($variation['variant_key'], $request['digital_product_variant_key'])) {
                     $uniqueKey = strtolower(str_replace('-', '_', $variation['variant_key']));
-
-                    $fileItem = null;
-                    if ($request['digital_product_type'] == 'ready_product') {
-                        $fileItem = $request->file('digital_files.' . $uniqueKey);
-                    }
+                    $fileItem = $request->file('digital_files.' . $uniqueKey);
                     $uploadedFile = $variation['file'] ?? '';
                     $variation = $this->digitalProductVariationRepo->getFirstWhere(params: ['product_id' => $product['id'], 'variant_key' => $variation['variant_key']]);
                     if ($fileItem) {
@@ -259,7 +251,7 @@ class ProductController extends BaseController
 
     public function getView(string $addedBy, string|int $id): View|RedirectResponse
     {
-        $productActive = $this->productRepo->getFirstWhere(params: ['id' => $id], relations: ['digitalVariation','seoInfo']);
+        $productActive = $this->productRepo->getFirstWhereActive(params: ['id' => $id], relations: ['digitalVariation','seoInfo']);
         if (!$productActive) {
             Toastr::error(translate('product_not_found').'!');
             return redirect()->route('admin.products.list', ['in_house']);
@@ -284,8 +276,7 @@ class ProductController extends BaseController
 
     public function getSkuCombinationView(Request $request, ProductService $service): JsonResponse
     {
-        $product = $this->productRepo->getFirstWhere(params: ['id' => $request['product_id']], relations: ['digitalVariation','seoInfo']);
-        $combinationView = $service->getSkuCombinationView(request: $request, product: $product);
+        $combinationView = $service->getSkuCombinationView(request: $request);
         return response()->json(['view' => $combinationView]);
     }
 
@@ -555,12 +546,11 @@ class ProductController extends BaseController
 
     public function updatedShipping(Request $request): JsonResponse
     {
-        $product = $this->productRepo->getFirstWhere(params: ['id' => $request['id']]);
+        $product = $this->productRepo->getFirstWhereWithoutGlobalScope(params: ['id' => $request['id']]);
         $dataArray = ['is_shipping_cost_updated' => $request['status']];
+
         if ($request['status'] == 1) {
-            $dataArray += [
-                'shipping_cost' => $product['temp_shipping_cost']
-            ];
+            $dataArray += ['shipping_cost' => $product['temp_shipping_cost']];
         }
         $this->productRepo->update(id: $request['id'], data: $dataArray);
 

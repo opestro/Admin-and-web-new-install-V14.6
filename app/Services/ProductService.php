@@ -95,7 +95,7 @@ class ProductService
                     $image = is_string($image) ? $image : (array)$image;
                     $dbColorImage[] = [
                         'color' => null,
-                        'image_name' => is_array($image) ? $image['image_name'] : $image,
+                        'image_name' =>is_array($image) ? $image['image_name'] : $image,
                         'storage' => $image['storage'] ?? $storage,
                     ];
                 }
@@ -221,11 +221,8 @@ class ProductService
         if ($request->has('choice_no')) {
             foreach ($request->choice_no as $no) {
                 $name = 'choice_options_' . $no;
-                $myString = implode('|', $request[$name]);
-                $optionArray = array_filter(explode(',', $myString), function ($value) {
-                    return $value !== '';
-                });
-                $options[] = $optionArray;
+                $my_str = implode('|', $request[$name]);
+                $options[] = explode(',', $my_str);
             }
         }
         return $options;
@@ -246,20 +243,15 @@ class ProductService
         return $result;
     }
 
-    public function getSkuCombinationView(object $request, object $product = null): string
+    public function getSkuCombinationView(object $request): string
     {
         $colorsActive = ($request->has('colors_active') && $request->has('colors') && count($request['colors']) > 0) ? 1 : 0;
         $unitPrice = $request['unit_price'];
         $productName = $request['name'][array_search('en', $request['lang'])];
         $options = $this->getOptions(request: $request);
         $combinations = $this->getCombinations(arrays: $options);
-        $combinations = $this->generatePhysicalVariationCombination(request: $request, options: $options, combinations: $combinations, product: $product);
 
-        if ($product) {
-            return view(Product::SKU_EDIT_COMBINATION[VIEW], compact('combinations', 'unitPrice', 'colorsActive', 'productName'))->render();
-        }else{
-            return view(Product::SKU_COMBINATION[VIEW], compact('combinations', 'unitPrice', 'colorsActive', 'productName'))->render();
-        }
+        return view(Product::SKU_COMBINATION[VIEW], compact('combinations', 'unitPrice', 'colorsActive', 'productName'))->render();
     }
 
     public function getVariations(object $request, array $combinations): array
@@ -268,8 +260,8 @@ class ProductService
         if (count($combinations[0]) > 0) {
             foreach ($combinations as $combination) {
                 $str = '';
-                foreach ($combination as $combinationKey => $item) {
-                    if ($combinationKey > 0) {
+                foreach ($combination as $k => $item) {
+                    if ($k > 0) {
                         $str .= '-' . str_replace(' ', '', $item);
                     } else {
                         if ($request->has('colors_active') && $request->has('colors') && count($request['colors']) > 0) {
@@ -320,7 +312,7 @@ class ProductService
     public function deleteImages(object $product): bool
     {
         foreach (json_decode($product['images'], true) as $image) {
-            $this->delete(filePath: '/product/' . (isset($image['image_name']) ? $image['image_name'] : $image));
+            $this->delete(filePath: '/product/'.(isset($image['image_name']) ? $image['image_name'] : $image));
         }
         $this->delete(filePath: '/product/thumbnail/' . $product['thumbnail']);
 
@@ -346,7 +338,7 @@ class ProductService
         }
 
         foreach (json_decode($product['images']) as $image) {
-            $imageName = $image?->image_name ?? $image;
+            $imageName =  $image?->image_name ?? $image;
             if ($imageName != $request['name']) {
                 $images[] = $image;
             }
@@ -479,6 +471,7 @@ class ProductService
             'minimum_order_qty' => $request['minimum_order_qty'],
             'video_provider' => 'youtube',
             'video_url' => $request['video_url'],
+            'shipping_cost' => $request['product_type'] == 'physical' ? (getWebConfig(name: 'product_wise_shipping_cost_approval') == 1 && $product->shipping_cost == currencyConverter($request->shipping_cost) ? $product->shipping_cost : currencyConverter(amount: $request['shipping_cost'])) : 0,
             'multiply_qty' => ($request['product_type'] == 'physical') ? ($request['multiply_qty'] == 'on' ? 1 : 0) : 0,
             'color_image' => json_encode($processedImages['colored_image_names']),
             'images' => json_encode($processedImages['image_names']),
@@ -499,14 +492,10 @@ class ProductService
         if ($updateBy == 'seller' && getWebConfig(name: 'product_wise_shipping_cost_approval') == 1 && $product->shipping_cost != currencyConverter($request->shipping_cost)) {
             $dataArray += [
                 'temp_shipping_cost' => currencyConverter($request->shipping_cost),
-                'is_shipping_cost_updated' => 0,
-                'shipping_cost' => $product->shipping_cost,
-            ];
-        } else {
-            $dataArray += [
-                'shipping_cost' => $request['product_type'] == 'physical' ? currencyConverter(amount: $request['shipping_cost']) : 0,
+                'is_shipping_cost_updated' => 0
             ];
         }
+
         if ($updateBy == 'seller' && $product->request_status == 2) {
             $dataArray += [
                 'request_status' => 0
@@ -674,69 +663,6 @@ class ProductService
         return view(Product::DIGITAL_VARIATION_COMBINATION[VIEW], compact('generateCombination', 'unitPrice', 'productName', 'digitalProductType', 'request'))->render();
     }
 
-    public function generatePhysicalVariationCombination(object|array $request, object|array $options, object|array $combinations, object|array|null $product): array
-    {
-        $productName = $request['name'][array_search('en', $request['lang'])];
-        $unitPrice = $request['unit_price'];
-
-        $generateCombination = [];
-        $existingType = [];
-
-        if ($product && $product->variation && count(json_decode($product->variation, true)) > 0) {
-            foreach (json_decode($product->variation, true) as $digitalVariation) {
-                $existingType[] = $digitalVariation['type'];
-            }
-        }
-
-        $existingType = array_unique($existingType);
-
-        $combinations = array_filter($combinations, function($value) {
-            return !empty($value);
-        });
-
-        foreach ($combinations as $combination) {
-            $type = '';
-            foreach ($combination as $combinationKey => $item) {
-                if ($combinationKey > 0) {
-                    $type .= '-' . str_replace(' ', '', $item);
-                } else {
-                    if ($request->has('colors_active') && $request->has('colors') && count($request['colors']) > 0) {
-                        $color_name = $this->color->where('code', $item)->first()->name;
-                        $type .= $color_name;
-                    } else {
-                        $type .= str_replace(' ', '', $item);
-                    }
-                }
-            }
-
-            $sku = '';
-            foreach (explode(' ', $productName) as $value) {
-                $sku .= substr($value, 0, 1);
-            }
-            $sku .= '-' . $type;
-            if (in_array($type, $existingType)) {
-                if ($product && $product->variation && count(json_decode($product->variation, true)) > 0) {
-                    foreach (json_decode($product->variation, true) as $digitalVariation) {
-                        if ($digitalVariation['type'] == $type) {
-                            $digitalVariation['sku'] = str_replace(' ', '', $digitalVariation['sku']);
-                            $generateCombination[] = $digitalVariation;
-                        }
-                    }
-                }
-            } else {
-                $generateCombination[] = [
-                    'type' => $type,
-                    'price' => $unitPrice,
-                    'sku' => str_replace(' ', '', $sku),
-                    'qty' => 1,
-                ];
-            }
-        }
-
-        return $generateCombination;
-    }
-
-
     public function generateDigitalVariationCombination(object|array $request, object|array $combinations, object|array|null $product): array
     {
         $productName = $request['name'][array_search('en', $request['lang'])];
@@ -825,8 +751,7 @@ class ProductService
             } elseif (!$request->file('meta_image') && $request->file('image') && $action == 'add') {
                 $metaImage = $this->upload(dir: 'product/meta/', format: 'webp', image: $request['image']);
             } else {
-                $metaImage = $product?->seoInfo?->image ?? $product['meta_image'];
-            }
+                $metaImage = $product?->seoInfo?->image ?? $product['meta_image'];            }
         } else {
             if ($request->file('meta_image')) {
                 $metaImage = $this->upload(dir: 'product/meta/', format: 'webp', image: $request['meta_image']);
@@ -838,7 +763,7 @@ class ProductService
             "product_id" => $product['id'],
             "title" => $request['meta_title'] ?? ($product ? $product['meta_title'] : null),
             "description" => $request['meta_description'] ?? ($product ? $product['meta_description'] : null),
-            "index" => $request['meta_index'] == 'index' ? '' : 'noindex',
+            "index" => $request['meta_index'] ? '' : 'noindex',
             "no_follow" => $request['meta_no_follow'] ? 'nofollow' : '',
             "no_image_index" => $request['meta_no_image_index'] ? 'noimageindex' : '',
             "no_archive" => $request['meta_no_archive'] ? 'noarchive' : '',

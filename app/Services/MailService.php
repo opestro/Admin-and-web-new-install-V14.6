@@ -39,10 +39,9 @@ class MailService
         ];
     }
 
-    public function sendMail(object $request): array
+    public function sendMail(object $request): int|string
     {
-        $status = 0;
-        $message = 'success';
+        $responseFlag = 0;
         try {
             $emailServicesSmtp = getWebConfig(name: 'mail_config');
             if ($emailServicesSmtp['status'] == 0) {
@@ -50,16 +49,12 @@ class MailService
             }
             if ($emailServicesSmtp['status'] == 1) {
                 Mail::to($request->email)->send(new TestEmailSender());
-                $status = 1;
+                $responseFlag = 1;
             }
         } catch (Exception $exception) {
-            $message = $exception->getMessage();
-            $status = 2;
+            $responseFlag = 2;
         }
-        return [
-            'status' => $status,
-            'message' => $message
-        ];
+        return $responseFlag;
     }
 
 }

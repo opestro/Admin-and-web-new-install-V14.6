@@ -333,24 +333,24 @@ trait PushNotificationTrait
         return $this->sendNotificationToHttp($postData);
     }
 
-    protected function sendNotificationToHttp(array|null $data): bool|string|null
+    protected function sendNotificationToHttp(array|null $data):bool|string|null
     {
         try {
             $key = (array)getWebConfig('push_notification_key');
-            if (isset($key['project_id'])) {
-                $url = 'https://fcm.googleapis.com/v1/projects/' . $key['project_id'] . '/messages:send';
+            if(isset($key['project_id'])){
+                $url = 'https://fcm.googleapis.com/v1/projects/'.$key['project_id'].'/messages:send';
                 $headers = [
                     'Authorization' => 'Bearer ' . $this->getAccessToken($key),
                     'Content-Type' => 'application/json',
                 ];
             }
             return Http::withHeaders($headers)->post($url, $data);
-        } catch (\Exception $exception) {
+        }catch (\Exception $exception){
             return false;
         }
     }
 
-    protected function getAccessToken($key): string|null
+    protected function getAccessToken($key):String
     {
         $jwtToken = [
             'iss' => $key['client_email'],
@@ -369,6 +369,6 @@ trait PushNotificationTrait
             'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
             'assertion' => $jwt,
         ]);
-        return $response->json('access_token') ?? null;
+        return $response->json('access_token');
     }
 }

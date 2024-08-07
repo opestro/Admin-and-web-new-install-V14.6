@@ -56,9 +56,7 @@ class StorageConnectionSettingsController extends BaseController
                 'message' => translate('you_can_not_update_this_on_demo_mode') . '.'
             ]);
         }
-
-       $type =$request['status'] == "1" ? $request['type'] : ($request['type'] == 'public' ? 's3' : 'public' ) ;
-
+       $type = $request['type'];
        $this->updateStorageConnectionType($type);
         if($type == 's3') {
             try {
@@ -94,13 +92,11 @@ class StorageConnectionSettingsController extends BaseController
         }
     }
 
-    public function updateS3Credential(S3CredentialAddOrUpdateRequest $request): JsonResponse
+    public function updateS3Credential(S3CredentialAddOrUpdateRequest $request): RedirectResponse
     {
         if (env('APP_MODE') == 'demo') {
-            return response()->json([
-                'status' => 0,
-                'error' => translate('you_can_not_update_this_on_demo_mode').'.'
-            ]);
+            Toastr::error(translate('you_can_not_update_this_on_demo_mode'));
+            return redirect()->back();
         }
         $data = [
             'driver' => 's3',
@@ -126,18 +122,11 @@ class StorageConnectionSettingsController extends BaseController
         try {
             $s3Client->listBuckets();
         } catch (\Exception $exception) {
-            return response()->json([
-                'status' => 0,
-                'error' => translate('s3_wrong_credentials_are_not_acceptable').'.'
-            ]);
+            Toastr::error(translate('s3_wrong_credentials_are_not_acceptable') . '!!');
+            return redirect()->back();
         }
         $this->businessSettingRepo->updateOrInsert(type: 'storage_connection_s3_credential', value: json_encode($data));
         Toastr::success(translate('Credential_update_successfully'));
-        return response()->json([
-            'status' => 1,
-            'message' => translate('Credential_update_successfully').'.'
-        ]);
-
-
+        return back();
     }
 }

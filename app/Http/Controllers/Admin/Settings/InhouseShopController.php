@@ -89,14 +89,14 @@ class InhouseShopController extends BaseController
         if ($request->has('minimum_order_amount')) {
             $this->businessSettingRepo->updateOrInsert(
                 type: 'minimum_order_amount',
-                value: currencyConverter(amount: $request->get('minimum_order_amount', 0))
+                value: usdToDefaultCurrency(amount: $request->get('minimum_order_amount', 0))
             );
         }
 
         if ($request->has('free_delivery_over_amount')) {
             $this->businessSettingRepo->updateOrInsert(
                 type: 'free_delivery_over_amount',
-                value: currencyConverter(amount: $request->get('free_delivery_over_amount', 0))
+                value: usdToDefaultCurrency(amount: $request->get('free_delivery_over_amount', 0))
             );
         }
 

@@ -301,17 +301,16 @@ class ChatController extends Controller
             return response()->json(['message' => 'Fail'], 403);
         }
     }
-
-    private function getAttachmentData($attachment): array
+    private function getAttachmentData($attachment):array
     {
-        $extension = strrchr($attachment['path'], '.');
-        if (in_array($extension, GlobalConstant::DOCUMENT_EXTENSION)) {
+        $extension = strrchr($attachment['path'],'.');
+        if(in_array($extension,GlobalConstant::DOCUMENT_EXTENSION)){
             $type = 'file';
-        } else {
+        }else{
             $type = 'image';
         }
-        $path = $attachment['status'] == 200 ? $attachment['path'] : null;
-        $size = $attachment['status'] == 200 ? FileManagerLogic::getFileSize(path: $path) : null;
+        $path=  $attachment['status'] == 200 ? $attachment['path'] : null;
+        $size = $attachment['status'] == 200 ?  FileManagerLogic::getFileSize(path:$path) : null;
         return [
             'type' => $type,
             'key' => $attachment['key'],

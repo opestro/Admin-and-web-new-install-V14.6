@@ -47,7 +47,7 @@ class ProductDetailsController extends Controller
 
     /**
      * @param string $slug
-     * @return View|RedirectResponse
+     * @return View
      */
     public function index(string $slug): View|RedirectResponse
     {

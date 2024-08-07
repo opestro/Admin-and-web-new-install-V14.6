@@ -289,7 +289,7 @@
                                         </span>
                                     </div>
                                 </div>
-                                <input type="hidden" class="product-generated-variation-code" name="product_variation_code" data-product-id="{{ $product['id'] }}">
+                                <input type="hidden" class="product-generated-variation-code" name="product_variation_code">
                                 <input type="hidden" value="" class="in_cart_key form-control w-50" name="key">
 
                                 <div class="bg-light mx-w rounded p-4">

@@ -95,7 +95,7 @@
 
             <div class="d-flex gap-2 border-top justify-content-between pt-2">
                 <dt class="title-color text-capitalize font-weight-bold title-color">{{ translate('total') }} : </dt>
-                <dd class="font-weight-bold title-color">{{setCurrencySymbol(amount: usdToDefaultCurrency(amount: ($cartItems['total'] + $cartItems['totalTax'] - $cartItems['couponDiscount'])), currencyCode: getCurrencyCode())}}</dd>
+                <dd class="font-weight-bold title-color">{{setCurrencySymbol(amount: usdToDefaultCurrency(amount:round($cartItems['total']+$cartItems['totalTax']-$cartItems['couponDiscount'], 2)), currencyCode: getCurrencyCode())}}</dd>
             </div>
         </dl>
 

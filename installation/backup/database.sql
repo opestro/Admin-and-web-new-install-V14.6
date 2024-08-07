@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: May 18, 2024 at 10:58 AM
+-- Generation Time: Jul 07, 2024 at 12:55 PM
 -- Server version: 5.7.39
 -- PHP Version: 8.2.0
 
@@ -272,6 +272,8 @@ CREATE TABLE `brands` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `image` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'def.png',
+  `image_storage_type` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT 'public',
+  `image_alt_text` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -408,7 +410,7 @@ INSERT INTO `business_settings` (`id`, `type`, `value`, `created_at`, `updated_a
 (154, 'vendor_registration_sell_with_us', '{\"title\":\"Why Sell With Us\",\"sub_title\":\"Boost your sales! Join us for a seamless, profitable experience with vast buyer reach and top-notch support. Sell smarter today!\",\"image\":\"\"}', NULL, NULL),
 (155, 'download_vendor_app', '{\"title\":\"Download Free Vendor App\",\"sub_title\":\"Download our free seller app and start reaching millions of buyers on the go! Easy setup, manage listings, and boost sales anywhere.\",\"image\":null,\"download_google_app\":null,\"download_google_app_status\":0,\"download_apple_app\":null,\"download_apple_app_status\":0}', NULL, NULL),
 (156, 'business_process_main_section', '{\"title\":\"3 Easy Steps To Start Selling\",\"sub_title\":\"Start selling quickly! Register, upload your products with detailed info and images, and reach millions of buyers instantly.\",\"image\":\"\"}', NULL, NULL),
-(157, 'business_process_step', '[{\"title\":\"Get Registered\",\"description\":\"Sign up easily and create your seller account in just a few minutes. It\'s fast and simple to get started.\",\"image\":\"\"},{\"title\":\"Upload Products\",\"description\":\"List your products with detailed descriptions and high-quality images to attract more buyers effortlessly.\",\"image\":\"\"},{\"title\":\"Start Selling\",\"description\":\"Go live and start reaching millions of potential buyers immediately. Watch your sales grow with our vast audience.\",\"image\":\"\"}]', NULL, NULL),
+(157, 'business_process_step', '[{\"title\":\"Get Registered\",\"description\":\"Sign up easily and create your seller account in just a few minutes. It fast and simple to get started.\",\"image\":\"\"},{\"title\":\"Upload Products\",\"description\":\"List your products with detailed descriptions and high-quality images to attract more buyers effortlessly.\",\"image\":\"\"},{\"title\":\"Start Selling\",\"description\":\"Go live and start reaching millions of potential buyers immediately. Watch your sales grow with our vast audience.\",\"image\":\"\"}]', NULL, NULL),
 (158, 'brand_list_priority', '', '2024-05-18 10:57:03', '2024-05-18 10:57:03'),
 (159, 'category_list_priority', '', '2024-05-18 10:57:03', '2024-05-18 10:57:03'),
 (160, 'vendor_list_priority', '', '2024-05-18 10:57:03', '2024-05-18 10:57:03'),
@@ -485,6 +487,7 @@ CREATE TABLE `categories` (
   `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `slug` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `icon` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `icon_storage_type` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT 'public',
   `parent_id` int(11) NOT NULL,
   `position` int(11) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -974,6 +977,23 @@ CREATE TABLE `digital_product_otp_verifications` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `digital_product_variations`
+--
+
+CREATE TABLE `digital_product_variations` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `variant_key` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sku` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `price` decimal(24,8) DEFAULT NULL,
+  `file` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `email_templates`
 --
 
@@ -1015,6 +1035,23 @@ CREATE TABLE `emergency_contacts` (
   `country_code` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `phone` varchar(25) COLLATE utf8mb4_unicode_ci NOT NULL,
   `status` tinyint(1) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `error_logs`
+--
+
+CREATE TABLE `error_logs` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `status_code` int(11) NOT NULL,
+  `url` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `hit_counts` int(11) NOT NULL DEFAULT '0',
+  `redirect_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `redirect_status` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1453,7 +1490,19 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (260, '2024_04_03_093637_create_email_templates_table', 77),
 (261, '2024_04_17_102137_add_is_checked_column_to_carts_table', 77),
 (262, '2024_04_23_130436_create_vendor_registration_reasons_table', 77),
-(263, '2024_04_24_093932_add_type_to_help_topics_table', 77);
+(263, '2024_04_24_093932_add_type_to_help_topics_table', 77),
+(264, '2024_05_20_133216_create_review_replies_table', 78),
+(265, '2024_05_20_163043_add_image_alt_text_to_brands_table', 78),
+(266, '2024_05_26_152030_create_digital_product_variations_table', 78),
+(267, '2024_05_26_152339_create_product_seos_table', 78),
+(268, '2024_05_27_184401_add_digital_product_file_types_and_digital_product_extensions_to_products_table', 78),
+(269, '2024_05_30_101603_create_storages_table', 78),
+(270, '2024_06_10_174952_create_robots_meta_contents_table', 78),
+(271, '2024_06_12_105137_create_error_logs_table', 78),
+(272, '2024_07_03_130217_add_storage_type_columns_to_product_table', 78),
+(273, '2024_07_03_153301_add_icon_storage_type_to_catogory_table', 78),
+(274, '2024_07_03_171214_add_image_storage_type_to_brands_table', 78),
+(275, '2024_07_03_185048_add_storage_type_columns_to_shop_table', 78);
 
 -- --------------------------------------------------------
 
@@ -1983,9 +2032,11 @@ CREATE TABLE `products` (
   `refundable` tinyint(1) NOT NULL DEFAULT '1',
   `digital_product_type` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `digital_file_ready` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `digital_file_ready_storage_type` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT 'public',
   `images` longtext COLLATE utf8mb4_unicode_ci,
   `color_image` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `thumbnail` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `thumbnail_storage_type` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT 'public',
   `featured` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `flash_deal` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `video_provider` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -1995,6 +2046,8 @@ CREATE TABLE `products` (
   `attributes` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `choice_options` text COLLATE utf8mb4_unicode_ci,
   `variation` text COLLATE utf8mb4_unicode_ci,
+  `digital_product_file_types` longtext COLLATE utf8mb4_unicode_ci,
+  `digital_product_extensions` longtext COLLATE utf8mb4_unicode_ci,
   `published` tinyint(1) NOT NULL DEFAULT '0',
   `unit_price` double NOT NULL DEFAULT '0',
   `purchase_price` double NOT NULL DEFAULT '0',
@@ -2034,6 +2087,33 @@ CREATE TABLE `product_compares` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `user_id` bigint(20) UNSIGNED NOT NULL COMMENT 'customer_id',
   `product_id` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `product_seos`
+--
+
+CREATE TABLE `product_seos` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `index` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_follow` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_image_index` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_archive` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_snippet` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `max_snippet` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `max_snippet_value` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `max_video_preview` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `max_video_preview_value` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `max_image_preview` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `max_image_preview_value` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `image` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2153,6 +2233,52 @@ CREATE TABLE `reviews` (
   `rating` int(11) NOT NULL DEFAULT '0',
   `status` int(11) NOT NULL DEFAULT '1',
   `is_saved` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `review_replies`
+--
+
+CREATE TABLE `review_replies` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `review_id` int(11) NOT NULL,
+  `added_by_id` int(11) DEFAULT NULL,
+  `added_by` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'customer, seller, admin, deliveryman',
+  `reply_text` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `robots_meta_contents`
+--
+
+CREATE TABLE `robots_meta_contents` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `page_title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `page_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `page_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `meta_title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `meta_description` text COLLATE utf8mb4_unicode_ci,
+  `meta_image` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `canonicals_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `index` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_follow` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_image_index` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_archive` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_snippet` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `max_snippet` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `max_snippet_value` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `max_video_preview` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `max_video_preview_value` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `max_image_preview` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `max_image_preview_value` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2360,8 +2486,11 @@ CREATE TABLE `shops` (
   `address` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `contact` varchar(25) COLLATE utf8mb4_unicode_ci NOT NULL,
   `image` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'def.png',
+  `image_storage_type` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT 'public',
   `bottom_banner` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `bottom_banner_storage_type` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT 'public',
   `offer_banner` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `offer_banner_storage_type` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT 'public',
   `vacation_start_date` date DEFAULT NULL,
   `vacation_end_date` date DEFAULT NULL,
   `vacation_note` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -2369,7 +2498,8 @@ CREATE TABLE `shops` (
   `temporary_close` tinyint(4) NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `banner` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL
+  `banner` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `banner_storage_type` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT 'public'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2425,6 +2555,22 @@ CREATE TABLE `soft_credentials` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `key` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `value` longtext COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `storages`
+--
+
+CREATE TABLE `storages` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `data_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `data_id` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `key` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `value` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2875,6 +3021,12 @@ ALTER TABLE `digital_product_otp_verifications`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `digital_product_variations`
+--
+ALTER TABLE `digital_product_variations`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `email_templates`
 --
 ALTER TABLE `email_templates`
@@ -2884,6 +3036,12 @@ ALTER TABLE `email_templates`
 -- Indexes for table `emergency_contacts`
 --
 ALTER TABLE `emergency_contacts`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `error_logs`
+--
+ALTER TABLE `error_logs`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -3087,6 +3245,12 @@ ALTER TABLE `product_compares`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `product_seos`
+--
+ALTER TABLE `product_seos`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `product_stocks`
 --
 ALTER TABLE `product_stocks`
@@ -3120,6 +3284,18 @@ ALTER TABLE `refund_transactions`
 -- Indexes for table `reviews`
 --
 ALTER TABLE `reviews`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `review_replies`
+--
+ALTER TABLE `review_replies`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `robots_meta_contents`
+--
+ALTER TABLE `robots_meta_contents`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -3188,6 +3364,14 @@ ALTER TABLE `social_medias`
 --
 ALTER TABLE `soft_credentials`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `storages`
+--
+ALTER TABLE `storages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `storages_data_id_index` (`data_id`),
+  ADD KEY `storages_value_index` (`value`);
 
 --
 -- Indexes for table `subscriptions`
@@ -3449,6 +3633,12 @@ ALTER TABLE `digital_product_otp_verifications`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `digital_product_variations`
+--
+ALTER TABLE `digital_product_variations`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `email_templates`
 --
 ALTER TABLE `email_templates`
@@ -3458,6 +3648,12 @@ ALTER TABLE `email_templates`
 -- AUTO_INCREMENT for table `emergency_contacts`
 --
 ALTER TABLE `emergency_contacts`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `error_logs`
+--
+ALTER TABLE `error_logs`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
@@ -3512,7 +3708,7 @@ ALTER TABLE `loyalty_point_transactions`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=264;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=276;
 
 --
 -- AUTO_INCREMENT for table `most_demandeds`
@@ -3635,6 +3831,12 @@ ALTER TABLE `product_compares`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `product_seos`
+--
+ALTER TABLE `product_seos`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `product_stocks`
 --
 ALTER TABLE `product_stocks`
@@ -3668,6 +3870,18 @@ ALTER TABLE `refund_transactions`
 -- AUTO_INCREMENT for table `reviews`
 --
 ALTER TABLE `reviews`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `review_replies`
+--
+ALTER TABLE `review_replies`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `robots_meta_contents`
+--
+ALTER TABLE `robots_meta_contents`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
@@ -3734,6 +3948,12 @@ ALTER TABLE `social_medias`
 -- AUTO_INCREMENT for table `soft_credentials`
 --
 ALTER TABLE `soft_credentials`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `storages`
+--
+ALTER TABLE `storages`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --

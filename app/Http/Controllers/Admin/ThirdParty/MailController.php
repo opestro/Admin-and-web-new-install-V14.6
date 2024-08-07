@@ -70,10 +70,7 @@ class MailController extends BaseController
 
     public function send(Request $request): JsonResponse
     {
-        $response = $this->mailService->sendMail(request: $request);
-        return response()->json([
-            'status' => $response['status'],
-            'message' => $response['message'],
-        ]);
+        $responseFlag = $this->mailService->sendMail(request: $request);
+        return response()->json(['success' => $responseFlag]);
     }
 }

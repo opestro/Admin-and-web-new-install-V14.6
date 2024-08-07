@@ -636,14 +636,6 @@ class CartManager
         $qty = 0;
         $cart = Cart::where(['id' => $request->key, 'customer_id' => ($user == 'offline' ? $guest_id : $user->id)])->first();
 
-        if (!$cart) {
-            return [
-                'status' => 0,
-                'qty' => $request['quantity'],
-                'message' => translate('Product_not_found_in_cart'),
-            ];
-        }
-
         $product = Product::find($cart['product_id']);
         $count = count(json_decode($product->variation));
         if ($count) {

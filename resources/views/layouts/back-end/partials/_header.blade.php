@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Session;
                 @php($ecommerceLogo = getWebConfig('company_web_logo'))
                 <a class="navbar-brand" href="{{route('admin.dashboard.index')}}" aria-label="">
                     <img class="navbar-brand-logo"
-                         src="{{ getStorageImages($ecommerceLogo, type: 'backend-logo')}}" alt="{{ translate('logo') }}">
+                         src="{{getStorageImages($ecommerceLogo,type: 'backend-logo')}}" alt="{{ translate('logo') }}">
                     <img class="navbar-brand-logo-mini"
-                         src="{{getStorageImages($ecommerceLogo, type: 'backend-logo')}}"
+                         src="{{getStorageImages($ecommerceLogo,type: 'backend-logo')}}"
                          alt="{{ translate('logo') }}">
                 </a>
             </div>

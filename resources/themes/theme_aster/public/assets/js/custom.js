@@ -454,7 +454,6 @@ function buyNow(){
         if (redirectStatus === false) {
             $("#quickViewModal").modal("hide");
             $("#loginModal").modal("show");
-            toastr.warning($('.login-warning').data('login-warning-message'));
         }
     })
 }
@@ -680,20 +679,19 @@ function removeFromCart(key) {
         }
     }
 }
-
-function updateCart() {
-    $('.cart-quantity-update').on('click', function () {
+function updateCart(){
+    $('.cart-quantity-update').on('click',function (){
         let cartId = $(this).data('cart-id');
         let productId = $(this).data('product-id');
         let value = $(this).data('value')
         let event = $(this).data('event')
-        updateCartQuantity(cartId, productId, value, event)
+        updateCartQuantity(cartId,productId,value,event)
     });
-    $('.cart-quantity-update-input').on('change', function () {
+    $('.cart-quantity-update-input').on('change',function (){
         let cartId = $(this).data('cart-id');
         let productId = $(this).data('product-id');
         let value = $(this).data('value')
-        updateCartQuantity(cartId, productId, value)
+        updateCartQuantity(cartId,productId,value)
     });
 }
 updateCart();
@@ -782,26 +780,6 @@ function updateCartQuantity(cartId, productId, action, event) {
     }
 }
 
-function getUpdateProductAddUpdateCartBtn(response) {
-    try {
-        let productInfo = $('.product-generated-variation-code');
-        let productVariantExist = false;
-
-        response?.cartList?.map(function (item, index) {
-            if (productInfo.data('product-id') == item?.id && productInfo.val() == item?.variant) {
-                productVariantExist = true;
-            }
-        })
-
-        if (!productVariantExist) {
-            let actionAddToCartBtn = $('.add-to-cart');
-            actionAddToCartBtn.html(actionAddToCartBtn.data('add-text'))
-            $('.in_cart_key[name="key"]').val('');
-        }
-    } catch (e) {
-    }
-}
-
 function cartItemRemoveFunction(removeUrl, token, cartId, segment) {
     $.post(
         removeUrl,
@@ -815,9 +793,6 @@ function cartItemRemoveFunction(removeUrl, token, cartId, segment) {
                 CloseButton: true,
                 ProgressBar: true,
             });
-
-            getUpdateProductAddUpdateCartBtn(response)
-
             if (
                 segment === "shop-cart" ||
                 segment === "checkout-payment" ||

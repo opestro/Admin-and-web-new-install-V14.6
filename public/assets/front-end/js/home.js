@@ -385,12 +385,12 @@ $(document).ready(function () {
             0: {
                 items: 3,
             },
-            // 360: {
-            //     items: 3.2,
-            // },
-            // 375: {
-            //     items: 3.5,
-            // },
+            360: {
+                items: 3.2,
+            },
+            375: {
+                items: 3.5,
+            },
             540: {
                 items: 4,
             },

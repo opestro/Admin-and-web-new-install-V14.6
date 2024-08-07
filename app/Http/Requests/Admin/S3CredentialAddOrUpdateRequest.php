@@ -2,15 +2,12 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Traits\ResponseHandler;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Carbon;
 
 class S3CredentialAddOrUpdateRequest extends FormRequest
 {
-    use ResponseHandler;
-
+    protected $stopOnFirstFailure = true;
 
     public function authorize(): bool
     {
@@ -38,12 +35,7 @@ class S3CredentialAddOrUpdateRequest extends FormRequest
             's3_bucket.required' => translate('The_bucket_field_is_required'),
             's3_url.required' => translate('The_url_field_is_required'),
             's3_endpoint.required' => translate('The_endpoint_field_is_required'),
-        ];
-    }
-
-    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
-    {
-        throw new HttpResponseException(response()->json(['errors' => $this->errorProcessor($validator)]));
+        ];;
     }
 
 }

@@ -51,12 +51,11 @@ class FileManagerLogic
         return $data;
     }
 
-    public static function getFileSize($path)
-    {
-        if (!is_null($path)) {
+    public static function getFileSize($path) {
+        if (!is_null($path)){
             $headers = get_headers($path, 1);
             $decimals = 2;
-            $bytes = isset($headers['Content-Length']) ? $headers['Content-Length'] : $headers['content-length'];
+            $bytes =$headers['Content-Length'];
             $size = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
             $factor = floor((strlen($bytes) - 1) / 3);
             return sprintf("%.{$decimals}f", $bytes / (1024 ** $factor)) . @$size[$factor];

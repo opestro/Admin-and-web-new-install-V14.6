@@ -191,7 +191,7 @@ class CartController extends Controller
     /**
      * removes from Cart
      */
-    public function removeFromCart(Request $request): JsonResponse
+    public function removeFromCart(Request $request)
     {
         $user = Helpers::get_customer();
 
@@ -205,13 +205,7 @@ class CartController extends Controller
         session()->forget('shipping_method_id');
         session()->forget('order_note');
 
-        $cart = Cart::where(['customer_id' => ($user == 'offline' ? session('guest_id') : auth('customer')->id())])->select(['id', 'variant'])->get();
-
-        return response()->json([
-            'data' => view(VIEW_FILE_NAMES['products_cart_details_partials'], compact('request'))->render(),
-            'message' => translate('Item_has_been_removed_from_cart'),
-            'cartList' => $cart,
-        ]);
+        return response()->json(['data' => view(VIEW_FILE_NAMES['products_cart_details_partials'], compact('request'))->render(), 'message' => translate('Item_has_been_removed_from_cart')]);
     }
 
     //updated the quantity for a cart item
@@ -244,15 +238,6 @@ class CartController extends Controller
         session()->forget('coupon_seller_id');
 
         $product = Cart::find($request['key']);
-
-        if (!$product) {
-            return response()->json([
-                'status' => 0,
-                'qty' => $request['quantity'],
-                'message' => translate('Product_not_found_in_cart'),
-            ]);
-        }
-
         $quantity_price = Helpers::currency_converter($product['price'] * (int)$product['quantity']);
         $discount_price = Helpers::currency_converter(($product['price'] - $product['discount']) * (int)$product['quantity']);
         $total_discount = 0;

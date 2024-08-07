@@ -3,11 +3,7 @@
         <div class="robots-meta-checkbox-card d-flex flex-wrap gap-2 justify-content-between h-100">
             <div class="item">
                 <label class="checkbox--item">
-                    <input type="radio"
-                           name="meta_index"
-                           value="index"
-                        {{ $product?->seoInfo?->index != 'noindex' ? 'checked' : '' }}
-                    >
+                    <input type="radio" name="meta_index" value="index" {{ $product?->seoInfo?->index ? 'checked' : '' }}>
                     <img class="unchecked"
                          src="{{ dynamicAsset('public/assets/back-end/img/uncheck-radio-icon.svg') }}"
                          alt="">
@@ -40,12 +36,7 @@
             </div>
             <div class="item">
                 <label class="checkbox--item">
-                    <input type="radio"
-                           name="meta_index"
-                           value="noindex"
-                           {{ $product?->seoInfo?->index == 'noindex' ? 'checked' : '' }}
-                           class="action-input-no-index-event"
-                    >
+                    <input type="radio" name="meta_index" value="noindex" {{ $product?->seoInfo?->index ? '' : 'checked' }} class="action-input-no-index-event">
                     <img class="unchecked"
                          src="{{ dynamicAsset('public/assets/back-end/img/uncheck-radio-icon.svg') }}"
                          alt="">

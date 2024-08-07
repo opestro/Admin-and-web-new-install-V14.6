@@ -776,13 +776,8 @@ class WebController extends Controller
             }
             return view(VIEW_FILE_NAMES['cart_list'], compact('topRatedShops', 'newSellers', 'currentDate', 'request'));
         }
-        Toastr::warning(translate('please_login_your_account'));
-        if (theme_root_path() == 'default'){
-            return redirect('customer/auth/login');
-        }else{
-            return redirect('/');
-        }
-
+        Toastr::info(translate('invalid_access'));
+        return redirect('/');
     }
 
     //ajax filter (category based)

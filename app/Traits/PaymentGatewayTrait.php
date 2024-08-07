@@ -44,22 +44,7 @@ trait PaymentGatewayTrait
                 "ZAR" => "South African Rand",
                 "USD" => "United States Dollar",
                 "EUR" => "Euro",
-                "GBP" => "British Pound Sterling",
-                "CAD" => "Canadian Dollar",
-                "XAF" => "Central African CFA Franc",
-                "CLP" => "Chilean Peso",
-                "COP" => "Colombian Peso",
-                "EGP" => "Egyptian Pound",
-                "GNF" => "Guinean Franc",
-                "MWK" => "Malawian Kwacha",
-                "MAD" => "Moroccan Dirham",
-                "RWF" => "Rwandan Franc",
-                "SLL" => "Sierra Leonean Leone",
-                "STD" => "São Tomé and Príncipe Dobra",
-                "TZS" => "Tanzanian Shilling",
-                "UGX" => "Ugandan Shilling",
-                "XOF" => "West African CFA Franc BCEAO",
-                "ZMW" => "Zambian Kwacha"
+                "GBP" => "Pound Sterling"
             ],
             "foloosi" => [
                 "AED" => "United Arab Emirates Dirham"

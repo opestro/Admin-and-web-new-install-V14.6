@@ -193,7 +193,7 @@ class ProductController extends BaseController
 
     public function getDigitalProductUpdateProcess($request, $product): void
     {
-        if ($request->has('digital_product_variant_key') && !$request->hasFile('digital_file_ready')) {
+        if ($request['digital_product_type'] == 'ready_product' && $request->has('digital_product_variant_key') && !$request->hasFile('digital_file_ready')) {
             $getAllVariation = $this->digitalProductVariationRepo->getListWhere(filters: ['product_id' => $product['id']]);
             $getAllVariationKey = $getAllVariation->pluck('variant_key')->toArray();
             $getRequestVariationKey = $request['digital_product_variant_key'];
@@ -204,11 +204,7 @@ class ProductController extends BaseController
             foreach ($newCombinations as $newCombination) {
                 if (in_array($newCombination, $request['digital_product_variant_key'])) {
                     $uniqueKey = strtolower(str_replace('-', '_', $newCombination));
-
-                    $fileItem = null;
-                    if ($request['digital_product_type'] == 'ready_product') {
-                        $fileItem = $request->file('digital_files.' . $uniqueKey);
-                    }
+                    $fileItem = $request->file('digital_files.' . $uniqueKey);
                     $uploadedFile = '';
                     if ($fileItem) {
                         $uploadedFile = $this->fileUpload(dir: 'product/digital-product/', format: $fileItem->getClientOriginalExtension(), file: $fileItem);
@@ -234,15 +230,15 @@ class ProductController extends BaseController
             foreach ($getAllVariation as $variation) {
                 if (in_array($variation['variant_key'], $request['digital_product_variant_key'])) {
                     $uniqueKey = strtolower(str_replace('-', '_', $variation['variant_key']));
-
-                    $fileItem = null;
-                    if ($request['digital_product_type'] == 'ready_product') {
-                        $fileItem = $request->file('digital_files.' . $uniqueKey);
-                    }
+                    $fileItem = $request->file('digital_files.' . $uniqueKey);
                     $uploadedFile = $variation['file'] ?? '';
                     $variation = $this->digitalProductVariationRepo->getFirstWhere(params: ['product_id' => $product['id'], 'variant_key' => $variation['variant_key']]);
                     if ($fileItem) {
                         $uploadedFile = $this->fileUpload(dir: 'product/digital-product/', format: $fileItem->getClientOriginalExtension(), file: $fileItem);
+                        if ($variation) {
+                            // $this->deleteFile(filePath: '/product/digital-product/' . $variation['file']);
+                            $this->digitalProductVariationRepo->delete(params: ['id' => $variation['id']]);
+                        }
                     }
                     $this->digitalProductVariationRepo->updateByParams(params: ['product_id' => $product['id'], 'variant_key' => $variation['variant_key']], data: [
                         'variant_key' => $request->input('digital_product_variant_key.' . $uniqueKey),
@@ -333,8 +329,7 @@ class ProductController extends BaseController
 
     public function getSkuCombinationView(Request $request, ProductService $service): JsonResponse
     {
-        $product = $this->productRepo->getFirstWhere(params: ['id' => $request['product_id']], relations: ['digitalVariation','seoInfo']);
-        $combinationView = $service->getSkuCombinationView(request: $request, product: $product);
+        $combinationView = $service->getSkuCombinationView(request: $request);
         return response()->json(['view' => $combinationView]);
     }
 

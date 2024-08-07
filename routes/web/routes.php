@@ -410,7 +410,6 @@ if (!$is_published) {
             Route::get('pay', [PaystackController::class, 'index'])->name('pay');
             Route::post('payment', [PaystackController::class, 'redirectToGateway'])->name('payment');
             Route::get('callback', [PaystackController::class, 'handleGatewayCallback'])->name('callback');
-            Route::get('cancel', [PaystackController::class, 'cancel'])->name('cancel');
         });
 
         //BKASH

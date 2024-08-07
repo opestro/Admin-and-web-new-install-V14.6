@@ -12,8 +12,6 @@
         <div class="container mt-4 rtl text-align-direction">
             <div class="row {{Session::get('direction') === "rtl" ? '__dir-rtl' : ''}}">
                 <div class="col-lg-9 col-12">
-
-                    <?php $guestCheckout = getWebConfig(name: 'guest_checkout'); ?>
                     <div class="row">
                         <div class="col-lg-5 col-md-4 col-12">
                             <div class="cz-product-gallery">
@@ -285,7 +283,7 @@
                                                         </button>
                                                     </span>
                                                 </div>
-                                                <input type="hidden" class="product-generated-variation-code" name="product_variation_code" data-product-id="{{ $product['id'] }}">
+                                                <input type="hidden" class="product-generated-variation-code" name="product_variation_code">
                                                 <input type="hidden" value="" class="in_cart_key form-control w-50" name="key">
                                             </div>
                                             <div id="chosen_price_div">
@@ -317,8 +315,6 @@
                                             </button>
                                         @else
                                             <button type="button"
-                                                data-auth-status="{{($guestCheckout == 1 || Auth::guard('customer')->check() ? 'true':'false')}}"
-                                                data-route="{{ route('shop-cart') }}"
                                                  class="btn btn-secondary element-center btn-gap-{{Session::get('direction') === "rtl" ? 'left' : 'right'}} action-buy-now-this-product">
                                                 <span class="string-limit">{{ translate('buy_now') }}</span>
                                             </button>
@@ -837,11 +833,7 @@
                         </button>
                     @else
                         <button
-                            class="btn btn-secondary btn-sm btn-gap-{{Session::get('direction') === "rtl" ? 'left' : 'right'}} action-buy-now-this-product"
-                            type="button"
-                            data-auth-status="{{($guestCheckout == 1 || Auth::guard('customer')->check() ? 'true':'false')}}"
-                            data-route="{{ route('shop-cart') }}"
-                        >
+                            class="btn btn-secondary btn-sm btn-gap-{{Session::get('direction') === "rtl" ? 'left' : 'right'}} action-buy-now-this-product" type="button">
                             <span class="string-limit">{{translate('buy_now')}}</span>
                         </button>
                         <button

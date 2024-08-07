@@ -141,7 +141,7 @@ class ProductRepository implements ProductRepositoryInterface
                     }
                 })
                 ->when(isset($filters['added_by']) && !$this->isAddedByInHouse($filters['added_by']), function($query) use($filters, $product_ids) {
-                    $query->whereIn('id', $product_ids)
+                    $query->orWhereIn('id', $product_ids)
                         ->where(['added_by' => 'seller'])
                         ->when(isset($filters['seller_id']), function ($query) use ($filters) {
                             return $query->where(['user_id' => $filters['seller_id']]);

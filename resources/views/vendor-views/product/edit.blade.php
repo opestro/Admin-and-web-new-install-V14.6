@@ -531,11 +531,11 @@
                                     name="choice_attributes[]" id="choice_attributes" multiple="multiple">
                                     @foreach ($attributes as $key => $attribute)
                                         @if($product['attributes']!='null')
-                                            <option value="{{ $attribute['id'] }}" {{ in_array($attribute->id,json_decode($product['attributes'], true))? 'selected':'' }}>
-                                                {{ $attribute['name']}}
+                                            <option value="{{ $attribute['id'] }}" {{ in_array($attribute['id'],json_decode($product['attributes'],true))?'selected':'' }}>
+                                                {{ $attribute['name'] }}
                                             </option>
                                         @else
-                                            <option value="{{ $attribute['id']}}">{{ $attribute['name']}}</option>
+                                            <option value="{{ $attribute['id']}}">{{ $attribute['name'] }}</option>
                                         @endif
                                     @endforeach
                                 </select>

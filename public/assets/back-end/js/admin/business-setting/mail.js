@@ -5,7 +5,7 @@ function ValidateEmail(inputText) {
     return inputText.match(mailFormat);
 }
 
-$('#test-mail-send').on('click',function(){
+$('#text-mail-send').on('click',function(){
     const sendMailModal = $('#send-mail-confirmation-modal');
     sendMailModal.modal('hide');
     const sendMail = $('#get-send-mail-route-text');
@@ -21,15 +21,14 @@ $('#test-mail-send').on('click',function(){
             data: {
                 "email": $('#test-email').val()
             },
-            success: function (response) {
-                if (response.status === 2) {
+            success: function (data) {
+                if (data.success === 2) {
                     toastr.error(sendMail.data('error-text'));
-                } else if (response.status === 1) {
+                } else if (data.success === 1) {
                     toastr.success(sendMail.data('success-text'));
                 } else {
                     toastr.info(sendMail.data('info-text'));
                 }
-                console.log(response.message);
                 $('#send-mail-confirmation-modal').modal('hide');
             },
         });

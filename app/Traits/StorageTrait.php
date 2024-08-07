@@ -42,11 +42,7 @@ trait StorageTrait
 
     private function fileCheck($disk, $path): bool
     {
-        try{
-            return Storage::disk($disk)->exists($path);
-        }catch (\Exception $exception){
-            return false;
-        }
+        return Storage::disk($disk)->exists($path);
     }
 
     protected function storageConnectionCheck(): string

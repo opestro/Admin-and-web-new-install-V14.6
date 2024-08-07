@@ -163,15 +163,19 @@ class SocialAuthController extends Controller
 
     public static function login_process_passport($user, $email, $password)
     {
-        $token = null;
-        if (isset($user)) {
-            auth()->login($user);
+        $data = [
+            'email' => $email,
+            'password' => $password
+        ];
+
+        if (isset($user) && $user->is_active && auth()->attempt($data)) {
             $token = auth()->user()->createToken('LaravelAuthApp')->accessToken;
+        } else {
+            $token = null;
         }
 
         return $token;
     }
-
     public function update_phone(Request $request)
     {
         $validator = Validator::make($request->all(), [

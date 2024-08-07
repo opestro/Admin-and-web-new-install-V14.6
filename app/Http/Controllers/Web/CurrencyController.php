@@ -21,8 +21,6 @@ class CurrencyController extends Controller
         $currency = $this->currencyRepo->getFirstWhere(params: ['code'=>$request['currency_code']]);
         session()->put('currency_symbol', $currency['symbol']);
         session()->put('currency_exchange_rate', $currency['exchange_rate']);
-        session()->forget('default');
-        session()->forget('usd');
         $message = translate('currency_changed_to').' '.$currency['name'];
         return response()->json(['message'=>$message]);
     }

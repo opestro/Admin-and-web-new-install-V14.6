@@ -529,7 +529,8 @@
                                     name="choice_attributes[]" id="choice_attributes" multiple="multiple">
                                     @foreach ($attributes as $key => $attribute)
                                         @if($product['attributes']!='null')
-                                            <option value="{{ $attribute['id'] }}" {{ in_array($attribute->id,json_decode($product['attributes'], true))? 'selected':'' }}>
+                                            <option
+                                                value="{{ $attribute['id']}}" {{in_array($attribute->id,json_decode($product['attributes'], true))?'selected':''}}>
                                                 {{ $attribute['name']}}
                                             </option>
                                         @else
@@ -546,7 +547,7 @@
                             </div>
 
                             <div class="sku_combination table-responsive form-group mt-2" id="sku_combination">
-                                @include('admin-views.product.partials._edit_sku_combinations',['combinations' => json_decode($product['variation'], true)])
+                                @include('admin-views.product.partials._edit_sku_combinations',['combinations'=>json_decode($product['variation'],true)])
                             </div>
                         </div>
                     </div>

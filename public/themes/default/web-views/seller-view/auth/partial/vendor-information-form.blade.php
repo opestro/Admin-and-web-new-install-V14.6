@@ -122,7 +122,7 @@
                         @endif
                         <div class="d-flex justify-content-start mt-2">
                             <label class="custom-checkbox align-items-center">
-                                <input type="checkbox" class="" id="terms-checkbox" >
+                                <input type="checkbox" class="" id="terms-checkbox">
                                 <span class="form-check-label">{{ translate('i_agree_with_the') }} <a
                                         href="{{route('terms')}}" target="_blank" class="text-underline color-bs-primary-force">
                                         {{ translate('terms_&_conditions') }}
@@ -132,7 +132,7 @@
                         </div>
                         <div class="d-flex justify-content-end mb-2 gap-2">
                             <button type="button" class="btn btn-secondary back-to-main-page"> {{translate('back')}} </button>
-                            <button type="button" class="btn btn--primary"  id="vendor-apply-submit" disabled="disabled"> {{translate('submit')}} </button>
+                            <button type="button" class="btn btn--primary disabled" id="vendor-apply-submit"> {{translate('submit')}} </button>
                         </div>
                     </div>
                 </div>
