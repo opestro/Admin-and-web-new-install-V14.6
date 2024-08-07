@@ -1,0 +1,55 @@
+{
+    "name": "seshac/laravel-shiprocket-api",
+    "description": "Shiprocket API (V1) Laravel SDK. Integration of Shiprocket API in your laravel application is easy, This package enables you to utilize most of your Shiprocket functions.",
+    "keywords": [
+        "sesha",
+        "laravel Shiprcoket Api",
+        "Laravel Shiprocket Wrapper",
+        "Shiprocket SDK Module"
+    ],
+    "homepage": "https://github.com/seshac/laravel-shiprocket-api",
+    "license": "MIT",
+    "authors": [{
+        "name": "Sesha",
+        "email": "seshadriece008@gmail.com",
+        "homepage": "https://sesha.in",
+        "role": "Developer"
+    }],
+    "require": {
+        "php": "^7.3|^8.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.0",
+        "phpunit/phpunit": "^9.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Seshac\\Shiprocket\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Seshac\\Shiprocket\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "format": "vendor/bin/php-cs-fixer fix --allow-risky=yes"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Seshac\\Shiprocket\\ShiprocketServiceProvider"
+            ],
+            "aliases": {
+                "Shiprocket": "Seshac\\Shiprocket\\Shiprocket"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

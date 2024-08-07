@@ -1,14 +1,7 @@
-/node_modules
-/vendor
 .vscode
 .idea
 .env
 .env.backup
 .phpunit.result.cache
-Homestead.json
-Homestead.yaml
-npm-debug.log
-yarn-error.log
-composer-setup.php
 .DS_Store
 .env.devlpmnt
