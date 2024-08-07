@@ -1,7 +1,7 @@
-# Use the official PHP image with Apache
-FROM php:8.3-apache
+# Use the official PHP image with Apache for PHP 8.2
+FROM php:8.2-apache
 
-# Install system dependencies
+# Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -13,10 +13,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd \
-    && docker-php-ext-install intl
-
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql
+    && docker-php-ext-install intl \
+    && docker-php-ext-install mysqli \
+    && docker-php-ext-install zip
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
@@ -34,10 +33,9 @@ COPY --chown=www-data:www-data . /var/www/html
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Install Composer if needed
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-# Uncomment the following line if you need to run composer install
-RUN composer install
+RUN composer install --ignore-platform-req=ext-mysqli --ignore-platform-req=ext-zip
 
 # Expose port 80
 EXPOSE 80
