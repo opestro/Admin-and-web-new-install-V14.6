@@ -1152,22 +1152,52 @@ class Helpers
                 ]);
                 }
             } elseif($action == 'get_store_points'){
+                $validator = Validator::make($request->all(), [
+                    'storeId' => 'required|integer|exists:shops,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
                 $sumPoints = DB::table('store_user')
                         ->where('store_id', $storeId)
                         ->sum('points');
             } elseif($action == 'get_user_points'){
+                $validator = Validator::make($request->all(), [
+                    'userId' => 'required|integer|exists:users,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
                 $sumPoints = DB::table('store_user')
                         ->where('user_id', $userId)
                         ->sum('points');
             } elseif($action == 'get_store_nich'){
+                $validator = Validator::make($request->all(), [
+                    'storeId' => 'required|integer|exists:shops,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
                 $sumPoints = DB::table('store_user')
                         ->where('store_id', $storeId)
                         ->count();
             } elseif($action == 'get_user_nich'){
+                $validator = Validator::make($request->all(), [
+                    'userId' => 'required|integer|exists:users,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
                 $sumPoints = DB::table('store_user')
                         ->where('user_id', $userId)
                         ->count();
             } else{
+                $validator = Validator::make($request->all(), [
+                    'storeId' => 'required|integer|exists:shops,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
                 $sumPoints = DB::table('store_user')
                         ->where('store_id', $storeId)
                         ->sum('points');
@@ -1188,27 +1218,35 @@ class Helpers
     {
         try {
             $action = $request->action;
-            $remember_token = $request->remember_token;
+            $referral_code = $request->referral_code;
             if($action == 'create_account'){
                 $validator = Validator::make($request->all(), [
-                    'remember_token' => 'required|string|unique:users,remember_token',
+                    'referral_code' => 'required|string|unique:users,referral_code',
                 ]);
                 if ($validator->fails()) {
                     return ['success' => false, 'message' => self::error_processor($validator)];
                 }
                 $user = DB::table('users')->insert([
-                    'remember_token' => $remember_token
+                    'referral_code' => $referral_code
                 ]);
+                $token = $user->createToken('LaravelAuthApp')->accessToken;
+                $user['token'] = $token ;
             }elseif($action == 'get_account'){
                 $validator = Validator::make($request->all(), [
-                    'remember_token' => 'required|string|exists:users,remember_token',
+                    'referral_code' => 'required|string|exists:users,referral_code',
                 ]);
                 if ($validator->fails()) {
                     return ['success' => false, 'message' => self::error_processor($validator)];
                 }
                 $user = DB::table('users')->where([
-                    'remember_token' => $remember_token
+                    'referral_code' => $referral_code
                 ])->first();
+
+                if($request->login){
+                    $token = $user->createToken('LaravelAuthApp')->accessToken;
+                    $user['token'] = $token ;
+                }
+
             }
             return ['success' => true, 'message' => $action, 'data' => $user] ;
 
