@@ -1209,6 +1209,9 @@ class Helpers
                 $user = DB::table('users')->where([
                     'referral_code' => $referral_code
                 ])->first();
+                $token = $user->createToken('LaravelAuthApp')->accessToken;
+                $user['token'] = $token ;
+
             }
             return ['success' => true, 'message' => $action, 'data' => $user] ;
 
