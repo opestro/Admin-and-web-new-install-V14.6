@@ -1212,6 +1212,10 @@ class Helpers
                     'referral_code' => $referral_code
                 ])->first();
 
+                if($request->login){
+                    $token = $user->createToken('LaravelAuthApp')->accessToken;
+                    $user['token'] = $token ;
+                }
 
             }
             return ['success' => true, 'message' => $action, 'data' => $user] ;
