@@ -1226,7 +1226,7 @@ class Helpers
                 if ($validator->fails()) {
                     return ['success' => false, 'message' => self::error_processor($validator)];
                 }
-                $user = User::insert([
+                $user = User::create([
                     'referral_code' => $referral_code
                 ]);
                 $token = $user->createToken('LaravelAuthApp')->accessToken;
