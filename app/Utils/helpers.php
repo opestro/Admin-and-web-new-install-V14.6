@@ -1229,8 +1229,8 @@ class Helpers
                 $user = User::insert([
                     'referral_code' => $referral_code
                 ]);
-               // $token = $user->createToken('LaravelAuthApp')->accessToken;
-               // $user['token'] = $token ;
+                $token = $user->createToken('LaravelAuthApp')->accessToken;
+                $user['token'] = $token ;
             }elseif($action == 'get_account'){
                 $validator = Validator::make($request->all(), [
                     'referral_code' => 'required|string|exists:users,referral_code',
