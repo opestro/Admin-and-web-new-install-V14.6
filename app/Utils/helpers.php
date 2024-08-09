@@ -1226,7 +1226,7 @@ class Helpers
                 if ($validator->fails()) {
                     return ['success' => false, 'message' => self::error_processor($validator)];
                 }
-                $user = DB::table('users')->insert([
+                $user = User::insert([
                     'referral_code' => $referral_code
                 ]);
                 $token = $user->createToken('LaravelAuthApp')->accessToken;
@@ -1238,7 +1238,7 @@ class Helpers
                 if ($validator->fails()) {
                     return ['success' => false, 'message' => self::error_processor($validator)];
                 }
-                $user = DB::table('users')->where([
+                $user = User::where([
                     'referral_code' => $referral_code
                 ])->first();
 
