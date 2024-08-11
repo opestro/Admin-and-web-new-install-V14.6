@@ -1,21 +1,45 @@
-version: '3.8'
-
+version: "3.8"
 services:
-  app:
+  da3em_app:
+    container_name: da3em_app
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: laravel_app
-    ports:
-      - "8010:80"
+      dockerfile: ./Dockerfile
+    expose:
+      - 9000
     volumes:
-      - .:/var/www/html
+      - .:/usr/src/app
+      - ./public:/usr/src/app/public
+    networks:
+      - app_network
+
+  da3em_nginx:
+    container_name: da3em_nginx
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+    volumes:
+    - ./public:/usr/src/app/public
+    ports:
+      - 8000:80
+    depends_on:
+      - da3em_app
     environment:
-      - APP_ENV=local
-      - APP_DEBUG=true
-      - APP_KEY=base64:1vaU3dfc+sWjx8TuDXzginRsEa2dp2SBL+Ujs6QCb5c=
-      - DB_HOST=your_ovh_db_host      # Replace with your OVH database host
-      - DB_PORT=3306
-      - DB_DATABASE=nichen            # Use your actual database name
-      - DB_USERNAME=nichen            # Use your actual database username
-      - DB_PASSWORD=n1ch3n            # Use your actual database password
+      NGINX_FPM_HOST: da3em_app
+      NGINX_ROOT: /usr/src/app/public
+    networks:
+      - app_network
+
+  
+
+  blog_redis:
+    container_name: da3em_redis
+    image: redis:latest
+    ports:
+      - 6379:6379
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
