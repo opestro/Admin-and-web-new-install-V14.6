@@ -39,11 +39,11 @@ RUN apt-get update \
         pgsql \
         pcntl \
         zip \
-        libicu-dev \
-        && docker-php-ext-install \
-        intl \
-        mysqli\
     && docker-php-ext-enable redis \
+    libicu-dev \
+    && docker-php-ext-install \
+    intl \
+    mysqli\
     && rm -rf /var/lib/apt/lists/*;
 
 COPY ./laravel.ini /usr/local/etc/php/conf.d/laravel.ini
