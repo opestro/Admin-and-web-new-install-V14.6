@@ -1321,7 +1321,7 @@ class Helpers
             $products = [];
             foreach ($shops as $shop) {
                 $products[$shop->id] = DB::table('products')
-                    ->where('shop_id', $shop->id)
+                    ->where('added_by', $shop->id)
                     ->inRandomOrder()
                     ->first();
             }
