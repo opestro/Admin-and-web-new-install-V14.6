@@ -602,10 +602,10 @@ class CustomerController extends Controller
 
     }
 
-    public function getTopShopsAndFavoriteShops(Request $request)
+    public function get_top_shops_and_favorite_shops(Request $request)
     {
 
-            $result = Helpers::getTopShopsAndFavoriteShops($request);
+            $result = Helpers::get_top_shops_and_favorite_shops($request);
             return response()->json($result, 200);
 
     }

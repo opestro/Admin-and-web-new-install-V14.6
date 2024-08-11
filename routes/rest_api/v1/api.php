@@ -77,7 +77,7 @@ Route::group(['namespace' => 'RestAPI\v1', 'prefix' => 'v1', 'middleware' => ['a
     Route::group(['prefix' => 'customer/actions'], function () {
         Route::post('point-action', 'CustomerController@points_actions');
         Route::post('account-action', 'CustomerController@account_actions');
-        Route::post('getTopShopsAndFavoriteShops-action', 'CustomerController@getTopShopsAndFavoriteShops');
+        Route::post('get_top_shops_and_favorite_shops-action', 'CustomerController@get_top_shops_and_favorite_shops');
     });
 
 

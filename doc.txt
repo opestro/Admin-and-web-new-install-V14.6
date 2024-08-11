@@ -51,7 +51,7 @@ data (mixed): Result of the action, e.g., user details.
 
 ----------------------------------------------------------------------------------
 
-Endpoint: URL/api/v1/customer/actions/getTopShopsAndFavoriteShops-action
+Endpoint: URL/api/v1/customer/actions/get_top_shops_and_favorite_shops-action
 
 Description
 Performs actions related to user accounts. Actions include getting Top Shops And Favorite Shops.
