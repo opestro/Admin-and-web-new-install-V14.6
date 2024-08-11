@@ -601,4 +601,12 @@ class CustomerController extends Controller
             return response()->json($result, 200);
 
     }
+
+    public function getTopShopsAndFavoriteShops(Request $request)
+    {
+
+            $result = Helpers::getTopShopsAndFavoriteShops($request);
+            return response()->json($result, 200);
+
+    }
 }

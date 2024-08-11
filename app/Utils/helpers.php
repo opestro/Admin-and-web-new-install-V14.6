@@ -1088,13 +1088,18 @@ class Helpers
     public static function points_actions($request = null)
     {
         try {
+
             $userId = $request->userId;
             $storeId = $request->storeId;
-            $action = $request->action;
-            $points = $request->points??1;
+            $function = $request->function;
+            $actions = array(
+                "seen" => 1,
+                "buy"  => 2,
+            );
+            $points = $actions[$request->action]??1;
             $sumPoints = $points;
 
-            if($action == 'add_points'){
+            if($function == 'add_points'){
 
                 $validator = Validator::make($request->all(), [
                     'userId' => 'required|integer|exists:users,id',
@@ -1122,7 +1127,7 @@ class Helpers
                         'user_id' => $userId
                     ]);
                 }
-            } elseif($action == 'remove_points'){
+            } elseif($function == 'remove_points'){
 
                 $validator = Validator::make($request->all(), [
                     'userId' => 'required|integer|exists:users,id',
@@ -1151,7 +1156,7 @@ class Helpers
                         'user_id' => $userId
                 ]);
                 }
-            } elseif($action == 'get_store_points'){
+            } elseif($function == 'get_store_points'){
                 $validator = Validator::make($request->all(), [
                     'storeId' => 'required|integer|exists:shops,id',
                 ]);
@@ -1161,7 +1166,7 @@ class Helpers
                 $sumPoints = DB::table('store_user')
                         ->where('store_id', $storeId)
                         ->sum('points');
-            } elseif($action == 'get_user_points'){
+            } elseif($function == 'get_user_points'){
                 $validator = Validator::make($request->all(), [
                     'userId' => 'required|integer|exists:users,id',
                 ]);
@@ -1171,7 +1176,7 @@ class Helpers
                 $sumPoints = DB::table('store_user')
                         ->where('user_id', $userId)
                         ->sum('points');
-            } elseif($action == 'get_store_nich'){
+            } elseif($function == 'get_store_nich'){
                 $validator = Validator::make($request->all(), [
                     'storeId' => 'required|integer|exists:shops,id',
                 ]);
@@ -1181,7 +1186,7 @@ class Helpers
                 $sumPoints = DB::table('store_user')
                         ->where('store_id', $storeId)
                         ->count();
-            } elseif($action == 'get_user_nich'){
+            } elseif($function == 'get_user_nich'){
                 $validator = Validator::make($request->all(), [
                     'userId' => 'required|integer|exists:users,id',
                 ]);
@@ -1203,7 +1208,7 @@ class Helpers
                         ->sum('points');
             }
 
-            return ['success' => true, 'message' => $action, 'data' => $sumPoints] ;
+            return ['success' => true, 'message' => $function, 'data' => $sumPoints] ;
 
         } catch (Exception $e) {
             // Handle any exceptions that occur
@@ -1217,9 +1222,9 @@ class Helpers
     public static function account_actions($request = null)
     {
         try {
-            $action = $request->action;
+            $function = $request->function;
             $referral_code = $request->referral_code;
-            if($action == 'create_account'){
+            if($function == 'create_account'){
                 $validator = Validator::make($request->all(), [
                     'referral_code' => 'required|string|unique:users,referral_code',
                 ]);
@@ -1231,7 +1236,7 @@ class Helpers
                 ]);
                 $token = $user->createToken('LaravelAuthApp')->accessToken;
                 $user['token'] = $token ;
-            }elseif($action == 'get_account'){
+            }elseif($function == 'get_account'){
                 $validator = Validator::make($request->all(), [
                     'referral_code' => 'required|string|exists:users,referral_code',
                 ]);
@@ -1247,8 +1252,10 @@ class Helpers
                     $user['token'] = $token ;
                 }
 
+            }else{
+                return ['success' => false, 'message' => "the function not fond!"] ;
             }
-            return ['success' => true, 'message' => $action, 'data' => $user] ;
+            return ['success' => true, 'message' => $function, 'data' => $user] ;
 
         } catch (Exception $e) {
             // Handle any exceptions that occur
@@ -1258,6 +1265,80 @@ class Helpers
             ];
         }
     }
+    public function getTopShopsAndFavoriteShops($request = null)
+    {
+        try{
+            $validator = Validator::make($request->all(), [
+                'userId' => 'required|integer|exists:users,id',
+            ]);
+            if ($validator->fails()) {
+                return ['success' => false, 'message' => self::error_processor($validator)];
+            }
+
+            $userId = $request->userId;
+            // Get Top 5 Shops based on total points
+            $topShops = DB::table('store_user')
+                ->select('store_id', DB::raw('SUM(points) as total_points'))
+                ->groupBy('store_id')
+                ->orderBy('total_points', 'desc')
+                ->limit(5)
+                ->pluck('store_id');
+
+            // Get Top 5 Favorite Shops for a specific user based on total points
+            $favoriteShops = DB::table('store_user')
+                ->where('user_id', $userId)
+                ->whereNotIn('store_id', $topShops)
+                ->select('store_id', DB::raw('SUM(points) as total_points'))
+                ->groupBy('store_id')
+                ->orderBy('total_points', 'desc')
+                ->limit(5)
+                ->pluck('store_id');
+
+            $uniqueShopIds = $topShops->merge($favoriteShops);
+
+            // Get Random 5 Shops
+            $randomShops = DB::table('shops')
+                ->whereNotIn('id', $uniqueShopIds)
+                ->inRandomOrder()
+                ->limit(5)
+                ->pluck('id');
+
+            $uniqueShopIds = $uniqueShopIds->merge($randomShops);
+
+            // Get Random 5 Favorite Shops for the specific user
+            $randomFavoriteShops = DB::table('store_user')
+                ->where('user_id', $userId)
+                ->whereNotIn('store_id', $uniqueShopIds)
+                ->inRandomOrder()
+                ->limit(5)
+                ->pluck('store_id');
+
+
+            // Get shops from unique shop ids
+            $shops = DB::table('shops')->whereIn('id', $uniqueShopIds)->get();
+
+            // Get a random product for each shop
+            $products = [];
+            foreach ($shops as $shop) {
+                $products[$shop->id] = DB::table('products')
+                    ->where('shop_id', $shop->id)
+                    ->inRandomOrder()
+                    ->first();
+            }
+
+            return ['success' => true, 'message' => "getTopShopsAndFavoriteShops", 'data' => array('shops' => $shops, 'products' => $products)];
+
+
+        } catch (Exception $e) {
+            // Handle any exceptions that occur
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+            ];
+        }
+
+    }
+
 }
 
 
