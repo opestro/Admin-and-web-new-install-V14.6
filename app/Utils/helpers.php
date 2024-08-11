@@ -1267,7 +1267,6 @@ class Helpers
     }
     public function getTopShopsAndFavoriteShops($request = null)
     {
-        return ['success' => false, 'message' => "good job!"];
         try{
             $validator = Validator::make($request->all(), [
                 'userId' => 'required|integer|exists:users,id',
