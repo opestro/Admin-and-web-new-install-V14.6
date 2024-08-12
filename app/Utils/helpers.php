@@ -1265,7 +1265,7 @@ class Helpers
             ];
         }
     }
-    public function get_top_shops_and_favorite_shops($request = null)
+    public static function get_top_shops_and_favorite_shops($request = null)
     {
         try{
             $validator = Validator::make($request->all(), [
