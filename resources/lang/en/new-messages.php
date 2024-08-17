@@ -8360,4 +8360,5 @@ return [
 	"you_have_not_add_any_products_in_Wishlist " => "You have not add any products in Wishlist ",
 	"We_are_sorry_server_is_not_responding" => "We are sorry server is not responding",
 	"Try_after_sometime" => "Try after sometime",
+	"The_phone_number_may_not_be_greater_than_20_characters" => "The phone number may not be greater than 20 characters",
 ];
