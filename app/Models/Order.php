@@ -104,6 +104,11 @@ class Order extends Model
         'delivery_type',
         'delivery_service_name',
         'third_party_delivery_tracking_id',
+
+        'name',
+        'phone',
+        'city',
+        'state',
     ];
     protected $casts = [
         'customer_id' => 'integer',
@@ -150,6 +155,11 @@ class Order extends Model
         'delivery_type' => 'string',
         'delivery_service_name' => 'string',
         'third_party_delivery_tracking_id' => 'string',
+
+        'name' => 'string',
+        'phone' => 'string',
+        'city' => 'string',
+        'state' => 'string',
     ];
 
 
