@@ -17,6 +17,7 @@ use App\Contracts\Repositories\ReviewRepositoryInterface;
 use App\Contracts\Repositories\VendorRepositoryInterface;
 use App\Contracts\Repositories\WishlistRepositoryInterface;
 use App\Enums\ViewPaths\Vendor\Product;
+use App\Utils\Helpers;
 use App\Enums\WebConfigKey;
 use App\Exports\ProductListExport;
 use App\Http\Controllers\BaseController;
@@ -107,6 +108,10 @@ class ProductController extends BaseController
 
     public function getAddView(): View
     {
+        $result = Helpers::offer_actions(['function' => 'get_permitions']);
+        if(!in_array('add_product', $result)){
+            abort(404);
+        }
         $languages = $this->businessSettingRepo->getFirstWhere(params: ['type' => 'pnc_language']);
         $categories = $this->categoryRepo->getListWhere(filters: ['position' => 0], dataLimit: 'all');
         $brands = $this->brandRepo->getListWhere(filters: ['status' => 1], dataLimit: 'all');
@@ -139,7 +144,7 @@ class ProductController extends BaseController
         }
 
         $this->productSeoRepo->add(data: $service->getProductSEOData(request: $request, product: $savedProduct, action: 'add'));
-
+        Helpers::offer_actions(['function' => 'action', 'action' => 'add_product', 'userId' => auth('seller')->id() ]);
         Toastr::success(translate('product_added_successfully'));
         return redirect()->route('vendor.products.list', ['type' => 'all']);
     }
