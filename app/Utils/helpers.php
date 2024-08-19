@@ -1323,7 +1323,10 @@ class Helpers
                 $products[$shop->id] = DB::table('products')
                     ->where([
                         'user_id' => $shop->seller_id,
+                        'featured_status' => '1', 
+                        'status' => '1', 
                     ])
+                    ->where('current_stock','>',0)
                     ->inRandomOrder()
                     ->first();
             }
