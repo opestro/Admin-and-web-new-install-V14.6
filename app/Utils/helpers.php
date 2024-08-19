@@ -1411,7 +1411,7 @@ class Helpers
                 ];
 
                 // Specify the columns to be used for identifying the record (i.e., unique columns)
-                $uniqueBy = ['user_id', 'offer_id'];
+                $uniqueBy = ['user_id'];
 
                 // Perform the upsert operation
                 $data =  DB::table('user_offer')->upsert($data, $uniqueBy);
