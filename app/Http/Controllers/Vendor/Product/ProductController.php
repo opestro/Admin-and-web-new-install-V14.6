@@ -106,10 +106,13 @@ class ProductController extends BaseController
             'categories', 'subCategory', 'subSubCategory', 'filters'));
     }
 
-    public function getAddView(): View
+    public function getAddView(Request $offer): View
     {
-        $result = Helpers::offer_actions(['function' => 'get_permitions']);
-        if(!in_array('add_product', $result)){
+        $offer['function'] = 'get_permitions';
+        $offer['userId'] = auth('seller')->id();
+        
+        $result = Helpers::offer_actions($offer);
+        if(!in_array('add_product', $result['data'])){
             abort(404);
         }
         $languages = $this->businessSettingRepo->getFirstWhere(params: ['type' => 'pnc_language']);
@@ -144,7 +147,12 @@ class ProductController extends BaseController
         }
 
         $this->productSeoRepo->add(data: $service->getProductSEOData(request: $request, product: $savedProduct, action: 'add'));
-        Helpers::offer_actions(['function' => 'action', 'action' => 'add_product', 'userId' => auth('seller')->id() ]);
+            $offer = new Request  ;
+            $offer['function'] = 'action';
+            $offer['action'] = 'add_product';
+            $offer['userId'] = auth('seller')->id();
+        
+        Helpers::offer_actions($offer);
         Toastr::success(translate('product_added_successfully'));
         return redirect()->route('vendor.products.list', ['type' => 'all']);
     }

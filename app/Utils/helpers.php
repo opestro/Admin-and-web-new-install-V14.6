@@ -1341,7 +1341,7 @@ class Helpers
 
     }
 
-    protected function hasPermission($user, $criteria)
+    protected static function hasPermission($user, $criteria)
     {
         // Check the type and value against user attributes
         switch ($criteria['type']) {
@@ -1354,23 +1354,21 @@ class Helpers
         }
     }
 
-    protected $permissions_ = array(
-        "add_product" => array('type'=> 'credits', 'value'=> 1),
-        "boost_product" => array('type'=> 'credits', 'value'=> 300),
-        "notification" => array('type'=> 'royals', 'value'=> 1),
-    );
-
-    protected function get_permissions($userId){
+    protected static function get_permissions($userId){
         
             $permissions = [];
-            $permissions_ = $this->permissions_ ;
-            $record = DB::table('user_offer')
+            $permissions_ = array(
+                "add_product" => array('type'=> 'credits', 'value'=> 1),
+                "boost_product" => array('type'=> 'credits', 'value'=> 300),
+                "notification" => array('type'=> 'royals', 'value'=> 1),
+            );
+            $user = DB::table('user_offer')
             ->where('user_id', $userId)
             ->first();
-            if($record){
+            if($user){
                 // Iterate through the permissions array
                 foreach ($permissions_ as $permission => $criteria) {
-                    if ($this->hasPermission($user, $criteria)) {
+                    if (Helpers::hasPermission($user, $criteria)) {
                         $permissions[] = $permission;
                     }
                 }
@@ -1385,17 +1383,17 @@ class Helpers
 
             if($function == 'get_permitions'){
                 $validator = Validator::make($request->all(), [
-                    'userId' => 'required|integer|exists:users,id',
+                    'userId' => 'required|integer|exists:sellers,id',
                 ]);
                 if ($validator->fails()) {
                     return ['success' => false, 'message' => self::error_processor($validator)];
                 }
 
-                $data = $this->get_permissions($request->userId);
+                $data = Helpers::get_permissions($request->userId);
 
             }elseif($function == 'ini_offer'){
                 $validator = Validator::make($request->all(), [
-                    'userId' => 'required|integer|exists:users,id',
+                    'userId' => 'required|integer|exists:sellers,id',
                     'offerId' => 'required|integer|exists:offers,id',
                 ]);
                 if ($validator->fails()) {
@@ -1420,7 +1418,7 @@ class Helpers
                 
             }elseif($function == 'action'){
                 $validator = Validator::make($request->all(), [
-                    'userId' => 'required|integer|exists:users,id',
+                    'userId' => 'required|integer|exists:sellers,id',
                     'action' => 'required',
                 ]);
                 if ($validator->fails()) {
@@ -1428,9 +1426,13 @@ class Helpers
                 }
                 $action = $request->action;
 
-                $permissions_ = $this->permissions_ ;
+                $permissions_ = array(
+                    "add_product" => array('type'=> 'credits', 'value'=> 1),
+                    "boost_product" => array('type'=> 'credits', 'value'=> 300),
+                    "notification" => array('type'=> 'royals', 'value'=> 1),
+                );
 
-                $permissions = $this->get_permissions($request->userId);
+                $permissions = Helpers::get_permissions($request->userId);
                 if(in_array($action, $permissions)){
 
                     DB::table('user_offer')
