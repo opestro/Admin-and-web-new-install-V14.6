@@ -1355,8 +1355,8 @@ class Helpers
     }
 
     protected $permissions_ = array(
-        "add_product" => array('type'=> 'cridits', 'value'=> 1),
-        "boost_product" => array('type'=> 'cridits', 'value'=> 300),
+        "add_product" => array('type'=> 'credits', 'value'=> 1),
+        "boost_product" => array('type'=> 'credits', 'value'=> 300),
         "notification" => array('type'=> 'royals', 'value'=> 1),
     );
 
@@ -1407,7 +1407,7 @@ class Helpers
                     [
                         'user_id' => $request->userId,
                         'offer_id' => $offer->id,
-                        'cridits' => $offer->cridits,
+                        'credits' => $offer->credits,
                         'royals' => $offer->royals,
                     ]
                 ];
