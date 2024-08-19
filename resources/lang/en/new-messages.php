@@ -8361,4 +8361,7 @@ return [
 	"We_are_sorry_server_is_not_responding" => "We are sorry server is not responding",
 	"Try_after_sometime" => "Try after sometime",
 	"The_phone_number_may_not_be_greater_than_20_characters" => "The phone number may not be greater than 20 characters",
+	"search_by_vendor_info" => "Search by vendor info",
+	"The_phone_has_already_been_taken" => "The phone has already been taken",
+	"phone_number_with_a_minimum_length_requirement_of_4_characters" => "Phone number with a minimum length requirement of 4 characters",
 ];
