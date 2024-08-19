@@ -1354,14 +1354,16 @@ class Helpers
         }
     }
 
-    protected function get_permissions($userId){
-        $permissions_ = array(
-            "add_product" => array('type'=> 'cridits', 'value'=> 1),
-            "boost_product" => array('type'=> 'cridits', 'value'=> 300),
-            "notification" => array('type'=> 'royals', 'value'=> 1),
-        );
-            $permissions = [];
+    protected $permissions_ = array(
+        "add_product" => array('type'=> 'cridits', 'value'=> 1),
+        "boost_product" => array('type'=> 'cridits', 'value'=> 300),
+        "notification" => array('type'=> 'royals', 'value'=> 1),
+    );
 
+    protected function get_permissions($userId){
+        
+            $permissions = [];
+            $permissions_ = $this->permissions_ ;
             $record = DB::table('user_offer')
             ->where('user_id', $userId)
             ->first();
@@ -1426,11 +1428,7 @@ class Helpers
                 }
                 $action = $request->action;
 
-                $permissions_ = array(
-                    "add_product" => array('type'=> 'cridits', 'value'=> 1),
-                    "boost_product" => array('type'=> 'cridits', 'value'=> 300),
-                    "notification" => array('type'=> 'royals', 'value'=> 1),
-                );
+                $permissions_ = $this->permissions_ ;
 
                 $permissions = $this->get_permissions($request->userId);
                 if(in_array($action, $permissions)){
