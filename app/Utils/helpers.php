@@ -1344,6 +1344,15 @@ class Helpers
 
     }
 
+    protected static function permissions_() {
+
+        return array(
+            "add_product" => array('type'=> 'credits', 'value'=> 1),
+            "boost_product" => array('type'=> 'credits', 'value'=> 300),
+            "notification" => array('type'=> 'royals', 'value'=> 1),
+        );
+    } 
+
     protected static function hasPermission($user, $criteria)
     {
         // Check the type and value against user attributes
@@ -1360,11 +1369,7 @@ class Helpers
     protected static function get_permissions($userId){
         
             $permissions = [];
-            $permissions_ = array(
-                "add_product" => array('type'=> 'credits', 'value'=> 1),
-                "boost_product" => array('type'=> 'credits', 'value'=> 300),
-                "notification" => array('type'=> 'royals', 'value'=> 1),
-            );
+            $permissions_ = Helpers::permissions_();
             $user = DB::table('user_offer')
             ->where('user_id', $userId)
             ->first();
@@ -1429,11 +1434,7 @@ class Helpers
                 }
                 $action = $request->action;
 
-                $permissions_ = array(
-                    "add_product" => array('type'=> 'credits', 'value'=> 1),
-                    "boost_product" => array('type'=> 'credits', 'value'=> 300),
-                    "notification" => array('type'=> 'royals', 'value'=> 1),
-                );
+                $permissions_ = Helpers::permissions_();
 
                 $permissions = Helpers::get_permissions($request->userId);
                 if(in_array($action, $permissions)){
