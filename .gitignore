@@ -14,6 +14,7 @@ composer.lock
 /public/hot
 /public/storage
 /storage/*.key
+/resources/lang
 .env.backup
 .phpunit.result.cache
 docker-compose.override.yml
