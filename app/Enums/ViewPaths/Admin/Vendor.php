@@ -36,6 +36,11 @@ enum Vendor
         VIEW => ''
     ];
 
+    const OFFERS = [
+        URI => 'offers',
+        VIEW => ''
+    ];
+
     const EXPORT = [
         URI => 'export',
         VIEW => ''

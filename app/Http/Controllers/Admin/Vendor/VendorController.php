@@ -23,6 +23,8 @@ use App\Exports\VendorWithdrawRequest;
 use App\Exports\VendorOrderListExport;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Admin\VendorAddRequest;
+use App\Utils\Helpers;
+use Illuminate\Support\Facades\DB;
 use App\Services\ShopService;
 use App\Services\VendorService;
 use App\Traits\CommonTrait;
@@ -161,6 +163,16 @@ class VendorController extends BaseController
             }
         }
         event(new VendorRegistrationEvent(email:$vendor['email'],data: $data));
+        return back();
+    }
+
+    public function updateOffers(Request $request): RedirectResponse
+    {
+        $request['function'] = 'ini_offer';
+        // $offer['offerId'] = $request['offerId'];
+        // $offer['userId'] = $request['userId'];
+        
+        Helpers::offer_actions($request);
         return back();
     }
 
@@ -332,6 +344,15 @@ class VendorController extends BaseController
         $seller['single_rating_1'] = $seller?->product->pluck('single_rating_1')->sum();
         $seller['total_rating'] = $seller?->product->pluck('rating')->sum();
         $seller['rating_count'] = $seller->product->pluck('rating_count')->sum();
+        $seller['current_offer'] =  DB::table('offers')->find(
+                                        DB::table('user_offer')
+                                        ->where('user_id', $id)
+                                        ->pluck('offer_id')
+                                        ->first()
+                                    );
+        $seller['niche'] = DB::table('store_user')
+                           ->where('store_id', $seller->shop->id)
+                           ->count();
         $seller['average_rating'] = $seller['total_rating'] / ($seller['rating_count'] == 0 ? 1 : $seller['rating_count']);
 
         if(!isset($seller)){
@@ -351,9 +372,12 @@ class VendorController extends BaseController
             return $this->getReviewListTabView(request:$request, seller:$seller);
         }
 
+        $offers = DB::table('offers')->get();
+
         return view(Vendor::VIEW[VIEW], [
             'seller' => $seller,
             'current_date' => date('Y-m-d'),
+            'offers' => $offers,
         ]);
     }
 

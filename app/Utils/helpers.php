@@ -1399,6 +1399,10 @@ class Helpers
 
                 $data = Helpers::get_permissions($request->userId);
 
+            }elseif($function == 'get_offers'){
+                
+                $data = DB::table('offers')->get();
+
             }elseif($function == 'ini_offer'){
                 $validator = Validator::make($request->all(), [
                     'userId' => 'required|integer|exists:sellers,id',
