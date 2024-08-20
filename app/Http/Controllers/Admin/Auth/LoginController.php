@@ -55,36 +55,36 @@ class LoginController extends BaseController
         $userType = array_search($loginUrl, $loginTypes);
         abort_if(!$userType, 404);
 
-        $recaptchaBuilder = null ;// $this->generateDefaultReCaptcha(4);
-        // Session::put(SessionKey::ADMIN_RECAPTCHA_KEY, $recaptchaBuilder->getPhrase());
+        $recaptchaBuilder = $this->generateDefaultReCaptcha(4);
+        Session::put(SessionKey::ADMIN_RECAPTCHA_KEY, $recaptchaBuilder->getPhrase());
 
-        $recaptcha = null ;//getWebConfig(name: 'recaptcha');
+        $recaptcha = getWebConfig(name: 'recaptcha');
 
         return view(Auth::ADMIN_LOGIN, compact('recaptchaBuilder', 'recaptcha'))->with(['role' => $userType]);
     }
 
     public function login(LoginRequest $request): RedirectResponse
     {
-        //  $recaptcha = getWebConfig(name: 'recaptcha');
-       // if (isset($recaptcha) && $recaptcha['status'] == 1) {
-            // $request->validate([
-            //     'g-recaptcha-response' => [
-            //         function ($attribute, $value, $fail) {
-            //             $secretKey = getWebConfig(name: 'recaptcha')['secret_key'];
-            //             $response = $value;
-            //             $url = 'https://www.google.com/recaptcha/api/siteverify?secret=' . $secretKey . '&response=' . $response;
-            //             $response = Http::get($url);
-            //             $response = $response->json();
-            //             if (!isset($response['success']) || !$response['success']) {
-            //                 $fail(translate('ReCAPTCHA_Failed'));
-            //             }
-            //         },
-            //     ],
-            // ]);
-        // } else if(strtolower(session(SessionKey::ADMIN_RECAPTCHA_KEY)) != strtolower($request['default_captcha_value'])) {
-        //     Toastr::error(translate('ReCAPTCHA_Failed'));
-        //     return back();
-        // }
+         $recaptcha = getWebConfig(name: 'recaptcha');
+       if (isset($recaptcha) && $recaptcha['status'] == 1) {
+            $request->validate([
+                'g-recaptcha-response' => [
+                    function ($attribute, $value, $fail) {
+                        $secretKey = getWebConfig(name: 'recaptcha')['secret_key'];
+                        $response = $value;
+                        $url = 'https://www.google.com/recaptcha/api/siteverify?secret=' . $secretKey . '&response=' . $response;
+                        $response = Http::get($url);
+                        $response = $response->json();
+                        if (!isset($response['success']) || !$response['success']) {
+                            $fail(translate('ReCAPTCHA_Failed'));
+                        }
+                    },
+                ],
+            ]);
+        } else if(strtolower(session(SessionKey::ADMIN_RECAPTCHA_KEY)) != strtolower($request['default_captcha_value'])) {
+            Toastr::error(translate('ReCAPTCHA_Failed'));
+            return back();
+        }
 
         $admin = $this->admin->where('email', $request['email'])->first();
 

@@ -1323,7 +1323,10 @@ class Helpers
                 $products[$shop->id] = DB::table('products')
                     ->where([
                         'user_id' => $shop->seller_id,
+                        'featured_status' => '1', 
+                        'status' => '1', 
                     ])
+                    ->where('current_stock','>',0)
                     ->inRandomOrder()
                     ->first();
             }
@@ -1339,6 +1342,120 @@ class Helpers
             ];
         }
 
+    }
+
+    protected static function hasPermission($user, $criteria)
+    {
+        // Check the type and value against user attributes
+        switch ($criteria['type']) {
+            case 'credits':
+                return $user->credits >= $criteria['value'];
+            case 'royals':
+                return $user->royals >= $criteria['value'];
+            default:
+                return false;
+        }
+    }
+
+    protected static function get_permissions($userId){
+        
+            $permissions = [];
+            $permissions_ = array(
+                "add_product" => array('type'=> 'credits', 'value'=> 1),
+                "boost_product" => array('type'=> 'credits', 'value'=> 300),
+                "notification" => array('type'=> 'royals', 'value'=> 1),
+            );
+            $user = DB::table('user_offer')
+            ->where('user_id', $userId)
+            ->first();
+            if($user){
+                // Iterate through the permissions array
+                foreach ($permissions_ as $permission => $criteria) {
+                    if (Helpers::hasPermission($user, $criteria)) {
+                        $permissions[] = $permission;
+                    }
+                }
+            }
+            return $permissions;
+    }
+
+    public static function offer_actions($request = null)
+    {
+        try {
+            $function = $request->function;
+
+            if($function == 'get_permitions'){
+                $validator = Validator::make($request->all(), [
+                    'userId' => 'required|integer|exists:sellers,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
+
+                $data = Helpers::get_permissions($request->userId);
+
+            }elseif($function == 'ini_offer'){
+                $validator = Validator::make($request->all(), [
+                    'userId' => 'required|integer|exists:sellers,id',
+                    'offerId' => 'required|integer|exists:offers,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
+                // Define the values for the upsert operation
+                $offer = DB::table('offers')->find($request->offerId);
+                $data = [
+                    [
+                        'user_id' => $request->userId,
+                        'offer_id' => $offer->id,
+                        'credits' => $offer->credits,
+                        'royals' => $offer->royals,
+                    ]
+                ];
+
+                // Specify the columns to be used for identifying the record (i.e., unique columns)
+                $uniqueBy = ['user_id'];
+
+                // Perform the upsert operation
+                $data =  DB::table('user_offer')->upsert($data, $uniqueBy);
+                
+            }elseif($function == 'action'){
+                $validator = Validator::make($request->all(), [
+                    'userId' => 'required|integer|exists:sellers,id',
+                    'action' => 'required',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
+                $action = $request->action;
+
+                $permissions_ = array(
+                    "add_product" => array('type'=> 'credits', 'value'=> 1),
+                    "boost_product" => array('type'=> 'credits', 'value'=> 300),
+                    "notification" => array('type'=> 'royals', 'value'=> 1),
+                );
+
+                $permissions = Helpers::get_permissions($request->userId);
+                if(in_array($action, $permissions)){
+
+                    DB::table('user_offer')
+                    ->where('user_id', $request->userId)
+                    ->decrement($permissions_[$action]['type'], $permissions_[$action]['value']);
+                }
+                
+                $data = $permissions;
+            }else{
+                return ['success' => false, 'message' => "the function not fond!"] ;
+            }
+            return ['success' => true, 'message' => $function, 'data' => $data] ;
+
+        } catch (Exception $e) {
+            // Handle any exceptions that occur
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+            ];
+        }
     }
 
 }

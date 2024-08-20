@@ -609,4 +609,13 @@ class CustomerController extends Controller
             return response()->json($result, 200);
 
     }
+
+    public function offer_actions(Request $request)
+    {
+
+            $result = Helpers::offer_actions($request);
+            return response()->json($result, 200);
+
+    }
+    
 }

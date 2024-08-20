@@ -67,3 +67,28 @@ Response
 success (boolean): Indicates if the action was successful.
 message (string): Description of the result or error message.
 data (mixed): Result of the action, e.g., Top Shops And Favorite Shops.
+
+----------------------------------------------------------------------------------
+
+Endpoint: URL/api/v1/customer/actions/offer-action
+
+Description
+Performs actions related to user accounts and offer. Actions include create Offer for user.
+
+Method: POST
+
+Request Parameters
+
+
+
+$userId => (string, required): id for user identification (seller).
+$offerId => (string, required): id for offer.
+$function => (string, required): The action to be performed. Valid values:
+    -ini_offer
+
+Response
+
+success (boolean): Indicates if the action was successful.
+message (string): Description of the result or error message.
+data (mixed): Result of the action, e.g., Offer details.
+
