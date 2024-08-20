@@ -63,8 +63,16 @@
                                 <h2 class="mb-2 pb-1">{{ $seller->shop? $seller->shop->name : translate("shop_Name")." : ".translate("update_Please") }}</h2>
                                 @if($seller->current_offer)
                                 <div class="d-flex gap-3 flex-wrap mb-3 lh-1">
+                                    <i class="tio-dollar-outlined"></i>
+                                    <span>{{ $seller->current_offer->credits }}</span>
+                                    <i class="tio-premium-outlined"></i>
+                                    <span>{{ $seller->current_offer->royals }}</span>
+                                    <span class="border-left"></span>
                                     <a href="javascript:"
-                                       class="text-dark">{{$seller->current_offer->name}}</a>
+                                       class="text-dark">{{$seller->current_offer_name}}
+                                    </a> 
+                                    <span class="border-left"></span>
+                                    <span>{{$seller->current_offer->expire}}P</span>
                                     <span class="border-left"></span>
                                 </div>
                                 @endif
@@ -288,6 +296,29 @@
                                 </div>
                             </div>
                         @endif
+                        <div class="col-xxl-6">
+                            <h2>Save/Update Expire Date</h2>
+                            <form class="d-inline-block" action="{{route('admin.vendors.updateOffers')}}" id="reject-form" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="userId" value="{{$seller['id']}}">
+                                    <select id="exampleFormControlSelect1" name="offerId"
+                                            class="form-control" required>
+                                        <option value="$offer->id" selected disabled>
+                                             select offer 
+                                        </option>
+                                        @foreach($offers as $offer)
+                                            <option value="{{ $offer->id}}">
+                                                {{ $offer->name}}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <span class="border-left"></span>
+                                    <label for="expire">Expire Date:</label>
+                                    <input type="date" id="expire" name="expire" required>
+                                    <span class="border-left"></span>
+                                    <button type="submit" class="btn btn-success px-5">Save/Update</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
