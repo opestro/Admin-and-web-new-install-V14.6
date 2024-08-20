@@ -1407,6 +1407,7 @@ class Helpers
                 $validator = Validator::make($request->all(), [
                     'userId' => 'required|integer|exists:sellers,id',
                     'offerId' => 'required|integer|exists:offers,id',
+                    'expire' => 'required|date',
                 ]);
                 if ($validator->fails()) {
                     return ['success' => false, 'message' => self::error_processor($validator)];
@@ -1414,19 +1415,23 @@ class Helpers
                 // Define the values for the upsert operation
                 $offer = DB::table('offers')->find($request->offerId);
                 $data = [
-                    [
+                    
                         'user_id' => $request->userId,
                         'offer_id' => $offer->id,
                         'credits' => $offer->credits,
                         'royals' => $offer->royals,
-                    ]
+                        'expire' => $request->expire,
+                    
                 ];
 
-                // Specify the columns to be used for identifying the record (i.e., unique columns)
-                $uniqueBy = ['user_id'];
-
                 // Perform the upsert operation
-                $data =  DB::table('user_offer')->upsert($data, $uniqueBy);
+                $user_offer =  DB::table('user_offer')->where('user_id', $request->userId)->first();
+                if($user_offer){ 
+                    $data =  DB::table('user_offer')->where('user_id', $request->userId)->update($data);
+                }else{ 
+                    $data =  DB::table('user_offer')->where('user_id', $request->userId)->insert($data);
+                }
+
                 
             }elseif($function == 'action'){
                 $validator = Validator::make($request->all(), [

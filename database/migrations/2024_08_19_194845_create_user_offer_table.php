@@ -19,6 +19,7 @@ class CreateUserOfferTable extends Migration
             $table->unsignedBigInteger('offer_id'); // Defines 'offer_id' as an unsigned big integer
             $table->integer('credits'); // Defines 'credits' as an integer
             $table->integer('royals'); // Defines 'royals' as an integer
+            $table->date('expire')->nullable();
             $table->timestamps(); // Adds 'created_at' and 'updated_at' timestamp columns
 
             // Optionally, you might want to add foreign key constraints
