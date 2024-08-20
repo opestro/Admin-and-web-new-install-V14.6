@@ -61,6 +61,13 @@
                             @endif
                             <div class="d-block">
                                 <h2 class="mb-2 pb-1">{{ $seller->shop? $seller->shop->name : translate("shop_Name")." : ".translate("update_Please") }}</h2>
+                                @if($seller->current_offer)
+                                <div class="d-flex gap-3 flex-wrap mb-3 lh-1">
+                                    <a href="javascript:"
+                                       class="text-dark">{{$seller->current_offer->name}}</a>
+                                    <span class="border-left"></span>
+                                </div>
+                                @endif
                                 <div class="d-flex gap-3 flex-wrap mb-3 lh-1">
                                     <div class="review-hover position-relative cursor-pointer d-flex gap-2 align-items-center">
                                         <i class="tio-star"></i>
@@ -123,7 +130,12 @@
                                     <span class="border-left"></span>
                                     <a href="{{ $seller['status']!="pending" ? route('admin.vendors.view',['id'=>$seller['id'], 'tab'=>'review']): 'javascript:' }}"
                                        class="text-dark">{{$seller->rating_count}} {{translate('reviews')}}</a>
+                                    <span class="border-left"></span>
+                                    <a href="javascript:"
+                                       class="text-dark">{{$seller->niche}} Abonnes</a>
+                                    <span class="border-left"></span>
                                 </div>
+                                
                                 @if ( $seller['status']!="pending" && $seller['status']!="suspended" && $seller['status']!="rejected")
                                     <a href="{{route('shopView',['id'=>$seller['id']])}}"
                                        class="btn btn-outline--primary px-4" target="_blank"><i

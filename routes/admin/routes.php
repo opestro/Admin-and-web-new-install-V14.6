@@ -416,6 +416,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
             Route::get(Vendor::ORDER_LIST[URI].'/{vendor_id}', 'getOrderListView')->name('order-list');
             Route::get(Vendor::ORDER_LIST_EXPORT[URI].'/{vendor_id}', 'exportOrderList')->name('order-list-export');
             Route::post(Vendor::STATUS[URI], 'updateStatus')->name('updateStatus');
+            Route::post(Vendor::OFFERS[URI], 'updateOffers')->name('updateOffers');
             Route::get(Vendor::EXPORT[URI], 'exportList')->name('export');
             Route::get(Vendor::PRODUCT_LIST[URI].'/{vendor_id}', 'getProductListView')->name('product-list');
 
