@@ -83,6 +83,7 @@ Request Parameters
 
 $userId => (string, required): id for user identification (seller).
 $offerId => (string, required): id for offer.
+$expire => (string, required): 01/01/2024.
 $function => (string, required): The action to be performed. Valid values:
     -ini_offer
 
