@@ -1390,6 +1390,7 @@ class Helpers
             $permissions = [];
             $permissions_ = Helpers::permissions_();
             $user = DB::table('user_offer')
+            ->where('expire', '>', Carbon::now())
             ->where('user_id', $userId)
             ->first();
             if($user){
