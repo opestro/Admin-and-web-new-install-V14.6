@@ -1278,40 +1278,59 @@ class Helpers
             $userId = $request->userId;
             // Get Top 5 Shops based on total points
             $topShops = DB::table('store_user')
-                ->select('store_id', DB::raw('SUM(points) as total_points'))
-                ->groupBy('store_id')
+                ->join('shops', 'shops.id', '=', 'store_user.store_id')
+                ->join('sellers', 'shops.seller_id', '=', 'sellers.id')
+                ->join('user_offer', 'sellers.id', '=', 'user_offer.user_id')
+                ->where('sellers.status', 'approved')
+                ->where('user_offer.expire', '>', Carbon::now())
+                ->select('store_user.store_id', DB::raw('SUM(store_user.points) as total_points'))
+                ->groupBy('store_user.store_id')
                 ->orderBy('total_points', 'desc')
                 ->limit(5)
-                ->pluck('store_id');
+                ->pluck('store_user.store_id');
 
             // Get Top 5 Favorite Shops for a specific user based on total points
             $favoriteShops = DB::table('store_user')
-                ->where('user_id', $userId)
-                ->whereNotIn('store_id', $topShops)
-                ->select('store_id', DB::raw('SUM(points) as total_points'))
-                ->groupBy('store_id')
+                ->join('shops', 'shops.id', '=', 'store_user.store_id')
+                ->join('sellers', 'shops.seller_id', '=', 'sellers.id')
+                ->join('user_offer', 'sellers.id', '=', 'user_offer.user_id')
+                ->where('sellers.status', 'approved')
+                ->where('user_offer.expire', '>', Carbon::now())
+                ->where('store_user.user_id', $userId)
+                ->whereNotIn('store_user.store_id', $topShops)
+                ->select('store_user.store_id', DB::raw('SUM(store_user.points) as total_points'))
+                ->groupBy('store_user.store_id')
                 ->orderBy('total_points', 'desc')
                 ->limit(5)
-                ->pluck('store_id');
+                ->pluck('store_user.store_id');
 
             $uniqueShopIds = $topShops->merge($favoriteShops);
 
             // Get Random 5 Shops
             $randomShops = DB::table('shops')
-                ->whereNotIn('id', $uniqueShopIds)
+                ->join('sellers', 'shops.seller_id', '=', 'sellers.id')
+                ->join('user_offer', 'sellers.id', '=', 'user_offer.user_id')
+                ->where('sellers.status', 'approved')
+                ->where('user_offer.expire', '>', Carbon::now())
+                ->whereNotIn('shops.id', $uniqueShopIds)
                 ->inRandomOrder()
                 ->limit(5)
-                ->pluck('id');
+                ->pluck('shops.id');
 
             $uniqueShopIds = $uniqueShopIds->merge($randomShops);
 
             // Get Random 5 Favorite Shops for the specific user
             $randomFavoriteShops = DB::table('store_user')
-                ->where('user_id', $userId)
-                ->whereNotIn('store_id', $uniqueShopIds)
+                ->join('shops', 'shops.id', '=', 'store_user.store_id')
+                ->join('sellers', 'shops.seller_id', '=', 'sellers.id')
+                ->join('user_offer', 'sellers.id', '=', 'user_offer.user_id')
+                ->where('sellers.status', 'approved')
+                ->where('user_offer.expire', '>', Carbon::now())
+                ->where('store_user.user_id', $userId)
+                ->whereNotIn('store_user.store_id', $uniqueShopIds)
                 ->inRandomOrder()
                 ->limit(5)
-                ->pluck('store_id');
+                ->pluck('store_user.store_id');
 
 
             // Get shops from unique shop ids
