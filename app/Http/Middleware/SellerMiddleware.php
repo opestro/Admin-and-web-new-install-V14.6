@@ -4,6 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use App\Utils\Helpers;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class SellerMiddleware
@@ -17,7 +19,11 @@ class SellerMiddleware
      */
     public function handle($request, Closure $next)
     {
-        if (auth('seller')->check() && auth('seller')->user()->status == 'approved') {
+        $user = DB::table('user_offer')
+            ->where('expire', '>', Carbon::now())
+            ->where('user_id', auth('seller')->id())
+            ->first();
+        if (auth('seller')->check() && auth('seller')->user()->status == 'approved' && $user) {
             return $next($request);
         }
         auth()->guard('seller')->logout();
