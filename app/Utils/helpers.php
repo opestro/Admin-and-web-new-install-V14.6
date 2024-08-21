@@ -1407,11 +1407,20 @@ class Helpers
                 $validator = Validator::make($request->all(), [
                     'userId' => 'required|integer|exists:sellers,id',
                     'offerId' => 'required|integer|exists:offers,id',
-                    'expire' => 'required|date',
+                    'expire' => 'required',
                 ]);
                 if ($validator->fails()) {
                     return ['success' => false, 'message' => self::error_processor($validator)];
                 }
+               
+
+                // The date string
+                $dateString = $request->expire;
+
+                // Convert the string to a Carbon date instance
+                $date_ = Carbon::createFromFormat('d/m/Y', $dateString);
+
+            
                 // Define the values for the upsert operation
                 $offer = DB::table('offers')->find($request->offerId);
                 $data = [
@@ -1420,7 +1429,7 @@ class Helpers
                         'offer_id' => $offer->id,
                         'credits' => $offer->credits,
                         'royals' => $offer->royals,
-                        'expire' => $request->expire,
+                        'expire' => $date_,
                     
                 ];
 

@@ -11,6 +11,7 @@ use App\Contracts\Repositories\WithdrawalMethodRepositoryInterface;
 use App\Contracts\Repositories\WithdrawRequestRepositoryInterface;
 use App\Enums\OrderStatus;
 use App\Enums\ViewPaths\Vendor\Dashboard;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Vendor\WithdrawRequest;
 use App\Repositories\BrandRepository;
@@ -115,8 +116,16 @@ class DashboardController extends BaseController
             'collectedCash' => $vendorWallet->collected_cash ?? 0,
             'collectedTotalTax' => $vendorWallet->total_tax_collected ?? 0,
         ];
+        $shop = DB::table('shops')->where('seller_id', $vendorId)->first();
+        $offer_ = DB::table('user_offer')->where('user_id', $vendorId)->first();
+        $offer_details = DB::table('offers')->find($offer_->offer_id);
+        $seller['current_offer_name'] =  $offer_details?$offer_details->name:'no offer';
+        $seller['current_offer'] = $offer_ ;
+        $seller['niche'] = DB::table('store_user')
+                           ->where('store_id', $shop->id)
+                           ->count();
         $withdrawalMethods = $this->withdrawalMethodRepo->getListWhere(filters:['is_active'=>1],dataLimit:'all');
-        return view(Dashboard::INDEX[VIEW],compact('dashboardData','vendorEarning','commissionEarn','withdrawalMethods','dateType','label'));
+        return view(Dashboard::INDEX[VIEW],compact('dashboardData','vendorEarning','commissionEarn','withdrawalMethods','dateType','label','seller'));
     }
 
     /**
