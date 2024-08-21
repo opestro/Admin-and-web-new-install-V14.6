@@ -31,6 +31,7 @@ use App\Traits\CommonTrait;
 use App\Traits\EmailTemplateTrait;
 use App\Traits\PaginatorTrait;
 use App\Traits\PushNotificationTrait;
+use Carbon\Carbon;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -167,11 +168,8 @@ class VendorController extends BaseController
     }
 
     public function updateOffers(Request $request): RedirectResponse
-    {
-        $request['function'] = 'ini_offer';
-        // $offer['offerId'] = $request['offerId'];
-        // $offer['userId'] = $request['userId'];
-        
+    {   
+        $request['function'] = 'ini_offer';     
         Helpers::offer_actions($request);
         return back();
     }

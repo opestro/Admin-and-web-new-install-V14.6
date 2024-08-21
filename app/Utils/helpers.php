@@ -1427,7 +1427,7 @@ class Helpers
                 $validator = Validator::make($request->all(), [
                     'userId' => 'required|integer|exists:sellers,id',
                     'offerId' => 'required|integer|exists:offers,id',
-                    'expire' => 'required',
+                    'expire' => 'required|string',
                 ]);
                 if ($validator->fails()) {
                     return ['success' => false, 'message' => self::error_processor($validator)];
@@ -1438,7 +1438,7 @@ class Helpers
                 $dateString = $request->expire;
 
                 // Convert the string to a Carbon date instance
-                $date_ = Carbon::createFromFormat('d/m/Y', $dateString);
+                $date_ = Carbon::createFromFormat('Y-m-d', $dateString);
 
             
                 // Define the values for the upsert operation
