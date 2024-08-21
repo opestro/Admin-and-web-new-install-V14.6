@@ -1407,7 +1407,7 @@ class Helpers
                 $validator = Validator::make($request->all(), [
                     'userId' => 'required|integer|exists:sellers,id',
                     'offerId' => 'required|integer|exists:offers,id',
-                    'expire' => 'required|date',
+                    'expire' => 'required',
                 ]);
                 if ($validator->fails()) {
                     return ['success' => false, 'message' => self::error_processor($validator)];
