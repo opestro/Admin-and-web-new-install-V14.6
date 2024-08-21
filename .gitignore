@@ -26,3 +26,6 @@ storage/framework/cache/data/
 /public/assets
 /temp
 
+/caddy
+frankenphp
+frankenphp-worker.php
