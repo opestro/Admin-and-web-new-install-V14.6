@@ -118,9 +118,11 @@ class DashboardController extends BaseController
         ];
         $shop = DB::table('shops')->where('seller_id', $vendorId)->first();
         $offer_ = DB::table('user_offer')->where('user_id', $vendorId)->first();
-        $offer_details = DB::table('offers')->find($offer_->offer_id);
-        $seller['current_offer_name'] =  $offer_details?$offer_details->name:'no offer';
-        $seller['current_offer'] = $offer_ ;
+        if($offer_){
+            $offer_details = DB::table('offers')->find($offer_->offer_id);
+            $seller['current_offer_name'] =  $offer_details?$offer_details->name:'no offer';
+            $seller['current_offer'] = $offer_ ;
+        }
         $seller['niche'] = DB::table('store_user')
                            ->where('store_id', $shop->id)
                            ->count();
