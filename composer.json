@@ -48,6 +48,7 @@
         "spiral/roadrunner": "^2024.2",
         "spiral/roadrunner-cli": "^2.6.0",
         "spiral/roadrunner-http": "^3.3.0",
+        "spiral/roadrunner-laravel": "*",
         "stripe/stripe-php": "^13.9",
         "symfony/translation": "^6.4",
         "twilio/sdk": "^7.14",
