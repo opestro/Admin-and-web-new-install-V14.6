@@ -343,7 +343,9 @@ class VendorController extends BaseController
         $seller['total_rating'] = $seller?->product->pluck('rating')->sum();
         $seller['rating_count'] = $seller->product->pluck('rating_count')->sum();
         $offer_ = DB::table('user_offer')->where('user_id', $id)->first();
-        $offer_details = DB::table('offers')->find($offer_->offer_id);
+        if($offer_){ 
+            $offer_details = DB::table('offers')->find($offer_->offer_id);
+        }
         $seller['current_offer_name'] =  $offer_details?$offer_details->name:'no offer';
         $seller['current_offer'] = $offer_ ;
         $seller['niche'] = DB::table('store_user')
