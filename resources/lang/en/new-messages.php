@@ -8391,4 +8391,5 @@ return [
 	"the_products_are_shown_in_this_list,_which_quantity_is_below" => "The products are shown in this list  which quantity is below",
 	"registration_successful" => "Registration successful",
 	"abones" => "Abones",
+    "category" => "Category"
 ];
