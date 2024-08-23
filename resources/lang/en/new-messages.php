@@ -8389,7 +8389,7 @@ return [
 	"no_sub_sub_category_found" => "No sub sub category found",
 	"select_sub_category" => "Select sub category",
 	"the_products_are_shown_in_this_list,_which_quantity_is_below" => "The products are shown in this list  which quantity is below",
-    "category" => "Category",
+	"category" => "category",
 	"abones" => "Abones",
 	"registration_successful" => "Registration successful",
 ];
