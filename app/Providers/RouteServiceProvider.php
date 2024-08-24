@@ -144,7 +144,7 @@ class RouteServiceProvider extends ServiceProvider
     protected function configureRateLimiting(): void
     {
         RateLimiter::for('global', function (Request $request) {
-            return Limit::perMinute(3000);
+            return Limit::none();
         });
     }
 }
