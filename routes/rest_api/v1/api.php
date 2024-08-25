@@ -156,7 +156,7 @@ Route::group(['namespace' => 'RestAPI\v1', 'prefix' => 'v1', 'middleware' => ['a
         Route::group(['prefix' => 'categories'], function () {
             Route::controller(CategoryController::class)->group(function () {
                 Route::get('/', 'get_categories');
-                Route::get('/simple', 'get_simple_ategories');
+                Route::get('/simple', 'get_simple_categories');
                 Route::get('products/{category_id}', 'get_products');
                 Route::get('/find-what-you-need', 'find_what_you_need');
             });
