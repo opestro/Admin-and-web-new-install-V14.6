@@ -51,32 +51,10 @@ class CategoryController extends Controller
 
     public function get_simple_categories(Request $request): JsonResponse
     {
-        $categoriesID = [];
-        if ($request->has('seller_id') && $request['seller_id'] != null) {
-            // Finding category ids
-            $categoriesID = Product::active()
-                ->when($request->has('seller_id') && $request['seller_id'] != null && $request['seller_id'] != 0, function ($query) use ($request) {
-                    return $query->where(['added_by' => 'seller'])
-                        ->where('user_id', $request['seller_id']);
-                })->when($request->has('seller_id') && $request['seller_id'] != null && $request['seller_id'] == 0, function ($query) use ($request) {
-                    return $query->where(['added_by' => 'admin',
-                    ]);
-                })->pluck('category_id');
-        }
 
-        $categories = Category::when($request->has('seller_id') && $request['seller_id'] != null, function ($query) use ($categoriesID) {
-                $query->whereIn('id', $categoriesID);
-            })
-            ->with(['childes' => function ($query) {
-                $query->with(['childes' => function ($query) {
-                    $query->withCount(['subSubCategoryProduct'])->where('position', 2);
-                }])->withCount(['subCategoryProduct'])->where('position', 1);
-            }, 'childes.childes'])
-            ->where(['position' => 0])->get();
-
-        $categories = CategoryManager::getPriorityWiseCategorySortQuery(query: $categories);
-
-        return response()->json($categories->values());
+        $categories = Category::where('position', 0)->get();
+         
+        return response()->json($categories);
     }
 
     public function get_products(Request $request, $id): JsonResponse
