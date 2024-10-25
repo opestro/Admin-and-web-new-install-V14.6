@@ -20,6 +20,32 @@
                 </div>
             </div>
         </div>
+        <div class="page-header pb-0 border-0 mb-3">
+            <div class="flex-between row align-items-center mx-1">
+                <div>
+                    @if($seller['current_offer'])
+                    <div class="d-flex gap-3 flex-wrap mb-3 lh-1">
+                        <span class="border-left"></span>
+                            <a href="javascript:"
+                            class="text-dark">{{$seller['niche']}} Abonnes</a>
+                         <span class="border-left"></span>
+                        <i class="tio-dollar-outlined"></i>
+                        <span>{{ $seller['current_offer']->credits }}</span>
+                        <i class="tio-premium-outlined"></i>
+                        <span>{{ $seller['current_offer']->royals }}</span>
+                        <span class="border-left"></span>
+                        <a href="javascript:"
+                           class="text-dark">{{$seller['current_offer_name']}}
+                        </a> 
+                        <span class="border-left"></span>
+                        <span>{{$seller['current_offer']->expire}}P</span>
+                        <span class="border-left"></span>
+                    </div>
+                    @endif
+                </div>
+
+            </div>
+        </div>
         <div class="card mb-3 remove-card-shadow">
             <div class="card-body">
                 <div class="row justify-content-between align-items-center g-2 mb-3">

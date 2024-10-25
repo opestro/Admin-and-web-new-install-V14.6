@@ -23,12 +23,15 @@ use App\Exports\VendorWithdrawRequest;
 use App\Exports\VendorOrderListExport;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Admin\VendorAddRequest;
+use App\Utils\Helpers;
+use Illuminate\Support\Facades\DB;
 use App\Services\ShopService;
 use App\Services\VendorService;
 use App\Traits\CommonTrait;
 use App\Traits\EmailTemplateTrait;
 use App\Traits\PaginatorTrait;
 use App\Traits\PushNotificationTrait;
+use Carbon\Carbon;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -161,6 +164,13 @@ class VendorController extends BaseController
             }
         }
         event(new VendorRegistrationEvent(email:$vendor['email'],data: $data));
+        return back();
+    }
+
+    public function updateOffers(Request $request): RedirectResponse
+    {   
+        $request['function'] = 'ini_offer';     
+        Helpers::offer_actions($request);
         return back();
     }
 
@@ -332,6 +342,15 @@ class VendorController extends BaseController
         $seller['single_rating_1'] = $seller?->product->pluck('single_rating_1')->sum();
         $seller['total_rating'] = $seller?->product->pluck('rating')->sum();
         $seller['rating_count'] = $seller->product->pluck('rating_count')->sum();
+        $offer_ = DB::table('user_offer')->where('user_id', $id)->first();
+        if($offer_){ 
+            $offer_details = DB::table('offers')->find($offer_->offer_id);
+            $seller['current_offer_name'] =  $offer_details?$offer_details->name:'no offer';
+            $seller['current_offer'] = $offer_ ;
+        }
+        $seller['niche'] = DB::table('store_user')
+                           ->where('store_id', $seller->shop->id)
+                           ->count();
         $seller['average_rating'] = $seller['total_rating'] / ($seller['rating_count'] == 0 ? 1 : $seller['rating_count']);
 
         if(!isset($seller)){
@@ -351,9 +370,12 @@ class VendorController extends BaseController
             return $this->getReviewListTabView(request:$request, seller:$seller);
         }
 
+        $offers = DB::table('offers')->get();
+
         return view(Vendor::VIEW[VIEW], [
             'seller' => $seller,
             'current_date' => date('Y-m-d'),
+            'offers' => $offers,
         ]);
     }
 

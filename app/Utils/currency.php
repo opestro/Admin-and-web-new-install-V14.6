@@ -167,7 +167,7 @@ if (!function_exists('getCurrencyCode')) {
                 $currencyCode = Currency::where('id', $currencyId)->first()->code;
             }
         }
-        return $currencyCode;
+        return $currencyCode ?? 'USD';
     }
 }
 

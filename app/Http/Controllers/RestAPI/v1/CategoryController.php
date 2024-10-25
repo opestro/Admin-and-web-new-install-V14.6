@@ -49,6 +49,14 @@ class CategoryController extends Controller
         return response()->json($categories->values());
     }
 
+    public function get_simple_categories(Request $request): JsonResponse
+    {
+
+        $categories = Category::where('position', 0)->get();
+         
+        return response()->json($categories);
+    }
+
     public function get_products(Request $request, $id): JsonResponse
     {
         return response()->json(Helpers::product_data_formatting(CategoryManager::products($id, $request), true), 200);

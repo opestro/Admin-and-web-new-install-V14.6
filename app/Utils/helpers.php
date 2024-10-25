@@ -1088,13 +1088,18 @@ class Helpers
     public static function points_actions($request = null)
     {
         try {
+
             $userId = $request->userId;
             $storeId = $request->storeId;
-            $action = $request->action;
-            $points = $request->points??1;
+            $function = $request->function;
+            $actions = array(
+                "seen" => 1,
+                "buy"  => 2,
+            );
+            $points = $actions[$request->action]??1;
             $sumPoints = $points;
 
-            if($action == 'add_points'){
+            if($function == 'add_points'){
 
                 $validator = Validator::make($request->all(), [
                     'userId' => 'required|integer|exists:users,id',
@@ -1122,7 +1127,7 @@ class Helpers
                         'user_id' => $userId
                     ]);
                 }
-            } elseif($action == 'remove_points'){
+            } elseif($function == 'remove_points'){
 
                 $validator = Validator::make($request->all(), [
                     'userId' => 'required|integer|exists:users,id',
@@ -1151,29 +1156,59 @@ class Helpers
                         'user_id' => $userId
                 ]);
                 }
-            } elseif($action == 'get_store_points'){
+            } elseif($function == 'get_store_points'){
+                $validator = Validator::make($request->all(), [
+                    'storeId' => 'required|integer|exists:shops,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
                 $sumPoints = DB::table('store_user')
                         ->where('store_id', $storeId)
                         ->sum('points');
-            } elseif($action == 'get_user_points'){
+            } elseif($function == 'get_user_points'){
+                $validator = Validator::make($request->all(), [
+                    'userId' => 'required|integer|exists:users,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
                 $sumPoints = DB::table('store_user')
                         ->where('user_id', $userId)
                         ->sum('points');
-            } elseif($action == 'get_store_nich'){
+            } elseif($function == 'get_store_nich'){
+                $validator = Validator::make($request->all(), [
+                    'storeId' => 'required|integer|exists:shops,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
                 $sumPoints = DB::table('store_user')
                         ->where('store_id', $storeId)
                         ->count();
-            } elseif($action == 'get_user_nich'){
+            } elseif($function == 'get_user_nich'){
+                $validator = Validator::make($request->all(), [
+                    'userId' => 'required|integer|exists:users,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
                 $sumPoints = DB::table('store_user')
                         ->where('user_id', $userId)
                         ->count();
             } else{
+                $validator = Validator::make($request->all(), [
+                    'storeId' => 'required|integer|exists:shops,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
                 $sumPoints = DB::table('store_user')
                         ->where('store_id', $storeId)
                         ->sum('points');
             }
 
-            return ['success' => true, 'message' => $action, 'data' => $sumPoints] ;
+            return ['success' => true, 'message' => $function, 'data' => $sumPoints] ;
 
         } catch (Exception $e) {
             // Handle any exceptions that occur
@@ -1187,30 +1222,40 @@ class Helpers
     public static function account_actions($request = null)
     {
         try {
-            $action = $request->action;
-            $remember_token = $request->remember_token;
-            if($action == 'create_account'){
+            $function = $request->function;
+            $referral_code = $request->referral_code;
+            if($function == 'create_account'){
                 $validator = Validator::make($request->all(), [
-                    'remember_token' => 'required|string|unique:users,remember_token',
+                    'referral_code' => 'required|string|unique:users,referral_code',
                 ]);
                 if ($validator->fails()) {
                     return ['success' => false, 'message' => self::error_processor($validator)];
                 }
-                $user = DB::table('users')->insert([
-                    'remember_token' => $remember_token
+                $user = User::create([
+                    'referral_code' => $referral_code
                 ]);
-            }elseif($action == 'get_account'){
+                $token = $user->createToken('LaravelAuthApp')->accessToken;
+                $user['token'] = $token ;
+            }elseif($function == 'get_account'){
                 $validator = Validator::make($request->all(), [
-                    'remember_token' => 'required|string|exists:users,remember_token',
+                    'referral_code' => 'required|string|exists:users,referral_code',
                 ]);
                 if ($validator->fails()) {
                     return ['success' => false, 'message' => self::error_processor($validator)];
                 }
-                $user = DB::table('users')->where([
-                    'remember_token' => $remember_token
+                $user = User::where([
+                    'referral_code' => $referral_code
                 ])->first();
+
+                if($request->login){
+                    $token = $user->createToken('LaravelAuthApp')->accessToken;
+                    $user['token'] = $token ;
+                }
+
+            }else{
+                return ['success' => false, 'message' => "the function not fond!"] ;
             }
-            return ['success' => true, 'message' => $action, 'data' => $user] ;
+            return ['success' => true, 'message' => $function, 'data' => $user] ;
 
         } catch (Exception $e) {
             // Handle any exceptions that occur
@@ -1220,6 +1265,238 @@ class Helpers
             ];
         }
     }
+    public static function get_top_shops_and_favorite_shops($request = null)
+    {
+        try{
+            $validator = Validator::make($request->all(), [
+                'userId' => 'required|integer|exists:users,id',
+            ]);
+            if ($validator->fails()) {
+                return ['success' => false, 'message' => self::error_processor($validator)];
+            }
+
+            $userId = $request->userId;
+            // Get Top 5 Shops based on total points
+            $topShops = DB::table('store_user')
+                ->join('shops', 'shops.id', '=', 'store_user.store_id')
+                ->join('sellers', 'shops.seller_id', '=', 'sellers.id')
+                ->join('user_offer', 'sellers.id', '=', 'user_offer.user_id')
+                ->where('sellers.status', 'approved')
+                ->where('user_offer.expire', '>', Carbon::now())
+                ->select('store_user.store_id', DB::raw('SUM(store_user.points) as total_points'))
+                ->groupBy('store_user.store_id')
+                ->orderBy('total_points', 'desc')
+                ->limit(5)
+                ->pluck('store_user.store_id');
+
+            // Get Top 5 Favorite Shops for a specific user based on total points
+            $favoriteShops = DB::table('store_user')
+                ->join('shops', 'shops.id', '=', 'store_user.store_id')
+                ->join('sellers', 'shops.seller_id', '=', 'sellers.id')
+                ->join('user_offer', 'sellers.id', '=', 'user_offer.user_id')
+                ->where('sellers.status', 'approved')
+                ->where('user_offer.expire', '>', Carbon::now())
+                ->where('store_user.user_id', $userId)
+                ->whereNotIn('store_user.store_id', $topShops)
+                ->select('store_user.store_id', DB::raw('SUM(store_user.points) as total_points'))
+                ->groupBy('store_user.store_id')
+                ->orderBy('total_points', 'desc')
+                ->limit(5)
+                ->pluck('store_user.store_id');
+
+            $uniqueShopIds = $topShops->merge($favoriteShops);
+
+            // Get Random 5 Shops
+            $randomShops = DB::table('shops')
+                ->join('sellers', 'shops.seller_id', '=', 'sellers.id')
+                ->join('user_offer', 'sellers.id', '=', 'user_offer.user_id')
+                ->where('sellers.status', 'approved')
+                ->where('user_offer.expire', '>', Carbon::now())
+                ->whereNotIn('shops.id', $uniqueShopIds)
+                ->inRandomOrder()
+                ->limit(5)
+                ->pluck('shops.id');
+
+            $uniqueShopIds = $uniqueShopIds->merge($randomShops);
+
+            // Get Random 5 Favorite Shops for the specific user
+            $randomFavoriteShops = DB::table('store_user')
+                ->join('shops', 'shops.id', '=', 'store_user.store_id')
+                ->join('sellers', 'shops.seller_id', '=', 'sellers.id')
+                ->join('user_offer', 'sellers.id', '=', 'user_offer.user_id')
+                ->where('sellers.status', 'approved')
+                ->where('user_offer.expire', '>', Carbon::now())
+                ->where('store_user.user_id', $userId)
+                ->whereNotIn('store_user.store_id', $uniqueShopIds)
+                ->inRandomOrder()
+                ->limit(5)
+                ->pluck('store_user.store_id');
+
+
+            // Get shops from unique shop ids
+            $shops = DB::table('shops')->whereIn('id', $uniqueShopIds)->get();
+
+            // Get a random product for each shop
+            $products = [];
+            foreach ($shops as $shop) {
+                $products[$shop->id] = DB::table('products')
+                    ->where([
+                        'user_id' => $shop->seller_id,
+                        'featured_status' => '1', 
+                        'status' => '1', 
+                    ])
+                    ->where('current_stock','>',0)
+                    ->inRandomOrder()
+                    ->first();
+            }
+
+            return ['success' => true, 'message' => "getTopShopsAndFavoriteShops", 'data' => array('shops' => $shops, 'products' => $products)];
+
+
+        } catch (Exception $e) {
+            // Handle any exceptions that occur
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+            ];
+        }
+
+    }
+
+    protected static function permissions_() {
+
+        return array(
+            "add_product" => array('type'=> 'credits', 'value'=> 1),
+            "boost_product" => array('type'=> 'credits', 'value'=> 300),
+            "notification" => array('type'=> 'royals', 'value'=> 1),
+        );
+    } 
+
+    protected static function hasPermission($user, $criteria)
+    {
+        // Check the type and value against user attributes
+        switch ($criteria['type']) {
+            case 'credits':
+                return $user->credits >= $criteria['value'];
+            case 'royals':
+                return $user->royals >= $criteria['value'];
+            default:
+                return false;
+        }
+    }
+
+    protected static function get_permissions($userId){
+        
+            $permissions = [];
+            $permissions_ = Helpers::permissions_();
+            $user = DB::table('user_offer')
+            ->where('expire', '>', Carbon::now())
+            ->where('user_id', $userId)
+            ->first();
+            if($user){
+                // Iterate through the permissions array
+                foreach ($permissions_ as $permission => $criteria) {
+                    if (Helpers::hasPermission($user, $criteria)) {
+                        $permissions[] = $permission;
+                    }
+                }
+            }
+            return $permissions;
+    }
+
+    public static function offer_actions($request = null)
+    {
+        try {
+            $function = $request->function;
+
+            if($function == 'get_permitions'){
+                $validator = Validator::make($request->all(), [
+                    'userId' => 'required|integer|exists:sellers,id',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
+
+                $data = Helpers::get_permissions($request->userId);
+
+            }elseif($function == 'get_offers'){
+                
+                $data = DB::table('offers')->get();
+
+            }elseif($function == 'ini_offer'){
+                $validator = Validator::make($request->all(), [
+                    'userId' => 'required|integer|exists:sellers,id',
+                    'offerId' => 'required|integer|exists:offers,id',
+                    'expire' => 'required|string',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
+               
+
+                // The date string
+                $dateString = $request->expire;
+
+                // Convert the string to a Carbon date instance
+                $date_ = Carbon::createFromFormat('Y-m-d', $dateString);
+
+            
+                // Define the values for the upsert operation
+                $offer = DB::table('offers')->find($request->offerId);
+                $data = [
+                    
+                        'user_id' => $request->userId,
+                        'offer_id' => $offer->id,
+                        'credits' => $offer->credits,
+                        'royals' => $offer->royals,
+                        'expire' => $date_,
+                    
+                ];
+
+                // Perform the upsert operation
+                $user_offer =  DB::table('user_offer')->where('user_id', $request->userId)->first();
+                if($user_offer){ 
+                    $data =  DB::table('user_offer')->where('user_id', $request->userId)->update($data);
+                }else{ 
+                    $data =  DB::table('user_offer')->where('user_id', $request->userId)->insert($data);
+                }
+
+                
+            }elseif($function == 'action'){
+                $validator = Validator::make($request->all(), [
+                    'userId' => 'required|integer|exists:sellers,id',
+                    'action' => 'required',
+                ]);
+                if ($validator->fails()) {
+                    return ['success' => false, 'message' => self::error_processor($validator)];
+                }
+                $action = $request->action;
+
+                $permissions_ = Helpers::permissions_();
+
+                $permissions = Helpers::get_permissions($request->userId);
+                if(in_array($action, $permissions)){
+
+                    DB::table('user_offer')
+                    ->where('user_id', $request->userId)
+                    ->decrement($permissions_[$action]['type'], $permissions_[$action]['value']);
+                }
+                
+                $data = $permissions;
+            }else{
+                return ['success' => false, 'message' => "the function not fond!"] ;
+            }
+            return ['success' => true, 'message' => $function, 'data' => $data] ;
+
+        } catch (Exception $e) {
+            // Handle any exceptions that occur
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+            ];
+        }
+    }
+
 }
 
 

@@ -153,6 +153,13 @@ class OrderController extends Controller
             $order->billing_address = ($request['billing_address_id'] != null) ? $request['billing_address_id'] : $order['billing_address'];
             $order->billing_address_data = ($request['billing_address_id'] != null) ? ShippingAddress::find($request['billing_address_id']) : $order['billing_address_data'];
             $order->order_note = ($request['order_note'] != null) ? $request['order_note'] : $order['order_note'];
+
+            // shipping info
+            $order->name = $request['name'];
+            $order->phone = $request['phone'];
+            $order->state = $request['state'];
+            // $order->city = $request['city'];
+
             $order->save();
 
             $orderIds[] = $orderId;

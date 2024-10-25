@@ -48,6 +48,7 @@ use App\Http\Controllers\Payment_Methods\PaystackController;
 |
 */
 
+
 Route::controller(WebController::class)->group(function () {
     Route::get('maintenance-mode', 'maintenance_mode')->name('maintenance-mode');
 });
@@ -65,6 +66,12 @@ Route::group(['namespace' => 'Web', 'middleware' => ['maintenance_mode', 'guestC
 });
 
 Route::group(['namespace' => 'Web', 'middleware' => ['maintenance_mode', 'guestCheck']], function () {
+
+
+    Route::get('/version', function () {
+        return "v0.0.1";
+    });
+
     Route::get('/', 'HomeController@index')->name('home');
 
     Route::controller(WebController::class)->group(function () {

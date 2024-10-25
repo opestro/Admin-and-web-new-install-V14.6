@@ -17,6 +17,7 @@ use App\Contracts\Repositories\ReviewRepositoryInterface;
 use App\Contracts\Repositories\VendorRepositoryInterface;
 use App\Contracts\Repositories\WishlistRepositoryInterface;
 use App\Enums\ViewPaths\Vendor\Product;
+use App\Utils\Helpers;
 use App\Enums\WebConfigKey;
 use App\Exports\ProductListExport;
 use App\Http\Controllers\BaseController;
@@ -105,8 +106,15 @@ class ProductController extends BaseController
             'categories', 'subCategory', 'subSubCategory', 'filters'));
     }
 
-    public function getAddView(): View
+    public function getAddView(Request $offer): View
     {
+        $offer['function'] = 'get_permitions';
+        $offer['userId'] = auth('seller')->id();
+        
+        $result = Helpers::offer_actions($offer);
+        if(!in_array('add_product', $result['data'])){
+            abort(404);
+        }
         $languages = $this->businessSettingRepo->getFirstWhere(params: ['type' => 'pnc_language']);
         $categories = $this->categoryRepo->getListWhere(filters: ['position' => 0], dataLimit: 'all');
         $brands = $this->brandRepo->getListWhere(filters: ['status' => 1], dataLimit: 'all');
@@ -139,7 +147,12 @@ class ProductController extends BaseController
         }
 
         $this->productSeoRepo->add(data: $service->getProductSEOData(request: $request, product: $savedProduct, action: 'add'));
-
+            $offer = new Request  ;
+            $offer['function'] = 'action';
+            $offer['action'] = 'add_product';
+            $offer['userId'] = auth('seller')->id();
+        
+        Helpers::offer_actions($offer);
         Toastr::success(translate('product_added_successfully'));
         return redirect()->route('vendor.products.list', ['type' => 'all']);
     }
